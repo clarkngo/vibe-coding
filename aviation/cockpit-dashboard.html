@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cockpit Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #1a1f24;
+      color: #dfe6e9;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+    h1 { text-align: center; font-size: 1.25rem; margin-bottom: 4px; color: #74b9ff; }
+    .sub { text-align: center; color: #888; font-size: 0.85rem; margin-bottom: 16px; }
+    .panel {
+      background: #2d3436;
+      border: 3px solid #636e72;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .gauges {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .gauge {
+      background: #111;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      border: 2px solid #00b894;
+    }
+    .gauge .label { font-size: 0.75rem; color: #00b894; letter-spacing: 1px; }
+    .gauge .val { font-size: 1.8rem; font-weight: bold; color: #55efc4; font-variant-numeric: tabular-nums; }
+    .switches { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; justify-content: center; }
+    .sw {
+      width: 70px;
+      padding: 10px 4px;
+      text-align: center;
+      background: #444;
+      border: 2px solid #888;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      color: #ccc;
+      user-select: none;
+    }
+    .sw.on { background: #00b894; border-color: #55efc4; color: #111; box-shadow: 0 0 10px #00b89488; }
+    label.slider-label { display: block; font-size: 0.85rem; margin: 10px 0 4px; color: #bbb; }
+    input[type="range"] { width: 100%; accent-color: #74b9ff; }
+  </style>
+</head>
+<body>
+  <h1>🕹️ Cockpit Dashboard</h1>
+  <p class="sub">Flip switches · tweak altitude & throttle</p>
+
+  <div class="panel">
+    <div class="gauges">
+      <div class="gauge">
+        <div class="label">ALTITUDE</div>
+        <div class="val"><span id="alt">5000</span></div>
+        <div class="label">ft</div>
+      </div>
+      <div class="gauge">
+        <div class="label">AIRSPEED</div>
+        <div class="val"><span id="spd">120</span></div>
+        <div class="label">kts</div>
+      </div>
+    </div>
+
+    <div class="switches">
+      <div class="sw" data-name="NAV">NAV</div>
+      <div class="sw" data-name="LAND">LAND</div>
+      <div class="sw" data-name="STROBE">STROBE</div>
+      <div class="sw" data-name="AP">A/P</div>
+    </div>
+
+    <label class="slider-label" for="altSlide">Altitude</label>
+    <input id="altSlide" type="range" min="0" max="40000" step="100" value="5000" />
+
+    <label class="slider-label" for="thrSlide">Throttle</label>
+    <input id="thrSlide" type="range" min="0" max="250" step="1" value="120" />
+  </div>
+
+  <script>
+    // Clickable switches toggle an "on" glow
+    document.querySelectorAll(".sw").forEach((btn) => {
+      btn.onclick = () => btn.classList.toggle("on");
+    });
+
+    // Altitude slider updates the readout (with a tiny smooth feel)
+    const altEl = document.getElementById("alt");
+    document.getElementById("altSlide").oninput = function () {
+      altEl.textContent = this.value;
+    };
+
+    // Throttle maps to airspeed number on the panel
+    const spdEl = document.getElementById("spd");
+    document.getElementById("thrSlide").oninput = function () {
+      spdEl.textContent = this.value;
+    };
+  </script>
+</body>
+</html>

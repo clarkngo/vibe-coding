@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Landing Challenge</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #87ceeb;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+    }
+    h1 { margin: 12px 0 4px; color: #0a3d62; font-size: 1.4rem; }
+    #info { color: #0a3d62; margin-bottom: 8px; }
+    #sky {
+      position: relative;
+      width: min(90vw, 480px);
+      height: 320px;
+      background: linear-gradient(#87ceeb, #b8e0f0);
+      border: 3px solid #0a3d62;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    #plane {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2rem;
+      transition: none;
+    }
+    #runway {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 36px;
+      background: #555;
+      border-top: 3px dashed #fff;
+    }
+    #zone {
+      position: absolute;
+      bottom: 36px;
+      left: 0;
+      right: 0;
+      height: 40px;
+      background: rgba(46, 204, 113, 0.35);
+    }
+    #result {
+      margin-top: 12px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      min-height: 1.5em;
+      color: #0a3d62;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: #0a3d62;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover { background: #1565a0; }
+  </style>
+</head>
+<body>
+  <h1>✈️ Landing Challenge</h1>
+  <p id="info">Score: 0 · Streak: 0 — Click / Space when the plane hits the green zone!</p>
+  <div id="sky">
+    <div id="zone"></div>
+    <div id="plane">✈️</div>
+    <div id="runway"></div>
+  </div>
+  <p id="result"></p>
+  <button id="restart" hidden>Fly again</button>
+
+  <script>
+    // Game state
+    const plane = document.getElementById("plane");
+    const result = document.getElementById("result");
+    const info = document.getElementById("info");
+    const restart = document.getElementById("restart");
+    let score = 0, streak = 0, y = 0, falling = false, landed = false, timer;
+
+    function startFall() {
+      y = 0;
+      landed = false;
+      falling = true;
+      result.textContent = "";
+      restart.hidden = true;
+      plane.style.top = "0px";
+      // Descend a bit slower each round feels fair for beginners
+      timer = setInterval(() => {
+        y += 3;
+        plane.style.top = y + "px";
+        if (y > 280) {
+          clearInterval(timer);
+          falling = false;
+          finish("Go around!", false);
+        }
+      }, 30);
+    }
+
+    function tryLand() {
+      if (!falling || landed) return;
+      landed = true;
+      falling = false;
+      clearInterval(timer);
+      // Green zone roughly when plane top is 200–250px
+      if (y >= 200 && y <= 250) {
+        finish("Perfect landing!", true);
+      } else if (y >= 170 && y < 200) {
+        finish("Bounced!", true);
+      } else {
+        finish("Go around!", false);
+      }
+    }
+
+    function finish(msg, success) {
+      result.textContent = msg;
+      if (success) {
+        score += msg === "Perfect landing!" ? 2 : 1;
+        streak++;
+      } else {
+        streak = 0;
+      }
+      info.textContent = "Score: " + score + " · Streak: " + streak + " — Click / Space when the plane hits the green zone!";
+      restart.hidden = false;
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") { e.preventDefault(); tryLand(); }
+    });
+    document.getElementById("sky").addEventListener("click", tryLand);
+    restart.addEventListener("click", startFall);
+
+    startFall();
+  </script>
+</body>
+</html>

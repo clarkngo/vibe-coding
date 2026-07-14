@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pre-Flight Checklist</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #e8f4fc;
+      color: #123;
+      max-width: 440px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+    h1 { text-align: center; color: #0a3d62; font-size: 1.35rem; margin-bottom: 6px; }
+    .sub { text-align: center; color: #555; margin-bottom: 16px; font-size: 0.9rem; }
+    #bar-wrap {
+      height: 14px;
+      background: #cde;
+      border-radius: 7px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    #bar { height: 100%; width: 0%; background: #1a7a3c; transition: width 0.25s; }
+    #pct { text-align: center; margin-bottom: 16px; font-weight: bold; color: #0a3d62; }
+    label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 2px solid #0a3d62;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    label:has(input:checked) { background: #d5f5e3; }
+    input[type="checkbox"] { width: 18px; height: 18px; accent-color: #1a7a3c; }
+    #cleared {
+      display: none;
+      text-align: center;
+      margin: 16px 0;
+      padding: 14px;
+      background: #1a7a3c;
+      color: #fff;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 12px;
+      padding: 10px;
+      background: #0a3d62;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>✅ Pre-Flight Checklist</h1>
+  <p class="sub">Check each item before departure.</p>
+  <div id="bar-wrap"><div id="bar"></div></div>
+  <p id="pct">0% complete</p>
+
+  <div id="list"></div>
+  <div id="cleared">🛫 Cleared for takeoff!</div>
+  <button id="reset">Reset checklist</button>
+
+  <script>
+    // Common pre-flight items a student might recognize
+    const items = [
+      "Weather briefing reviewed",
+      "Fuel quantity checked",
+      "Seatbelts / shoulder harness secure",
+      "Flight controls free and correct",
+      "Instruments & avionics set",
+      "Doors & windows closed",
+      "Parking brake set for start",
+      "Passenger brief complete",
+      "Transponder / radios on",
+      "Runway / taxi clearance ready"
+    ];
+
+    const list = document.getElementById("list");
+    items.forEach((text, i) => {
+      const label = document.createElement("label");
+      label.innerHTML = '<input type="checkbox" data-i="' + i + '" /> <span>' + text + "</span>";
+      list.appendChild(label);
+    });
+
+    function update() {
+      const boxes = document.querySelectorAll("#list input");
+      let done = 0;
+      boxes.forEach((b) => { if (b.checked) done++; });
+      const pct = Math.round((done / boxes.length) * 100);
+      document.getElementById("bar").style.width = pct + "%";
+      document.getElementById("pct").textContent = pct + "% complete";
+      document.getElementById("cleared").style.display = pct === 100 ? "block" : "none";
+    }
+
+    list.addEventListener("change", update);
+    document.getElementById("reset").onclick = () => {
+      document.querySelectorAll("#list input").forEach((b) => { b.checked = false; });
+      update();
+    };
+  </script>
+</body>
+</html>
