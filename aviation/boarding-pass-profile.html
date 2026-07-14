@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Boarding Pass Profile</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #e8f4fc;
+      color: #123;
+      max-width: 440px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+    h1 { text-align: center; color: #0a3d62; font-size: 1.3rem; margin-bottom: 16px; }
+    label { display: block; font-size: 0.9rem; margin-bottom: 4px; }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 12px;
+      font-size: 1rem;
+      border: 2px solid #0a3d62;
+      border-radius: 6px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0a3d62;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #pass {
+      display: none;
+      margin-top: 20px;
+      background: #fff;
+      border: 2px dashed #0a3d62;
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+    }
+    #pass .airline { color: #0a3d62; font-weight: bold; letter-spacing: 2px; font-size: 0.85rem; }
+    #pass .name { font-size: 1.4rem; font-weight: bold; margin: 8px 0 4px; }
+    #pass .dest { font-size: 1.1rem; color: #555; }
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 14px;
+      font-size: 0.9rem;
+    }
+    .meta span { display: block; color: #888; font-size: 0.75rem; }
+    .barcode {
+      margin-top: 16px;
+      height: 40px;
+      background: repeating-linear-gradient(
+        90deg,
+        #111 0, #111 2px, #fff 2px, #fff 4px, #111 4px, #111 7px, #fff 7px, #fff 9px
+      );
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎫 Boarding Pass Profile</h1>
+
+  <form id="form">
+    <label for="passenger">Your name</label>
+    <input id="passenger" required placeholder="e.g. Avery Pilot" />
+
+    <label for="dest">Dream destination</label>
+    <input id="dest" required placeholder="e.g. Tokyo" />
+
+    <label for="seat">Seat preference</label>
+    <select id="seat">
+      <option>Window</option>
+      <option>Aisle</option>
+      <option>Exit row</option>
+      <option>Cockpit jumpseat 😎</option>
+    </select>
+
+    <button type="submit">Generate boarding pass</button>
+  </form>
+
+  <div id="pass">
+    <div class="airline">VIBE AIRWAYS</div>
+    <div class="name" id="outName"></div>
+    <div class="dest">✈ Destination: <strong id="outDest"></strong></div>
+    <div class="meta">
+      <div><span>FLIGHT</span><strong id="outFlight"></strong></div>
+      <div><span>SEAT</span><strong id="outSeat"></strong></div>
+      <div><span>GATE</span><strong id="outGate"></strong></div>
+    </div>
+    <div class="barcode"></div>
+  </div>
+
+  <script>
+    // Fake flight number / gate keep it random and fun
+    document.getElementById("form").onsubmit = function (e) {
+      e.preventDefault();
+      const name = document.getElementById("passenger").value.trim();
+      const dest = document.getElementById("dest").value.trim();
+      const seat = document.getElementById("seat").value;
+      const flight = "VA" + (100 + Math.floor(Math.random() * 900));
+      const gate = String.fromCharCode(65 + Math.floor(Math.random() * 6)) + (1 + Math.floor(Math.random() * 20));
+      const seatCode = (10 + Math.floor(Math.random() * 20)) + ["A", "B", "C", "F"][Math.floor(Math.random() * 4)];
+
+      document.getElementById("outName").textContent = name.toUpperCase();
+      document.getElementById("outDest").textContent = dest;
+      document.getElementById("outFlight").textContent = flight;
+      document.getElementById("outSeat").textContent = seatCode + " (" + seat + ")";
+      document.getElementById("outGate").textContent = gate;
+      document.getElementById("pass").style.display = "block";
+    };
+  </script>
+</body>
+</html>

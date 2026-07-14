@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Which Aircraft Are You?</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #e8f4fc;
+      color: #123;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+    h1 { text-align: center; color: #0a3d62; margin-bottom: 8px; font-size: 1.4rem; }
+    #bar-wrap {
+      height: 10px;
+      background: #cde;
+      border-radius: 5px;
+      margin: 12px 0 20px;
+      overflow: hidden;
+    }
+    #bar { height: 100%; width: 0%; background: #0a3d62; transition: width 0.3s; }
+    #question { font-size: 1.15rem; margin-bottom: 16px; min-height: 3em; }
+    .choice {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      font-size: 1rem;
+      background: #fff;
+      border: 2px solid #0a3d62;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .choice:hover { background: #d6eaf8; }
+    #result { display: none; text-align: center; }
+    #result .icon { font-size: 3rem; margin: 12px 0; }
+    #result h2 { color: #0a3d62; margin-bottom: 8px; }
+    button#again {
+      margin-top: 16px;
+      padding: 10px 20px;
+      background: #0a3d62;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛫 Which Aircraft Are You?</h1>
+  <div id="bar-wrap"><div id="bar"></div></div>
+
+  <div id="quiz">
+    <p id="question"></p>
+    <div id="choices"></div>
+  </div>
+
+  <div id="result">
+    <div class="icon" id="icon"></div>
+    <h2 id="title"></h2>
+    <p id="desc"></p>
+    <button id="again">Play again</button>
+  </div>
+
+  <script>
+    // Each answer adds points toward one of four aircraft types
+    const questions = [
+      { q: "Do you prefer speed or comfort?", a: [["Speed!", "fighter"], ["Comfort!", "jumbo"], ["A little of both", "cessna"], ["Slow and peaceful", "glider"]] },
+      { q: "Window seat or aisle?", a: [["Window — I love the view", "glider"], ["Aisle — freedom to move", "jumbo"], ["Either is fine", "cessna"], ["Cockpit, please", "fighter"]] },
+      { q: "Ideal trip length?", a: [["Quick hop across town", "cessna"], ["Around the world!", "jumbo"], ["Short training flight", "glider"], ["Supersonic dash", "fighter"]] },
+      { q: "Weekend vibe?", a: [["Quiet skies, no engine noise", "glider"], ["Crowded cabin, big adventures", "jumbo"], ["Weekend warrior flights", "cessna"], ["Airshow thrills", "fighter"]] },
+      { q: "How do friends describe you?", a: [["Reliable and friendly", "cessna"], ["Bold and intense", "fighter"], ["Easygoing and dreamy", "glider"], ["Larger than life", "jumbo"]] }
+    ];
+
+    const results = {
+      cessna: { name: "Cessna 172", icon: "🛩️", text: "Friendly, reliable, and always ready for a weekend hop. You're the dependable workhorse everyone loves to fly with." },
+      fighter: { name: "Fighter Jet", icon: "🫡", text: "Fast, focused, and a little intense. You thrive on thrills and never settle for the scenic route when you can afterburn." },
+      jumbo: { name: "Boeing 747", icon: "✈️", text: "Big personality, big journeys. You carry friends (and luggage) with style and prefer grand adventures." },
+      glider: { name: "Glider", icon: "🪁", text: "Quiet, graceful, and zen. You find joy in the ride itself — no rushing, just pure flight." }
+    };
+
+    let index = 0;
+    const tally = { cessna: 0, fighter: 0, jumbo: 0, glider: 0 };
+
+    function showQuestion() {
+      document.getElementById("bar").style.width = (index / questions.length * 100) + "%";
+      const item = questions[index];
+      document.getElementById("question").textContent = (index + 1) + ". " + item.q;
+      const box = document.getElementById("choices");
+      box.innerHTML = "";
+      item.a.forEach(([label, key]) => {
+        const btn = document.createElement("button");
+        btn.className = "choice";
+        btn.textContent = label;
+        btn.onclick = () => pick(key);
+        box.appendChild(btn);
+      });
+    }
+
+    function pick(key) {
+      tally[key]++;
+      index++;
+      if (index < questions.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      document.getElementById("quiz").style.display = "none";
+      document.getElementById("bar").style.width = "100%";
+      // Pick the aircraft with the most points
+      let best = "cessna";
+      for (const k in tally) {
+        if (tally[k] > tally[best]) best = k;
+      }
+      const r = results[best];
+      document.getElementById("icon").textContent = r.icon;
+      document.getElementById("title").textContent = "You are a " + r.name + "!";
+      document.getElementById("desc").textContent = r.text;
+      document.getElementById("result").style.display = "block";
+    }
+
+    document.getElementById("again").onclick = () => {
+      index = 0;
+      for (const k in tally) tally[k] = 0;
+      document.getElementById("result").style.display = "none";
+      document.getElementById("quiz").style.display = "block";
+      showQuestion();
+    };
+
+    showQuestion();
+  </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aircraft Anatomy</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #e8f4fc;
+      color: #123;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+    h1 { text-align: center; color: #0a3d62; font-size: 1.35rem; }
+    .hint { text-align: center; color: #555; margin: 6px 0 16px; font-size: 0.9rem; }
+    .diagram {
+      position: relative;
+      height: 200px;
+      background: #fff;
+      border: 2px solid #0a3d62;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    /* Simple side-view plane built from CSS shapes */
+    .fuselage {
+      position: absolute; top: 88px; left: 70px;
+      width: 280px; height: 36px;
+      background: #7f8c8d; border-radius: 18px 40px 20px 18px;
+    }
+    .nose {
+      position: absolute; top: 90px; left: 40px;
+      width: 50px; height: 32px;
+      background: #95a5a6; border-radius: 50% 10% 10% 50%;
+    }
+    .wing {
+      position: absolute; top: 70px; left: 160px;
+      width: 120px; height: 18px;
+      background: #bdc3c7; border-radius: 4px;
+      transform: skewX(-20deg);
+    }
+    .engine {
+      position: absolute; top: 100px; left: 100px;
+      width: 44px; height: 28px;
+      background: #636e72; border-radius: 8px;
+    }
+    .prop {
+      position: absolute; top: 92px; left: 88px;
+      width: 8px; height: 44px;
+      background: #2d3436; border-radius: 4px;
+    }
+    .tail-v {
+      position: absolute; top: 50px; left: 320px;
+      width: 14px; height: 55px;
+      background: #bdc3c7; border-radius: 4px 4px 0 0;
+    }
+    .tail-h {
+      position: absolute; top: 78px; left: 300px;
+      width: 50px; height: 12px;
+      background: #95a5a6; border-radius: 3px;
+    }
+    .gear {
+      position: absolute; top: 122px; left: 200px;
+      width: 8px; height: 28px; background: #2d3436;
+    }
+    .gear::after {
+      content: ""; position: absolute; bottom: -10px; left: -8px;
+      width: 24px; height: 24px; border: 4px solid #2d3436; border-radius: 50%;
+    }
+    .hotspot {
+      position: absolute;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #0a3d62;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: bold;
+      border: 2px solid #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+    .hotspot:hover, .hotspot.active { background: #e17055; }
+    .hotspot.done { background: #1a7a3c; }
+    #panel {
+      background: #fff;
+      border: 2px solid #0a3d62;
+      border-radius: 10px;
+      padding: 14px;
+      min-height: 120px;
+      margin-bottom: 12px;
+    }
+    #panel h2 { color: #0a3d62; font-size: 1.1rem; margin-bottom: 6px; }
+    #panel p { font-size: 0.95rem; line-height: 1.45; color: #333; }
+    #progress { text-align: center; font-size: 0.9rem; color: #0a3d62; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>🔧 Aircraft Anatomy</h1>
+  <p class="hint">Tap a numbered hotspot to study each major part.</p>
+
+  <div class="diagram" id="diagram">
+    <div class="nose"></div>
+    <div class="fuselage"></div>
+    <div class="wing"></div>
+    <div class="engine"></div>
+    <div class="prop"></div>
+    <div class="tail-v"></div>
+    <div class="tail-h"></div>
+    <div class="gear"></div>
+  </div>
+
+  <div id="panel">
+    <h2>Choose a part</h2>
+    <p>Click a circle on the diagram. Green means you’ve already reviewed that part.</p>
+  </div>
+  <p id="progress">Studied: 0 / 7</p>
+
+  <script>
+    // Study cards for the major airframe parts
+    const parts = [
+      { id: 1, name: "Cockpit / Nose", x: 48, y: 55,
+        text: "Where the pilot sits. Houses flight controls, instruments, and the windshield. The nose cone at the very front reduces drag." },
+      { id: 2, name: "Fuselage", x: 200, y: 145,
+        text: "The main body of the aircraft. It carries crew, passengers or cargo, and connects the wings, tail, and landing gear into one structure." },
+      { id: 3, name: "Wing", x: 210, y: 42,
+        text: "Creates lift as air flows over its curved airfoil shape. Wings also store fuel and hold control surfaces like ailerons and flaps." },
+      { id: 4, name: "Engine / Propeller", x: 105, y: 145,
+        text: "Produces thrust. A propeller pulls (or pushes) air to move the plane forward; jet engines push hot exhaust instead." },
+      { id: 5, name: "Landing Gear", x: 195, y: 168,
+        text: "Wheels (or skids) that support the aircraft on the ground for taxi, takeoff, and landing. Many planes retract the gear in flight." },
+      { id: 6, name: "Vertical Stabilizer", x: 325, y: 28,
+        text: "The upright tail fin. It keeps the nose from swinging left/right (yaw). The hinged rudder on its trailing edge steers in yaw." },
+      { id: 7, name: "Horizontal Stabilizer", x: 300, y: 100,
+        text: "The small “wings” at the tail. They keep the nose from pitching up/down. Elevators on the trailing edge control pitch." }
+    ];
+
+    const diagram = document.getElementById("diagram");
+    const panel = document.getElementById("panel");
+    const progress = document.getElementById("progress");
+    const studied = new Set();
+    let activeBtn = null;
+
+    parts.forEach((p) => {
+      const btn = document.createElement("button");
+      btn.className = "hotspot";
+      btn.textContent = p.id;
+      btn.style.left = p.x + "px";
+      btn.style.top = p.y + "px";
+      btn.title = p.name;
+      btn.onclick = () => {
+        if (activeBtn) activeBtn.classList.remove("active");
+        btn.classList.add("active");
+        activeBtn = btn;
+        studied.add(p.id);
+        btn.classList.add("done");
+        panel.innerHTML = "<h2>" + p.id + ". " + p.name + "</h2><p>" + p.text + "</p>";
+        progress.textContent = "Studied: " + studied.size + " / " + parts.length;
+      };
+      diagram.appendChild(btn);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phonetic Alphabet Trainer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #e8f4fc;
+      color: #123;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+    h1 { text-align: center; color: #0a3d62; font-size: 1.35rem; }
+    .score { text-align: center; margin: 10px 0 16px; }
+    #letter {
+      text-align: center;
+      font-size: 4rem;
+      font-weight: bold;
+      color: #0a3d62;
+      margin: 12px 0;
+    }
+    .row { display: flex; gap: 8px; margin-bottom: 10px; }
+    input {
+      flex: 1;
+      padding: 10px;
+      font-size: 1rem;
+      border: 2px solid #0a3d62;
+      border-radius: 6px;
+    }
+    button {
+      padding: 10px 14px;
+      background: #0a3d62;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover { background: #1565a0; }
+    #feedback { text-align: center; min-height: 1.5em; font-weight: bold; margin: 8px 0 20px; }
+    #feedback.ok { color: #1a7a3c; }
+    #feedback.bad { color: #b33; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td { border: 1px solid #aac; padding: 4px 6px; text-align: left; }
+    th { background: #0a3d62; color: #fff; }
+    tr:nth-child(even) { background: #d6eaf8; }
+    h2 { font-size: 1rem; color: #0a3d62; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <h1>📻 Phonetic Alphabet Trainer</h1>
+  <p class="score">Score: <span id="score">0</span> correct</p>
+
+  <div id="letter">A</div>
+  <div class="row">
+    <input id="guess" type="text" placeholder="Type the NATO word…" autocomplete="off" />
+    <button id="check">Check</button>
+  </div>
+  <button id="next" style="width:100%;margin-bottom:8px">Next letter</button>
+  <p id="feedback"></p>
+
+  <h2>Full NATO alphabet</h2>
+  <table id="ref"></table>
+
+  <script>
+    // Official NATO phonetic alphabet
+    const nato = {
+      A: "Alpha", B: "Bravo", C: "Charlie", D: "Delta", E: "Echo",
+      F: "Foxtrot", G: "Golf", H: "Hotel", I: "India", J: "Juliett",
+      K: "Kilo", L: "Lima", M: "Mike", N: "November", O: "Oscar",
+      P: "Papa", Q: "Quebec", R: "Romeo", S: "Sierra", T: "Tango",
+      U: "Uniform", V: "Victor", W: "Whiskey", X: "X-ray", Y: "Yankee", Z: "Zulu"
+    };
+    const letters = Object.keys(nato);
+    let current = "A";
+    let score = 0;
+
+    function randomLetter() {
+      current = letters[Math.floor(Math.random() * letters.length)];
+      document.getElementById("letter").textContent = current;
+      document.getElementById("guess").value = "";
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("feedback").className = "";
+      document.getElementById("guess").focus();
+    }
+
+    function check() {
+      const guess = document.getElementById("guess").value.trim();
+      const fb = document.getElementById("feedback");
+      if (!guess) return;
+      if (guess.toLowerCase() === nato[current].toLowerCase()) {
+        score++;
+        document.getElementById("score").textContent = score;
+        fb.textContent = "Correct! " + current + " is " + nato[current];
+        fb.className = "ok";
+      } else {
+        fb.textContent = "Incorrect — " + current + " is " + nato[current];
+        fb.className = "bad";
+      }
+    }
+
+    document.getElementById("check").onclick = check;
+    document.getElementById("next").onclick = randomLetter;
+    document.getElementById("guess").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") check();
+    });
+
+    // Build the reference table (2 columns of letter → word)
+    let html = "<tr><th>Letter</th><th>Word</th><th>Letter</th><th>Word</th></tr>";
+    for (let i = 0; i < 13; i++) {
+      const a = letters[i], b = letters[i + 13];
+      html += "<tr><td>" + a + "</td><td>" + nato[a] + "</td><td>" + b + "</td><td>" + nato[b] + "</td></tr>";
+    }
+    document.getElementById("ref").innerHTML = html;
+
+    randomLetter();
+  </script>
+</body>
+</html>

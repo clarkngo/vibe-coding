@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flight Tools</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #e8f4fc;
+      color: #123;
+      max-width: 440px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+    h1 { text-align: center; color: #0a3d62; font-size: 1.35rem; margin-bottom: 20px; }
+    section {
+      background: #fff;
+      border: 2px solid #0a3d62;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    h2 { font-size: 1.05rem; color: #0a3d62; margin-bottom: 12px; }
+    label { display: block; font-size: 0.9rem; margin-bottom: 4px; }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      border: 1px solid #89a;
+      border-radius: 6px;
+    }
+    .result {
+      margin-top: 8px;
+      padding: 10px;
+      background: #d6eaf8;
+      border-radius: 6px;
+      font-weight: bold;
+      color: #0a3d62;
+    }
+    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  </style>
+</head>
+<body>
+  <h1>🧭 Flight Time & Unit Converter</h1>
+
+  <!-- Tool 1: flight time from distance + speed -->
+  <section>
+    <h2>Flight time calculator</h2>
+    <label for="dist">Distance (nautical miles)</label>
+    <input id="dist" type="number" min="0" placeholder="e.g. 300" />
+    <label for="speed">Cruise speed (knots)</label>
+    <input id="speed" type="number" min="1" placeholder="e.g. 120" />
+    <div class="result" id="timeOut">Enter distance and speed</div>
+  </section>
+
+  <!-- Tool 2: unit converters -->
+  <section>
+    <h2>Unit converter</h2>
+    <div class="pair">
+      <div>
+        <label for="knots">Knots</label>
+        <input id="knots" type="number" placeholder="kt" />
+      </div>
+      <div>
+        <label for="kmh">km/h</label>
+        <input id="kmh" type="number" placeholder="km/h" />
+      </div>
+    </div>
+    <div class="pair" style="margin-top:8px">
+      <div>
+        <label for="feet">Feet</label>
+        <input id="feet" type="number" placeholder="ft" />
+      </div>
+      <div>
+        <label for="meters">Meters</label>
+        <input id="meters" type="number" placeholder="m" />
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Flight time = distance / speed → hours + minutes
+    function calcTime() {
+      const d = parseFloat(document.getElementById("dist").value);
+      const s = parseFloat(document.getElementById("speed").value);
+      const out = document.getElementById("timeOut");
+      if (!d || !s || s <= 0) {
+        out.textContent = "Enter distance and speed";
+        return;
+      }
+      const hours = d / s;
+      const h = Math.floor(hours);
+      const m = Math.round((hours - h) * 60);
+      out.textContent = "Flight time: " + h + " h " + m + " min";
+    }
+    document.getElementById("dist").oninput = calcTime;
+    document.getElementById("speed").oninput = calcTime;
+
+    // 1 knot ≈ 1.852 km/h
+    let syncing = false;
+    document.getElementById("knots").oninput = function () {
+      if (syncing) return;
+      syncing = true;
+      const v = parseFloat(this.value);
+      document.getElementById("kmh").value = v || v === 0 ? (v * 1.852).toFixed(1) : "";
+      syncing = false;
+    };
+    document.getElementById("kmh").oninput = function () {
+      if (syncing) return;
+      syncing = true;
+      const v = parseFloat(this.value);
+      document.getElementById("knots").value = v || v === 0 ? (v / 1.852).toFixed(1) : "";
+      syncing = false;
+    };
+
+    // 1 foot = 0.3048 meters
+    document.getElementById("feet").oninput = function () {
+      if (syncing) return;
+      syncing = true;
+      const v = parseFloat(this.value);
+      document.getElementById("meters").value = v || v === 0 ? (v * 0.3048).toFixed(1) : "";
+      syncing = false;
+    };
+    document.getElementById("meters").oninput = function () {
+      if (syncing) return;
+      syncing = true;
+      const v = parseFloat(this.value);
+      document.getElementById("feet").value = v || v === 0 ? (v / 0.3048).toFixed(1) : "";
+      syncing = false;
+    };
+  </script>
+</body>
+</html>

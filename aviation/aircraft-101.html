@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aircraft 101</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #eef6fb;
+      color: #123;
+      padding: 20px 16px 40px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    h1 { text-align: center; color: #0a3d62; margin-bottom: 6px; }
+    .hint { text-align: center; color: #555; margin-bottom: 20px; font-size: 0.95rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      perspective: 800px;
+      height: 180px;
+      cursor: pointer;
+    }
+    .inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s;
+      transform-style: preserve-3d;
+    }
+    .card.flipped .inner { transform: rotateY(180deg); }
+    .face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      text-align: center;
+      border: 2px solid #0a3d62;
+    }
+    .front { background: #fff; }
+    .back {
+      background: #0a3d62;
+      color: #fff;
+      transform: rotateY(180deg);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+    .icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .name { font-weight: bold; color: #0a3d62; }
+    .back .name { color: #fff; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <h1>📘 Aircraft 101</h1>
+  <p class="hint">Tap a card to flip and learn a few quick facts.</p>
+
+  <div class="grid" id="grid"></div>
+
+  <script>
+    // Each card: icon, name, and short facts for the back
+    const planes = [
+      { icon: "✈️", name: "Boeing 737", facts: "Most-flown airliner\nShort–medium range\n2 engines under wings" },
+      { icon: "🛫", name: "Airbus A320", facts: "Fly-by-wire pioneer\nCommon on short routes\nRival to the 737" },
+      { icon: "🛩️", name: "Cessna 172", facts: "Top training plane\nHigh-wing, 4 seats\nSingle propeller" },
+      { icon: "🛋️", name: "Boeing 747", facts: "\"Queen of the Skies\"\nDistinctive upper deck\nLong-haul classic" },
+      { icon: "🫡", name: "Fighter Jet", facts: "High speed & agility\nAfterburners for thrust\nMilitary missions" },
+      { icon: "🚁", name: "Helicopter", facts: "Vertical takeoff\nRotors lift + steer\nGreat for rescue" },
+      { icon: "🛸", name: "Concorde", facts: "Supersonic passenger\nMach 2 cruise\nRetired in 2003" },
+      { icon: "🪁", name: "Glider", facts: "No engine — soars\nUses rising air\nVery quiet flight" }
+    ];
+
+    const grid = document.getElementById("grid");
+    planes.forEach((p) => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML =
+        '<div class="inner">' +
+          '<div class="face front"><div class="icon">' + p.icon + '</div><div class="name">' + p.name + '</div></div>' +
+          '<div class="face back"><div class="name">' + p.name + '</div><div>' + p.facts.replace(/\n/g, "<br>") + '</div></div>' +
+        '</div>';
+      card.onclick = () => card.classList.toggle("flipped");
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>
