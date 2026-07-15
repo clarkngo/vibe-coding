@@ -1,6 +1,10 @@
-# Aviation Vibe-Coding Showcase
+# Vibe Coding Showcase
 
-Small aviation-themed HTML/CSS/JS demos for a beginner vibe-coding workshop. Start at [`aviation/index.html`](aviation/index.html) or open any project file in a browser — no install, no build step.
+Static HTML/CSS/JS demos and student project galleries — no install, no build step. Open [`index.html`](index.html) to pick a section.
+
+## Aviation Showcase
+
+Small aviation-themed demos for a beginner vibe-coding workshop. Start at [`aviation/index.html`](aviation/index.html) or open any project file in a browser.
 
 | Project | File | Category | Description |
 |---------|------|----------|-------------|
@@ -13,3 +17,16 @@ Small aviation-themed HTML/CSS/JS demos for a beginner vibe-coding workshop. Sta
 | Flight Tools | [`aviation/flight-tools.html`](aviation/flight-tools.html) | Practical tool | Flight-time calculator plus knots↔km/h and feet↔meters converters. |
 | Boarding Pass Profile | [`aviation/boarding-pass-profile.html`](aviation/boarding-pass-profile.html) | Fun/personal | Type your name and dream destination to generate a stylized boarding pass. |
 | Cockpit Dashboard | [`aviation/cockpit-dashboard.html`](aviation/cockpit-dashboard.html) | Interactive toy | Clicky switches, altitude slider, and throttle that drive on-screen gauges. |
+
+## Student Showcase
+
+Gallery of student HTML submissions from vibe-coding workshops and camps. Start at [`showcase/index.html`](showcase/index.html).
+
+- **KOCSEA Vibe (AI) Coding Winter Camp 2025 (Seattle)** — linked out to its own repo, [team-molla-degree-of-labor](https://clarkngo.github.io/team-molla-degree-of-labor/).
+- **iKW Summer Program 2026** — submissions added day by day under `showcase/ikw-summer-2026/day1/`, `day2/`, `day3/`.
+
+### Adding a new submission
+
+1. Drop the student's HTML file into the matching day folder, e.g. `showcase/ikw-summer-2026/day1/student-name.html`.
+2. Add a card for it in [`showcase/index.html`](showcase/index.html) under that day's section (copy an existing `.card` block and update the name, file link, and description).
+3. Commit and push — GitHub Pages redeploys automatically.
