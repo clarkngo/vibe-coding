@@ -46,3 +46,5 @@ Bigger builds made with Claude Pro and/or Cursor Pro — past what free-tier Gem
 - **Orator Lab** — [speech refinement workspace](https://clarkngo.github.io/orator-lab/#workspace?case=schmidt).
 - **Volleyball** — [animated attack-sets tactics board](https://clarkngo.github.io/volleyball/prototypes/06-attack-sets.html).
 - **Aviation Industry Primer** — [12-section commercial aviation reference](https://clarkngo.github.io/playground/primer/industry/aviation/index.html).
+- **Primer Hub** — [full primer library across 20+ industries and technology domains](https://clarkngo.github.io/playground/primer/index.html).
+- **Data Governance — Module 1** — [class notes on governance foundations](https://clarkngo.github.io/playground/class-notes/data-governance/module-01.html).
