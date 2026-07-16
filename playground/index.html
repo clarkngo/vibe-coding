@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Playground — Vibe Coding</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #e8f4fc;
+      color: #123;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 28px 16px 48px;
+    }
+    h1 {
+      text-align: center;
+      color: #0a3d62;
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+    }
+    .sub {
+      text-align: center;
+      color: #555;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    h2.section {
+      color: #0a3d62;
+      font-size: 1.05rem;
+      margin: 28px 0 4px;
+      padding-bottom: 4px;
+      border-bottom: 2px solid #0a3d62;
+    }
+    .section-sub {
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 12px;
+    }
+    .card {
+      display: block;
+      background: #fff;
+      border: 2px solid #0a3d62;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s;
+    }
+    .card:hover { background: #d6eaf8; }
+    .card .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .card .name { font-weight: bold; color: #0a3d62; font-size: 1.05rem; }
+    .card .cat {
+      font-size: 0.75rem;
+      color: #1565a0;
+      background: #e8f4fc;
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .card .desc { font-size: 0.9rem; color: #444; line-height: 1.35; }
+    a.home {
+      display: inline-block;
+      margin-bottom: 8px;
+      color: #0a3d62;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <a class="home" href="../">&larr; Back to home</a>
+  <h1>🎮 Playground</h1>
+  <p class="sub">Experimental HTML/CSS/JS games and toys.<br>Click any project to open it — no install needed.</p>
+
+  <h2 class="section">Wild Rift</h2>
+  <p class="section-sub">Hosted in the <a href="https://clarkngo.github.io/playground/">playground</a> repo — open in a new tab.</p>
+
+  <a class="card" href="https://clarkngo.github.io/playground/wild-rift/baron-smite.html" target="_blank" rel="noopener">
+    <div class="top"><span class="name">Wild Rift Smite Trainer</span><span class="cat">Practice tool</span></div>
+    <p class="desc">Tap-timing trainer for landing the Smite on Baron/Dragon — tracks HP, streaks, and a hall of fame.</p>
+  </a>
+
+  <a class="card" href="https://clarkngo.github.io/playground/wild-rift/thex-mecha.html" target="_blank" rel="noopener">
+    <div class="top"><span class="name">T-Hex Mecha</span><span class="cat">Mini-game</span></div>
+    <p class="desc">Walk up and mount the T-Hex, then fight with missiles, a laser beam, and a knockback sweep.</p>
+  </a>
+</body>
+</html>

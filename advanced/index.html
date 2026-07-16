@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced Examples — Vibe Coding</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #e8f4fc;
+      color: #123;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 28px 16px 48px;
+    }
+    h1 {
+      text-align: center;
+      color: #0a3d62;
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+    }
+    .sub {
+      text-align: center;
+      color: #555;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    h2.section {
+      color: #0a3d62;
+      font-size: 1.05rem;
+      margin: 28px 0 4px;
+      padding-bottom: 4px;
+      border-bottom: 2px solid #0a3d62;
+    }
+    .section-sub {
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 12px;
+    }
+    .card {
+      display: block;
+      background: #fff;
+      border: 2px solid #0a3d62;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s;
+    }
+    .card:hover { background: #d6eaf8; }
+    .card .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .card .name { font-weight: bold; color: #0a3d62; font-size: 1.05rem; }
+    .card .cat {
+      font-size: 0.75rem;
+      color: #1565a0;
+      background: #e8f4fc;
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .card .desc { font-size: 0.9rem; color: #444; line-height: 1.35; }
+    a.home {
+      display: inline-block;
+      margin-bottom: 8px;
+      color: #0a3d62;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <a class="home" href="../">&larr; Back to home</a>
+  <h1>🧠 Advanced Examples</h1>
+  <p class="sub">Bigger builds that go past what free-tier Gemini can produce in one shot — made with Claude Pro and/or Cursor Pro.<br>Each opens in a new tab from its own repo.</p>
+
+  <h2 class="section">Interactive builds</h2>
+  <p class="section-sub">Hosted in their own repos.</p>
+
+  <a class="card" href="https://clarkngo.github.io/physical-ai/#/aviation" target="_blank" rel="noopener">
+    <div class="top"><span class="name">Physical AI — Aviation CPS</span><span class="cat">Digital twin</span></div>
+    <p class="desc">Interactive airport cyber-physical-systems digital twin — live ADS-B/radar telemetry, FMS integrity labs, and a 3-level learning pathway on avionics security.</p>
+  </a>
+
+  <a class="card" href="https://clarkngo.github.io/orator-lab/#workspace?case=schmidt" target="_blank" rel="noopener">
+    <div class="top"><span class="name">Orator Lab</span><span class="cat">Speech analysis</span></div>
+    <p class="desc">Tri-pane workspace that maps NotebookLM synthesis into structured delivery blueprints — watch, read, and fix real commencement speeches side by side.</p>
+  </a>
+
+  <a class="card" href="https://clarkngo.github.io/volleyball/prototypes/06-attack-sets.html" target="_blank" rel="noopener">
+    <div class="top"><span class="name">Volleyball — Attack Sets</span><span class="cat">Tactics board</span></div>
+    <p class="desc">Animated volleyball offense board — pick a set, tune by team level from youth to pro, and watch the attack arc reshape live.</p>
+  </a>
+
+  <a class="card" href="https://clarkngo.github.io/playground/primer/industry/aviation/index.html" target="_blank" rel="noopener">
+    <div class="top"><span class="name">Aviation Industry Primer</span><span class="cat">Reference</span></div>
+    <p class="desc">A 12-section navigable primer on commercial aviation — major players, core metrics, tech stack, workflows, market dynamics, and failure modes.</p>
+  </a>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RL-RPG: Level Up Your Life</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pixel-bg: #1a1a2e;
+            --gold: #f1c40f;
+            --xp-color: #2ecc71;
+            --border-color: #ffffff;
+        }
+
+        body {
+            background-color: var(--pixel-bg);
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            image-rendering: pixelated;
+        }
+
+        .stats-container {
+            border: 4px solid var(--border-color);
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            background: #16213e;
+            box-shadow: 8px 8px 0px #000;
+            margin-bottom: 30px;
+        }
+
+        .level-header {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--gold);
+        }
+
+        .xp-bar-container {
+            width: 100%;
+            height: 25px;
+            border: 3px solid #fff;
+            background: #333;
+            position: relative;
+            margin: 15px 0;
+        }
+
+        #xp-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--xp-color);
+            transition: width 0.3s ease-in-out;
+        }
+
+        .quest-log {
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .quest-card {
+            background: #0f3460;
+            border: 3px solid var(--border-color);
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quest-card:hover {
+            transform: scale(1.02);
+            background: #1b497d;
+        }
+
+        .quest-card:active {
+            transform: scale(0.98);
+        }
+
+        .xp-reward {
+            color: var(--gold);
+            font-size: 0.7rem;
+        }
+
+        /* Level Up Animation */
+        @keyframes flash {
+            0% { background-color: white; }
+            100% { background-color: var(--pixel-bg); }
+        }
+
+        .level-up-flash {
+            animation: flash 0.5s;
+        }
+
+        .floating-text {
+            position: fixed;
+            color: var(--gold);
+            pointer-events: none;
+            animation: floatUp 1s forwards;
+            font-size: 0.8rem;
+        }
+
+        @keyframes floatUp {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(-100px); opacity: 0; }
+        }
+    </style>
+</head>
+<body id="game-body">
+
+    <div class="stats-container">
+        <div class="level-header">PLAYER: HERO</div>
+        <div id="level-display">LVL: 1</div>
+        <div class="xp-bar-container">
+            <div id="xp-fill"></div>
+        </div>
+        <div id="xp-text" style="font-size: 0.6rem;">XP: 0 / 100</div>
+    </div>
+
+    <div class="quest-log">
+        <h3 style="text-align: center; margin-bottom: 20px;">QUEST LOG</h3>
+        
+        <div class="quest-card" onclick="completeQuest(this, 20)">
+            <span>HYDRATION POTION (Drink Water)</span>
+            <span class="xp-reward">+20 XP</span>
+        </div>
+
+        <div class="quest-card" onclick="completeQuest(this, 50)">
+            <span>CLEAR DUNGEON (Clean Room)</span>
+            <span class="xp-reward">+50 XP</span>
+        </div>
+
+        <div class="quest-card" onclick="completeQuest(this, 35)">
+            <span>KNOWLEDGE SCROLL (Read 10 Pages)</span>
+            <span class="xp-reward">+35 XP</span>
+        </div>
+
+        <div class="quest-card" onclick="completeQuest(this, 100)">
+            <span>BOSS BATTLE (Finish Main Task)</span>
+            <span class="xp-reward">+100 XP</span>
+        </div>
+    </div>
+
+    <script>
+        let currentXP = 0;
+        let level = 1;
+        let xpToNextLevel = 100;
+
+        function completeQuest(element, xpGain) {
+            // Show floating XP text
+            const rect = element.getBoundingClientRect();
+            showFloatingText(`+${xpGain} XP`, rect.left + rect.width/2, rect.top);
+
+            currentXP += xpGain;
+            
+            if (currentXP >= xpToNextLevel) {
+                levelUp();
+            }
+
+            updateUI();
+            
+            // Visual feedback for clicking
+            element.style.opacity = "0.5";
+            setTimeout(() => element.style.opacity = "1", 200);
+        }
+
+        function levelUp() {
+            currentXP -= xpToNextLevel;
+            level++;
+            xpToNextLevel = Math.floor(xpToNextLevel * 1.2); // Leveling gets harder
+            
+            document.getElementById('game-body').classList.add('level-up-flash');
+            setTimeout(() => {
+                document.getElementById('game-body').classList.remove('level-up-flash');
+            }, 500);
+
+            alert(`LEVEL UP! You are now Level ${level}`);
+        }
+
+        function updateUI() {
+            const progress = (currentXP / xpToNextLevel) * 100;
+            document.getElementById('xp-fill').style.width = `${progress}%`;
+            document.getElementById('level-display').innerText = `LVL: ${level}`;
+            document.getElementById('xp-text').innerText = `XP: ${currentXP} / ${xpToNextLevel}`;
+        }
+
+        function showFloatingText(text, x, y) {
+            const div = document.createElement('div');
+            div.className = 'floating-text';
+            div.innerText = text;
+            div.style.left = `${x}px`;
+            div.style.top = `${y}px`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 1000);
+        }
+    </script>
+</body>
+</html>

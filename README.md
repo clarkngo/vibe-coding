@@ -22,6 +22,7 @@ Small aviation-themed demos for a beginner vibe-coding workshop. Start at [`avia
 
 Gallery of student HTML submissions from vibe-coding workshops and camps. Start at [`showcase/index.html`](showcase/index.html).
 
+- **Mentor Sample — Clark** — example submissions under `showcase/clark/`: a habit-tracker RPG, a rhythm game shown as three iterations (`rhythm-game-v1.html` → `v3.html`, ported from Tkinter + Pygame originals), plus links out to the Wild Rift mini-games, the Juzclarkie personal pages, and the full [playground](https://clarkngo.github.io/playground/) hub.
 - **KOCSEA Vibe (AI) Coding Winter Camp 2025 (Seattle)** — linked out to its own repo, [team-molla-degree-of-labor](https://clarkngo.github.io/team-molla-degree-of-labor/).
 - **iKW Summer Program 2026** — submissions added day by day under `showcase/ikw-summer-2026/day1/`, `day2/`, `day3/`.
 
@@ -30,3 +31,18 @@ Gallery of student HTML submissions from vibe-coding workshops and camps. Start 
 1. Drop the student's HTML file into the matching day folder, e.g. `showcase/ikw-summer-2026/day1/student-name.html`.
 2. Add a card for it in [`showcase/index.html`](showcase/index.html) under that day's section (copy an existing `.card` block and update the name, file link, and description).
 3. Commit and push — GitHub Pages redeploys automatically.
+
+## Playground
+
+Experimental games and toys. Start at [`playground/index.html`](playground/index.html).
+
+- **Wild Rift** — hosted in the separate [`playground`](https://clarkngo.github.io/playground/) repo, linked out: Smite Trainer and T-Hex Mecha.
+
+## Advanced Examples
+
+Bigger builds made with Claude Pro and/or Cursor Pro — past what free-tier Gemini can produce in one shot. Start at [`advanced/index.html`](advanced/index.html).
+
+- **Physical AI** — [Aviation CPS digital twin](https://clarkngo.github.io/physical-ai/#/aviation).
+- **Orator Lab** — [speech refinement workspace](https://clarkngo.github.io/orator-lab/#workspace?case=schmidt).
+- **Volleyball** — [animated attack-sets tactics board](https://clarkngo.github.io/volleyball/prototypes/06-attack-sets.html).
+- **Aviation Industry Primer** — [12-section commercial aviation reference](https://clarkngo.github.io/playground/primer/industry/aviation/index.html).

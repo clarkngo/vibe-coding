@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rhythm Game v1</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0a14;
+      color: #fff;
+      font-family: 'Press Start 2P', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    a.home { align-self: flex-start; color: #8fd6ff; font-size: 0.6rem; margin-bottom: 16px; text-decoration: none; }
+    a.home:hover { text-decoration: underline; }
+    h1 { font-size: 1rem; color: #f1c40f; margin-bottom: 4px; text-align: center; }
+    .sub { font-size: 0.55rem; color: #8fa0b8; margin-bottom: 16px; text-align: center; line-height: 1.6; }
+    .nav { display: flex; gap: 10px; margin-bottom: 16px; font-size: 0.5rem; }
+    .nav span, .nav a { padding: 6px 10px; border: 2px solid #333; color: #667; text-decoration: none; }
+    .nav .current { border-color: #f1c40f; color: #f1c40f; }
+    .nav a:hover { border-color: #8fd6ff; color: #8fd6ff; }
+    button {
+      font-family: inherit;
+      font-size: 0.6rem;
+      background: #f1c40f;
+      color: #1a1a2e;
+      border: 2px solid #fff;
+      padding: 10px 16px;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+    button:hover { background: #ffd84d; }
+    #stage {
+      position: relative;
+      width: 400px;
+      max-width: 92vw;
+      height: 600px;
+      background: #000;
+      border: 4px solid #fff;
+      overflow: hidden;
+    }
+    #score { position: absolute; top: 10px; left: 10px; font-size: 0.7rem; color: #fff; z-index: 5; }
+    .note { position: absolute; width: 40px; height: 20px; background: cyan; transform: translateX(-50%); }
+    #overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.75);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 10px; text-align: center; padding: 20px; font-size: 0.55rem; line-height: 1.8; z-index: 10;
+    }
+    #overlay.hidden { display: none; }
+    #overlay h2 { font-size: 0.85rem; color: #f1c40f; }
+  </style>
+</head>
+<body>
+  <a class="home" href="../">&larr; Back to showcase</a>
+  <h1>🎵 RHYTHM GAME — v1</h1>
+  <p class="sub">First pass: notes fall, press A/S/D/F to score.<br>No hit line, no feedback text, no key labels — just the loop.</p>
+  <div class="nav">
+    <span class="current">v1</span>
+    <a href="rhythm-game-v2.html">v2</a>
+    <a href="rhythm-game-v3.html">v3</a>
+  </div>
+
+  <div id="stage">
+    <div id="score">Score: 0</div>
+    <div id="overlay">
+      <h2>READY?</h2>
+      <p>Press START. Hit A / S / D / F when a note<br>reaches roughly the bottom of the screen.</p>
+    </div>
+  </div>
+  <button id="start-btn" style="margin-top:16px;">START</button>
+
+  <script>
+    // Direct port of rhythm-game-v1.py's tkinter logic to the DOM.
+    const KEYS = ["a", "s", "d", "f"];
+    const WINDOW_WIDTH = 400;
+    const WINDOW_HEIGHT = 600;
+    const NOTE_SPEED = 250;    // px/sec (was 5px per 20ms tick)
+    const NOTE_INTERVAL = 1000; // ms
+    const HIT_LINE_Y = WINDOW_HEIGHT - 50;
+    const HIT_TOLERANCE = 20;
+
+    const stage = document.getElementById("stage");
+    const scoreEl = document.getElementById("score");
+    const overlay = document.getElementById("overlay");
+    const startBtn = document.getElementById("start-btn");
+
+    let score = 0;
+    let notes = [];
+    let running = false;
+    let lastTime = null;
+
+    function laneX(index) {
+      const laneWidth = stage.clientWidth / KEYS.length;
+      return index * laneWidth + laneWidth / 2;
+    }
+
+    startBtn.addEventListener("click", () => {
+      overlay.classList.add("hidden");
+      startGame();
+    });
+
+    function startGame() {
+      if (running) return;
+      running = true;
+      score = 0;
+      scoreEl.textContent = "Score: 0";
+      notes.forEach(n => n.el.remove());
+      notes = [];
+
+      spawnNote();
+      setInterval(spawnNote, NOTE_INTERVAL);
+      lastTime = performance.now();
+      requestAnimationFrame(loop);
+    }
+
+    function spawnNote() {
+      const keyIndex = Math.floor(Math.random() * KEYS.length);
+      const key = KEYS[keyIndex];
+      const x = laneX(keyIndex);
+      const el = document.createElement("div");
+      el.className = "note";
+      el.style.left = `${x}px`;
+      el.style.top = "0px";
+      stage.appendChild(el);
+      notes.push({ el, key, y: 0 });
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (!running) return;
+      const key = e.key.toLowerCase();
+      for (const note of notes) {
+        if (note.key === key && note.y >= HIT_LINE_Y - HIT_TOLERANCE && note.y <= HIT_LINE_Y + HIT_TOLERANCE) {
+          notes = notes.filter(n => n !== note);
+          note.el.remove();
+          score += 100;
+          scoreEl.textContent = `Score: ${score}`;
+          break;
+        }
+      }
+    });
+
+    function loop(now) {
+      if (!running) return;
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+      for (const note of [...notes]) {
+        note.y += NOTE_SPEED * dt;
+        note.el.style.top = `${note.y}px`;
+        if (note.y >= WINDOW_HEIGHT) {
+          notes = notes.filter(n => n !== note);
+          note.el.remove();
+        }
+      }
+      requestAnimationFrame(loop);
+    }
+  </script>
+</body>
+</html>
