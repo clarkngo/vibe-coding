@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#0a1420; }
+  ::selection { background:#c8aa6e; color:#0a1420; }
+  @keyframes rc-spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes rc-pulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+  @keyframes rc-fadeup { from{opacity:0; transform:translateY(18px)} to{opacity:1; transform:translateY(0)} }
+</style>
+<script src="./image-slot.js"></script>
+</helmet>
+
+<div style="position:relative; width:100%; min-height:100vh; background:linear-gradient(180deg,#0a1420 0%,#0c1826 40%,#0a1420 100%); font-family:'Inter',sans-serif; color:#c9d3de; overflow-x:hidden;">
+
+  <!-- LOADING INTRO -->
+  <div style="{{ loadingScreenStyle }}">
+    <div style="width:96px; height:96px; position:relative; margin-bottom:28px;">
+      <div style="position:absolute; inset:0; border:2px solid rgba(200,170,110,0.25); clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);"></div>
+      <div style="position:absolute; inset:8px; border:2px solid #c8aa6e; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); animation:rc-spin 3s linear infinite;"></div>
+      <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:26px; font-weight:700; color:#f0e6d2;">CN</div>
+    </div>
+    <div style="font-family:'Cinzel',serif; letter-spacing:4px; font-size:13px; color:#8a97a8; margin-bottom:18px; text-transform:uppercase;">Entering the Rift</div>
+    <div style="width:260px; height:3px; background:rgba(255,255,255,0.08); position:relative;">
+      <div style="{{ loadingBarStyle }}"></div>
+    </div>
+    <div style="margin-top:10px; font-size:11px; letter-spacing:2px; color:#5c6b7d;">{{ loadingPercentLabel }}</div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div style="{{ mainContentStyle }}">
+
+    <!-- TOP NAV -->
+    <div style="position:sticky; top:0; z-index:30; display:flex; align-items:center; justify-content:space-between; padding:0 48px; height:76px; background:rgba(10,20,32,0.85); backdrop-filter:blur(10px); border-bottom:1px solid rgba(200,170,110,0.18);">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="width:34px; height:34px; border:1.5px solid #c8aa6e; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-weight:700; font-size:13px; color:#f0e6d2;">CN</div>
+        <div style="font-family:'Cinzel',serif; font-size:16px; letter-spacing:2px; color:#f0e6d2; text-transform:uppercase;">Clark Ngo</div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <sc-for list="{{ navTabs }}" as="tab" hint-placeholder-count="4">
+          <a href="{{ tab.href }}" style="padding:10px 18px; font-size:13px; letter-spacing:1.5px; text-transform:uppercase; color:#a9b4c2; text-decoration:none; font-weight:600; border-bottom:2px solid transparent; transition:color .2s, border-color .2s;" style-hover="color:#f0e6d2; border-bottom:2px solid #c8aa6e;">{{ tab.label }}</a>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- HERO / PROFILE -->
+    <div id="home" style="position:relative; padding:80px 48px 64px; display:flex; align-items:center; gap:56px; max-width:1240px; margin:0 auto; flex-wrap:wrap;">
+      <div style="position:absolute; inset:0; background-image:repeating-linear-gradient(115deg, rgba(200,170,110,0.05) 0px, rgba(200,170,110,0.05) 1px, transparent 1px, transparent 64px); pointer-events:none;"></div>
+
+      <div style="position:relative; width:210px; height:242px; flex-shrink:0;">
+        <div style="position:absolute; inset:-10px; border:1.5px solid rgba(200,170,110,0.4); clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);"></div>
+        <div style="position:absolute; inset:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); overflow:hidden; background:#111c2b;">
+          <image-slot id="avatar-photo" shape="rect" placeholder="Drop profile photo" src="uploads/pasted-1784202556370-0.png" fit="cover" style="width:100%; height:100%;"></image-slot>
+        </div>
+        <div style="position:absolute; bottom:-14px; left:50%; transform:translateX(-50%); background:#0a1420; border:1px solid #c8aa6e; color:#f0e6d2; font-size:10px; letter-spacing:1.5px; padding:4px 12px; white-space:nowrap; text-transform:uppercase; font-weight:600;">Architect Tier</div>
+      </div>
+
+      <div style="flex:1; min-width:320px;">
+        <div style="display:flex; align-items:center; gap:14px; margin-bottom:6px;">
+          <div style="font-family:'Cinzel',serif; font-size:38px; font-weight:700; color:#f0e6d2; letter-spacing:1px;">Clark Ngo</div>
+          <div style="padding:3px 10px; border:1px solid rgba(10,200,185,0.5); background:rgba(10,200,185,0.08); color:#4fd6c8; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; font-weight:600;">Available</div>
+        </div>
+        <div style="font-size:16px; color:#8a97a8; letter-spacing:0.5px; margin-bottom:18px;">Software Architect &amp; AI Engineer</div>
+        <div style="font-size:15px; line-height:1.7; color:#aab5c2; max-width:620px; margin-bottom:24px;">Designing production-grade systems across full-stack, computer vision and applied AI &mdash; from architecture decisions to shipped code. Based in Bellevue, WA.</div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <sc-for list="{{ socialLinks }}" as="link" hint-placeholder-count="3">
+            <a href="{{ link.href }}" target="_blank" rel="noopener" style="display:flex; align-items:center; gap:8px; padding:9px 16px; border:1px solid rgba(200,170,110,0.4); color:#e5ddc8; text-decoration:none; font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:600; clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);" style-hover="background:rgba(200,170,110,0.12); border-color:#c8aa6e;">{{ link.label }}</a>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:14px; flex-shrink:0;">
+        <sc-for list="{{ statTiles }}" as="stat" hint-placeholder-count="4">
+          <div style="width:140px; padding:16px 14px; background:rgba(255,255,255,0.02); border:1px solid rgba(200,170,110,0.2); clip-path:polygon(10px 0,100% 0,100% 100%,0 100%,0 10px);">
+            <div style="font-family:'Cinzel',serif; font-size:26px; font-weight:700; color:#c8aa6e;">{{ stat.value }}</div>
+            <div style="font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:#7d8a9a; margin-top:4px;">{{ stat.label }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- SKILLS / ROLES -->
+    <div id="skills" style="padding:20px 48px 80px; max-width:1240px; margin:0 auto;">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:36px;">
+        <div style="width:9px; height:9px; background:#c8aa6e; transform:rotate(45deg);"></div>
+        <div style="font-family:'Cinzel',serif; font-size:22px; letter-spacing:2px; color:#f0e6d2; text-transform:uppercase;">Mastery</div>
+        <div style="flex:1; height:1px; background:linear-gradient(90deg, rgba(200,170,110,0.5), transparent);"></div>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px;">
+        <sc-for list="{{ skills }}" as="skill" hint-placeholder-count="6">
+          <div style="padding:20px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); transition:border-color .25s, transform .25s;" style-hover="border-color:rgba(200,170,110,0.5); transform:translateY(-3px);">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+              <div style="width:38px; height:38px; flex-shrink:0; border:1.5px solid #c8aa6e; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:11px; font-weight:700; color:#f0e6d2;">{{ skill.tag }}</div>
+              <div>
+                <div style="font-size:14.5px; font-weight:600; color:#e5ddc8;">{{ skill.name }}</div>
+                <div style="font-size:11px; color:#6b7889; letter-spacing:0.5px;">{{ skill.role }}</div>
+              </div>
+            </div>
+            <div style="height:5px; background:rgba(255,255,255,0.06); position:relative;">
+              <div style="{{ skill.barStyle }}"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:10.5px; color:#5c6b7d; letter-spacing:1px;">
+              <span>MASTERY</span><span>{{ skill.level }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- PROJECTS / CHAMPION SELECT -->
+    <div id="projects" style="padding:20px 48px 90px; max-width:1240px; margin:0 auto;">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:36px;">
+        <div style="width:9px; height:9px; background:#c8aa6e; transform:rotate(45deg);"></div>
+        <div style="font-family:'Cinzel',serif; font-size:22px; letter-spacing:2px; color:#f0e6d2; text-transform:uppercase;">Champion Select &mdash; Projects</div>
+        <div style="flex:1; height:1px; background:linear-gradient(90deg, rgba(200,170,110,0.5), transparent);"></div>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px;">
+        <sc-for list="{{ projects }}" as="proj" hint-placeholder-count="5">
+          <a href="{{ proj.href }}" target="_blank" rel="noopener" style="position:relative; display:block; text-decoration:none; height:280px; background:linear-gradient(160deg,#141f2e,#0c1520); border:1px solid rgba(255,255,255,0.08); overflow:hidden; transition:border-color .25s, box-shadow .25s;" style-hover="border-color:#c8aa6e; box-shadow:0 0 0 1px rgba(200,170,110,0.4), 0 12px 32px rgba(0,0,0,0.5);">
+            <div style="position:absolute; top:0; left:0; right:0; height:3px; background:{{ proj.accent }};"></div>
+            <div style="padding:22px 18px; display:flex; flex-direction:column; height:100%; box-sizing:border-box;">
+              <div style="font-size:10.5px; letter-spacing:1.5px; text-transform:uppercase; color:{{ proj.accent }}; font-weight:700; margin-bottom:10px;">{{ proj.role }}</div>
+              <div style="font-family:'Cinzel',serif; font-size:19px; font-weight:600; color:#f0e6d2; margin-bottom:12px; line-height:1.3;">{{ proj.name }}</div>
+              <div style="font-size:12.5px; line-height:1.6; color:#8a97a8; flex:1;">{{ proj.desc }}</div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:14px;">
+                <sc-for list="{{ proj.stack }}" as="tech" hint-placeholder-count="2">
+                  <span style="font-size:10px; letter-spacing:0.5px; padding:3px 8px; border:1px solid rgba(255,255,255,0.12); color:#9aa6b4;">{{ tech }}</span>
+                </sc-for>
+              </div>
+              <div style="margin-top:16px; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:#c8aa6e; font-weight:700;">View Repo &rarr;</div>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- CONTACT / MATCH FOUND -->
+    <div id="contact" style="position:relative; padding:70px 48px; text-align:center; border-top:1px solid rgba(200,170,110,0.18); background:radial-gradient(ellipse at 50% 0%, rgba(200,170,110,0.06), transparent 60%);">
+      <div style="font-size:11px; letter-spacing:4px; color:#4fd6c8; text-transform:uppercase; margin-bottom:14px; font-weight:600;">Match Found</div>
+      <div style="font-family:'Cinzel',serif; font-size:30px; color:#f0e6d2; margin-bottom:16px;">Let&rsquo;s build something together</div>
+      <div style="font-size:14.5px; color:#8a97a8; max-width:480px; margin:0 auto 28px;">Open to architecture, AI engineering and full-stack roles &mdash; reach out any time.</div>
+      <a href="mailto:hello@clarkngo.dev" style="display:inline-block; padding:14px 36px; background:#c8aa6e; color:#0a1420; text-decoration:none; font-size:13px; letter-spacing:2px; text-transform:uppercase; font-weight:700; clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); transition:background .2s;" style-hover="background:#f0e6d2;">Send a Message</a>
+      <div style="margin-top:48px; font-size:11px; color:#4a5665; letter-spacing:1px;">&copy; 2026 Clark Ngo &middot; github.com/clarkngo</div>
+    </div>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { progress: 0, loaded: false };
+
+  componentDidMount() {
+    const start = Date.now();
+    const dur = 1800;
+    this._tick = setInterval(() => {
+      const t = Math.min(1, (Date.now() - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      this.setState({ progress: Math.round(eased * 100) });
+      if (t >= 1) {
+        clearInterval(this._tick);
+        setTimeout(() => this.setState({ loaded: true }), 350);
+      }
+    }, 30);
+  }
+
+  componentWillUnmount() {
+    if (this._tick) clearInterval(this._tick);
+  }
+
+  renderVals() {
+    const { progress, loaded } = this.state;
+
+    const navTabs = [
+      { label: 'Home', href: '#home' },
+      { label: 'Mastery', href: '#skills' },
+      { label: 'Projects', href: '#projects' },
+      { label: 'Contact', href: '#contact' },
+    ];
+
+    const socialLinks = [
+      { label: 'GitHub', href: 'https://github.com/clarkngo' },
+      { label: 'Email', href: 'mailto:hello@clarkngo.dev' },
+      { label: 'Resume', href: '#' },
+    ];
+
+    const statTiles = [
+      { value: '6+', label: 'Years Experience' },
+      { value: '20+', label: 'Projects Shipped' },
+      { value: '12', label: 'Core Technologies' },
+      { value: '5', label: 'Open Source Repos' },
+    ];
+
+    const barStyle = (pct, color) =>
+      `position:absolute; inset:0; width:${pct}%; background:${color}; box-shadow:0 0 8px ${color};`;
+
+    const skills = [
+      { tag: 'AR', name: 'Systems Architecture', role: 'Design & Scalability', level: 95, barStyle: barStyle(95, '#c8aa6e') },
+      { tag: 'AI', name: 'AI / Machine Learning', role: 'LLMs & Applied ML', level: 90, barStyle: barStyle(90, '#4fd6c8') },
+      { tag: 'BE', name: 'Backend Engineering', role: 'APIs & Services', level: 92, barStyle: barStyle(92, '#c8aa6e') },
+      { tag: 'FE', name: 'Frontend Engineering', role: 'Interfaces & UX', level: 85, barStyle: barStyle(85, '#4fd6c8') },
+      { tag: 'CV', name: 'Computer Vision', role: 'Perception Systems', level: 80, barStyle: barStyle(80, '#c8aa6e') },
+      { tag: 'OP', name: 'DevOps / CI-CD', role: 'Delivery & Infra', level: 88, barStyle: barStyle(88, '#4fd6c8') },
+    ];
+
+    const projects = [
+      { name: 'Toolkit', role: 'Dev Utilities', desc: 'A personal toolkit of reusable utilities and snippets for everyday development work.', stack: ['HTML', 'JS'], accent: '#c8aa6e', href: 'https://github.com/clarkngo/toolkit' },
+      { name: 'Scribe Healer', role: 'Web App', desc: 'A styled front-end project exploring layout, theming and interaction design.', stack: ['CSS', 'JS'], accent: '#4fd6c8', href: 'https://github.com/clarkngo/scribe-healer' },
+      { name: 'CityU Capstone', role: 'Capstone Project', desc: 'Production-grade capstone application built for the CityU program, engineered end-to-end.', stack: ['TypeScript'], accent: '#c8aa6e', href: 'https://github.com/clarkngo/cityu_capstone' },
+      { name: 'Design Patterns', role: 'Reference Library', desc: 'A catalog of classic software design patterns implemented from first principles.', stack: ['Java'], accent: '#4fd6c8', href: 'https://github.com/clarkngo/design-patterns' },
+      { name: 'Bash Scripts', role: 'Automation', desc: 'A collection of shell scripts for automating common developer and ops workflows.', stack: ['Shell'], accent: '#c8aa6e', href: 'https://github.com/clarkngo/bash-scripts' },
+    ];
+
+    return {
+      loadingScreenStyle: `position:fixed; inset:0; z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#0a1420; transition:opacity .6s ease, visibility .6s; opacity:${loaded ? 0 : 1}; visibility:${loaded ? 'hidden' : 'visible'}; pointer-events:${loaded ? 'none' : 'auto'};`,
+      loadingBarStyle: `position:absolute; inset:0; width:${progress}%; background:linear-gradient(90deg,#c8aa6e,#f0e6d2); transition:width .05s linear;`,
+      loadingPercentLabel: `${progress}%`,
+      mainContentStyle: `opacity:${loaded ? 1 : 0}; transition:opacity .8s ease .1s;`,
+      navTabs, socialLinks, statTiles, skills, projects,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

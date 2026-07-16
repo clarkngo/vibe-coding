@@ -78,6 +78,7 @@
     </div>
   </div>
   <button id="start-btn" style="margin-top:16px;">START</button>
+  <audio id="audio" src="../../assets/rhythm-game/your_song.mp3"></audio>
 
   <script>
     // Direct port of rhythm-game-v2.py's tkinter logic to the DOM.
@@ -94,6 +95,7 @@
     const feedbackEl = document.getElementById("feedback");
     const overlay = document.getElementById("overlay");
     const startBtn = document.getElementById("start-btn");
+    const audio = document.getElementById("audio");
 
     let score = 0;
     let notes = [];
@@ -124,6 +126,9 @@
       scoreEl.textContent = "Score: 0";
       notes.forEach(n => { n.el.remove(); });
       notes = [];
+
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
 
       spawnNote();
       setInterval(spawnNote, NOTE_INTERVAL);

@@ -181,8 +181,8 @@
   </div>
 
   <div class="controls">
-    <label for="file-input">🎧 Choose a song<input type="file" id="file-input" accept="audio/*"></label>
-    <span class="track-name" id="track-name">No track selected</span>
+    <label for="file-input">🎧 Choose a different song<input type="file" id="file-input" accept="audio/*"></label>
+    <span class="track-name" id="track-name">your_song.mp3</span>
     <button id="start-btn">START</button>
   </div>
 
@@ -192,11 +192,11 @@
     <div id="feedback"></div>
     <div id="overlay">
       <h2>READY?</h2>
-      <p>Pick a song above, then press START.<br>No song? Press START anyway &mdash; notes still fall, just silently.</p>
+      <p>Press START to play along with the default track,<br>or pick your own song above first.</p>
     </div>
   </div>
 
-  <audio id="audio"></audio>
+  <audio id="audio" src="../../assets/rhythm-game/your_song.mp3"></audio>
 
   <script>
     const KEYS = ["a", "s", "d", "f"];
