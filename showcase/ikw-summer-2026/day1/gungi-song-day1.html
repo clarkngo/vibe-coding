@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>랜덤 모의투자 미니게임</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0b1020;
+      --panel: #151c31;
+      --panel-light: #1c2540;
+      --border: #2a3556;
+      --text: #f4f7ff;
+      --muted: #99a6c3;
+      --blue: #4f7cff;
+      --green: #25d07d;
+      --red: #ff5f6d;
+      --yellow: #ffc857;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #090d18, #10182c);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10, 15, 28, 0.94);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .title h1 {
+      font-size: 22px;
+      margin-bottom: 5px;
+    }
+
+    .title p {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .day-box {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .day-label {
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--panel-light);
+      border: 1px solid var(--border);
+      font-weight: 700;
+    }
+
+    .reset-button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: white;
+      background: #34415f;
+    }
+
+    .reset-button:hover {
+      background: #435173;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr) 320px;
+      min-height: 0;
+    }
+
+    .sidebar,
+    .portfolio-panel {
+      background: rgba(17, 24, 43, 0.92);
+      padding: 18px;
+      overflow-y: auto;
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--border);
+    }
+
+    .portfolio-panel {
+      border-left: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stock-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .stock-item {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 14px;
+      transition: 0.2s;
+    }
+
+    .stock-item:hover,
+    .stock-item.active {
+      border-color: var(--blue);
+      transform: translateY(-1px);
+      background: #1b2745;
+    }
+
+    .stock-item-top,
+    .stock-item-bottom {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .stock-item-top {
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .stock-code,
+    .stock-item-bottom {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .main-panel {
+      padding: 22px;
+      overflow-y: auto;
+      min-width: 0;
+    }
+
+    .stock-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+
+    .stock-name {
+      font-size: 26px;
+      margin-bottom: 6px;
+    }
+
+    .current-price {
+      font-size: 34px;
+      font-weight: 800;
+    }
+
+    .price-change {
+      margin-top: 7px;
+      font-weight: 700;
+    }
+
+    .up {
+      color: var(--green);
+    }
+
+    .down {
+      color: var(--red);
+    }
+
+    .neutral {
+      color: var(--muted);
+    }
+
+    .chart-card,
+    .trade-card,
+    .summary-card,
+    .holdings-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .chart-card {
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    #stockChart {
+      width: 100%;
+      height: 360px;
+      display: block;
+    }
+
+    .time-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .time-button {
+      border: 1px solid var(--border);
+      background: var(--panel-light);
+      color: white;
+      padding: 13px 10px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .time-button:hover {
+      border-color: var(--blue);
+      background: #233057;
+    }
+
+    .trade-card {
+      padding: 18px;
+    }
+
+    .trade-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .trade-input {
+      min-width: 0;
+      border: 1px solid var(--border);
+      background: #0d1426;
+      color: white;
+      padding: 13px;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    .trade-input:focus {
+      border-color: var(--blue);
+    }
+
+    .buy-button,
+    .sell-button {
+      border: 0;
+      color: white;
+      padding: 13px 18px;
+      border-radius: 10px;
+      font-weight: 800;
+    }
+
+    .buy-button {
+      background: var(--blue);
+    }
+
+    .sell-button {
+      background: #d84c5b;
+    }
+
+    .trade-help {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .message {
+      min-height: 22px;
+      margin-top: 10px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .summary-card {
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .asset-total {
+      font-size: 30px;
+      font-weight: 800;
+      margin: 8px 0;
+    }
+
+    .profit-box {
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--panel-light);
+      margin-top: 12px;
+    }
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 8px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .summary-line strong {
+      color: var(--text);
+    }
+
+    .holdings-card {
+      padding: 16px;
+    }
+
+    .holding-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .holding-item:last-child {
+      border-bottom: 0;
+    }
+
+    .holding-top,
+    .holding-bottom {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .holding-top {
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .holding-bottom {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .empty-holdings {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 10px 0;
+    }
+
+    @media (max-width: 1050px) {
+      .layout {
+        grid-template-columns: 220px minmax(0, 1fr);
+      }
+
+      .portfolio-panel {
+        grid-column: 1 / -1;
+        border-left: 0;
+        border-top: 1px solid var(--border);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .topbar,
+      .stock-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      .sidebar,
+      .portfolio-panel {
+        border: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .stock-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .trade-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .trade-input {
+        grid-column: 1 / -1;
+      }
+
+      #stockChart {
+        height: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="title">
+        <h1>랜덤 모의투자 미니게임</h1>
+        <p>가상의 주가로 투자하고 미래 날짜를 진행해 수익률을 확인하세요.</p>
+      </div>
+
+      <div class="day-box">
+        <div class="day-label">현재 <span id="currentDay">0</span>일</div>
+        <button class="reset-button" id="resetButton">게임 초기화</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <h2 class="section-title">거래 가능 종목</h2>
+        <div class="stock-list" id="stockList"></div>
+      </aside>
+
+      <main class="main-panel">
+        <section class="stock-header">
+          <div>
+            <h2 class="stock-name" id="stockName"></h2>
+            <div class="current-price" id="currentPrice"></div>
+            <div class="price-change" id="priceChange"></div>
+          </div>
+        </section>
+
+        <section class="chart-card">
+          <canvas id="stockChart"></canvas>
+        </section>
+
+        <section class="time-buttons">
+          <button class="time-button" data-days="1">1일 뒤</button>
+          <button class="time-button" data-days="5">5일 뒤</button>
+          <button class="time-button" data-days="10">10일 뒤</button>
+          <button class="time-button" data-days="50">50일 뒤</button>
+        </section>
+
+        <section class="trade-card">
+          <h2 class="section-title">매수 / 매도</h2>
+          <div class="trade-row">
+            <input
+              class="trade-input"
+              id="tradeAmount"
+              type="number"
+              min="1"
+              step="1"
+              value="300"
+              placeholder="거래 금액 입력"
+            />
+            <button class="buy-button" id="buyButton">매수</button>
+            <button class="sell-button" id="sellButton">매도</button>
+          </div>
+          <p class="trade-help">
+            금액 단위로 거래합니다. 예: 300을 입력하면 선택한 주식을 300달러어치 매수하거나 매도합니다.
+          </p>
+          <div class="message" id="message"></div>
+        </section>
+      </main>
+
+      <aside class="portfolio-panel">
+        <section class="summary-card">
+          <h2 class="section-title">나의 자산</h2>
+          <div class="asset-total" id="totalAsset"></div>
+          <div id="totalProfit"></div>
+
+          <div class="profit-box">
+            <div class="summary-line">
+              <span>보유 현금</span>
+              <strong id="cashAsset"></strong>
+            </div>
+            <div class="summary-line">
+              <span>주식 평가금액</span>
+              <strong id="stockAsset"></strong>
+            </div>
+            <div class="summary-line">
+              <span>초기 자본</span>
+              <strong>$100,000.00</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="holdings-card">
+          <h2 class="section-title">보유 종목</h2>
+          <div id="holdingsList"></div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const INITIAL_CASH = 100000;
+
+    const stockTemplates = [
+      { id: "samsung", name: "삼성전자", code: "005930", initialPrice: 72 },
+      { id: "hyundai", name: "현대차", code: "005380", initialPrice: 185 },
+      { id: "skhynix", name: "SK하이닉스", code: "000660", initialPrice: 146 },
+      { id: "naver", name: "네이버", code: "035420", initialPrice: 210 },
+      { id: "kakao", name: "카카오", code: "035720", initialPrice: 58 }
+    ];
+
+    let stocks = [];
+    let selectedStockId = stockTemplates[0].id;
+    let cash = INITIAL_CASH;
+    let currentDay = 0;
+    let holdings = {};
+
+    const stockList = document.getElementById("stockList");
+    const stockName = document.getElementById("stockName");
+    const currentPrice = document.getElementById("currentPrice");
+    const priceChange = document.getElementById("priceChange");
+    const currentDayElement = document.getElementById("currentDay");
+    const tradeAmount = document.getElementById("tradeAmount");
+    const message = document.getElementById("message");
+    const totalAsset = document.getElementById("totalAsset");
+    const totalProfit = document.getElementById("totalProfit");
+    const cashAsset = document.getElementById("cashAsset");
+    const stockAsset = document.getElementById("stockAsset");
+    const holdingsList = document.getElementById("holdingsList");
+    const canvas = document.getElementById("stockChart");
+    const ctx = canvas.getContext("2d");
+
+    function randomBetween(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function createStocks() {
+      return stockTemplates.map((template) => {
+        const randomStart = template.initialPrice * randomBetween(0.8, 1.2);
+
+        return {
+          ...template,
+          price: randomStart,
+          history: [randomStart],
+          drift: randomBetween(-0.003, 0.003),
+          volatility: randomBetween(0.012, 0.065),
+          momentum: randomBetween(-0.004, 0.004)
+        };
+      });
+    }
+
+    function getSelectedStock() {
+      return stocks.find((stock) => stock.id === selectedStockId);
+    }
+
+    function formatMoney(value) {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(value);
+    }
+
+    function formatPercent(value) {
+      const sign = value > 0 ? "+" : "";
+      return `${sign}${value.toFixed(2)}%`;
+    }
+
+    function getChangeClass(value) {
+      if (value > 0) return "up";
+      if (value < 0) return "down";
+      return "neutral";
+    }
+
+    function simulateStockDay(stock) {
+      const normalMove = stock.drift + stock.momentum + randomBetween(-stock.volatility, stock.volatility);
+      const shockChance = Math.random();
+      let shock = 0;
+
+      if (shockChance < 0.035) {
+        shock = randomBetween(-0.25, 0.25);
+      }
+
+      stock.momentum = stock.momentum * 0.65 + randomBetween(-0.006, 0.006);
+
+      const totalMove = normalMove + shock;
+      stock.price = Math.max(1, stock.price * (1 + totalMove));
+      stock.history.push(stock.price);
+    }
+
+    function moveDays(days) {
+      for (let day = 0; day < days; day += 1) {
+        stocks.forEach(simulateStockDay);
+        currentDay += 1;
+      }
+
+      showMessage(`${days}일이 지났습니다.`, "neutral");
+      render();
+    }
+
+    function buyStock() {
+      const amount = Number(tradeAmount.value);
+      const stock = getSelectedStock();
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        showMessage("올바른 매수 금액을 입력하세요.", "down");
+        return;
+      }
+
+      if (amount > cash) {
+        showMessage("보유 현금이 부족합니다.", "down");
+        return;
+      }
+
+      const shares = amount / stock.price;
+
+      if (!holdings[stock.id]) {
+        holdings[stock.id] = {
+          shares: 0,
+          cost: 0
+        };
+      }
+
+      holdings[stock.id].shares += shares;
+      holdings[stock.id].cost += amount;
+      cash -= amount;
+
+      showMessage(`${stock.name}을(를) ${formatMoney(amount)} 매수했습니다.`, "up");
+      render();
+    }
+
+    function sellStock() {
+      const amount = Number(tradeAmount.value);
+      const stock = getSelectedStock();
+      const holding = holdings[stock.id];
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        showMessage("올바른 매도 금액을 입력하세요.", "down");
+        return;
+      }
+
+      if (!holding || holding.shares <= 0) {
+        showMessage("보유한 주식이 없습니다.", "down");
+        return;
+      }
+
+      const currentValue = holding.shares * stock.price;
+      const actualSellAmount = Math.min(amount, currentValue);
+      const sharesToSell = actualSellAmount / stock.price;
+      const costRatio = sharesToSell / holding.shares;
+
+      holding.cost -= holding.cost * costRatio;
+      holding.shares -= sharesToSell;
+      cash += actualSellAmount;
+
+      if (holding.shares < 0.000001) {
+        delete holdings[stock.id];
+      }
+
+      showMessage(`${stock.name}을(를) ${formatMoney(actualSellAmount)} 매도했습니다.`, "up");
+      render();
+    }
+
+    function showMessage(text, className) {
+      message.textContent = text;
+      message.className = `message ${className}`;
+    }
+
+    function calculatePortfolio() {
+      let stockValue = 0;
+
+      Object.entries(holdings).forEach(([stockId, holding]) => {
+        const stock = stocks.find((item) => item.id === stockId);
+        stockValue += holding.shares * stock.price;
+      });
+
+      const total = cash + stockValue;
+      const profit = total - INITIAL_CASH;
+      const profitRate = (profit / INITIAL_CASH) * 100;
+
+      return { stockValue, total, profit, profitRate };
+    }
+
+    function renderStockList() {
+      stockList.innerHTML = "";
+
+      stocks.forEach((stock) => {
+        const previousPrice = stock.history.length > 1
+          ? stock.history[stock.history.length - 2]
+          : stock.history[0];
+        const dailyChange = ((stock.price - previousPrice) / previousPrice) * 100;
+
+        const button = document.createElement("button");
+        button.className = `stock-item ${stock.id === selectedStockId ? "active" : ""}`;
+        button.innerHTML = `
+          <div class="stock-item-top">
+            <span>${stock.name}</span>
+            <span>${formatMoney(stock.price)}</span>
+          </div>
+          <div class="stock-item-bottom">
+            <span class="stock-code">${stock.code}</span>
+            <span class="${getChangeClass(dailyChange)}">${formatPercent(dailyChange)}</span>
+          </div>
+        `;
+
+        button.addEventListener("click", () => {
+          selectedStockId = stock.id;
+          render();
+        });
+
+        stockList.appendChild(button);
+      });
+    }
+
+    function renderSelectedStock() {
+      const stock = getSelectedStock();
+      const previousPrice = stock.history.length > 1
+        ? stock.history[stock.history.length - 2]
+        : stock.history[0];
+      const changeAmount = stock.price - previousPrice;
+      const changeRate = (changeAmount / previousPrice) * 100;
+
+      stockName.textContent = `${stock.name} (${stock.code})`;
+      currentPrice.textContent = formatMoney(stock.price);
+      priceChange.textContent = `${changeAmount >= 0 ? "+" : ""}${formatMoney(changeAmount)} (${formatPercent(changeRate)})`;
+      priceChange.className = `price-change ${getChangeClass(changeRate)}`;
+    }
+
+    function renderPortfolio() {
+      const portfolio = calculatePortfolio();
+
+      totalAsset.textContent = formatMoney(portfolio.total);
+      totalProfit.textContent = `${formatMoney(portfolio.profit)} (${formatPercent(portfolio.profitRate)})`;
+      totalProfit.className = getChangeClass(portfolio.profit);
+      cashAsset.textContent = formatMoney(cash);
+      stockAsset.textContent = formatMoney(portfolio.stockValue);
+
+      holdingsList.innerHTML = "";
+      const holdingEntries = Object.entries(holdings);
+
+      if (holdingEntries.length === 0) {
+        holdingsList.innerHTML = `
+          <p class="empty-holdings">
+            아직 보유한 주식이 없습니다.<br />
+            왼쪽에서 종목을 선택한 뒤 매수하세요.
+          </p>
+        `;
+        return;
+      }
+
+      holdingEntries.forEach(([stockId, holding]) => {
+        const stock = stocks.find((item) => item.id === stockId);
+        const value = holding.shares * stock.price;
+        const profit = value - holding.cost;
+        const profitRate = holding.cost > 0 ? (profit / holding.cost) * 100 : 0;
+
+        const item = document.createElement("div");
+        item.className = "holding-item";
+        item.innerHTML = `
+          <div class="holding-top">
+            <span>${stock.name}</span>
+            <span>${formatMoney(value)}</span>
+          </div>
+          <div class="holding-bottom">
+            <span>${holding.shares.toFixed(4)}주</span>
+            <span class="${getChangeClass(profit)}">${formatMoney(profit)} (${formatPercent(profitRate)})</span>
+          </div>
+        `;
+        holdingsList.appendChild(item);
+      });
+    }
+
+    function drawChart() {
+      const stock = getSelectedStock();
+      const history = stock.history;
+      const devicePixelRatio = window.devicePixelRatio || 1;
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+
+      canvas.width = Math.floor(width * devicePixelRatio);
+      canvas.height = Math.floor(height * devicePixelRatio);
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+
+      const padding = { top: 25, right: 25, bottom: 35, left: 65 };
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+
+      const visibleHistory = history.slice(-100);
+      let minPrice = Math.min(...visibleHistory);
+      let maxPrice = Math.max(...visibleHistory);
+
+      if (minPrice === maxPrice) {
+        minPrice *= 0.95;
+        maxPrice *= 1.05;
+      }
+
+      const pricePadding = (maxPrice - minPrice) * 0.12;
+      minPrice = Math.max(0, minPrice - pricePadding);
+      maxPrice += pricePadding;
+
+      ctx.strokeStyle = "#2a3556";
+      ctx.lineWidth = 1;
+      ctx.fillStyle = "#99a6c3";
+      ctx.font = "12px Arial";
+
+      for (let i = 0; i <= 4; i += 1) {
+        const y = padding.top + (chartHeight / 4) * i;
+        const price = maxPrice - ((maxPrice - minPrice) / 4) * i;
+
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(width - padding.right, y);
+        ctx.stroke();
+
+        ctx.fillText(formatMoney(price), 8, y + 4);
+      }
+
+      if (visibleHistory.length === 1) {
+        const x = padding.left + chartWidth / 2;
+        const y = padding.top + chartHeight / 2;
+        ctx.fillStyle = "#4f7cff";
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        return;
+      }
+
+      const points = visibleHistory.map((price, index) => {
+        const x = padding.left + (index / (visibleHistory.length - 1)) * chartWidth;
+        const y = padding.top + ((maxPrice - price) / (maxPrice - minPrice)) * chartHeight;
+        return { x, y };
+      });
+
+      const gradient = ctx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+      gradient.addColorStop(0, "rgba(79, 124, 255, 0.35)");
+      gradient.addColorStop(1, "rgba(79, 124, 255, 0.02)");
+
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, height - padding.bottom);
+      points.forEach((point) => ctx.lineTo(point.x, point.y));
+      ctx.lineTo(points[points.length - 1].x, height - padding.bottom);
+      ctx.closePath();
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      ctx.beginPath();
+      points.forEach((point, index) => {
+        if (index === 0) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+      });
+      ctx.strokeStyle = "#4f7cff";
+      ctx.lineWidth = 3;
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.stroke();
+
+      const lastPoint = points[points.length - 1];
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(lastPoint.x, lastPoint.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#99a6c3";
+      ctx.fillText(`${Math.max(0, currentDay - visibleHistory.length + 1)}일`, padding.left, height - 10);
+      ctx.textAlign = "right";
+      ctx.fillText(`${currentDay}일`, width - padding.right, height - 10);
+      ctx.textAlign = "left";
+    }
+
+    function render() {
+      currentDayElement.textContent = currentDay;
+      renderStockList();
+      renderSelectedStock();
+      renderPortfolio();
+      drawChart();
+    }
+
+    function resetGame() {
+      stocks = createStocks();
+      selectedStockId = stocks[0].id;
+      cash = INITIAL_CASH;
+      currentDay = 0;
+      holdings = {};
+      tradeAmount.value = 300;
+      showMessage("새 게임이 시작되었습니다.", "neutral");
+      render();
+    }
+
+    document.querySelectorAll(".time-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        moveDays(Number(button.dataset.days));
+      });
+    });
+
+    document.getElementById("buyButton").addEventListener("click", buyStock);
+    document.getElementById("sellButton").addEventListener("click", sellStock);
+    document.getElementById("resetButton").addEventListener("click", resetGame);
+    window.addEventListener("resize", drawChart);
+
+    resetGame();
+  </script>
+</body>
+</html>

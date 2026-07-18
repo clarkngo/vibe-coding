@@ -18,13 +18,15 @@ Small aviation-themed demos for a beginner vibe-coding workshop. Start at [`avia
 | Boarding Pass Profile | [`aviation/boarding-pass-profile.html`](aviation/boarding-pass-profile.html) | Fun/personal | Type your name and dream destination to generate a stylized boarding pass. |
 | Cockpit Dashboard | [`aviation/cockpit-dashboard.html`](aviation/cockpit-dashboard.html) | Interactive toy | Clicky switches, altitude slider, and throttle that drive on-screen gauges. |
 
-## Student Showcase
+## Showcase
 
-Gallery of student HTML submissions from vibe-coding workshops and camps. Start at [`showcase/index.html`](showcase/index.html).
+Gallery of personal builds and student HTML submissions from vibe-coding workshops and camps, in two clearly separated parts. Start at [`showcase/index.html`](showcase/index.html).
 
-- **Mentor Sample — Clark** — example submissions under `showcase/clark/`: a habit-tracker RPG, a League-of-Legends-themed portfolio site (`wild-rift-portfolio.html`, ships with its own `support.js`/`image-slot.js` runtime and `uploads/` image, made with Claude Design), a self-contained workshop deck (`ai-first-responders-workshop-deck.html`, also made with Claude Design), a rhythm game shown as three iterations (`rhythm-game-v1.html` → `v3.html`, ported from Tkinter + Pygame originals), plus links out to the Wild Rift mini-games, the [CityU Contributions Portfolio](https://clarkngo.github.io/cityu-contributions/) (Claude Design), the Juzclarkie personal pages, and the full [playground](https://clarkngo.github.io/playground/) hub.
+**Clark's Showcase** — example submissions under `showcase/clark/`: a habit-tracker RPG, a League-of-Legends-themed portfolio site (`wild-rift-portfolio.html`, ships with its own `support.js`/`image-slot.js` runtime and `uploads/` image, made with Claude Design), a self-contained workshop deck (`ai-first-responders-workshop-deck.html`, also made with Claude Design), a rhythm game shown as three iterations (`rhythm-game-v1.html` → `v3.html`, ported from Tkinter + Pygame originals, with `assets/rhythm-game/your_song.mp3` wired in), plus links out to the Wild Rift mini-games, the [CityU Contributions Portfolio](https://clarkngo.github.io/cityu-contributions/) (Claude Design), the Juzclarkie personal pages, and the full [playground](https://clarkngo.github.io/playground/) hub.
+
+**Student Showcase**
 - **KOCSEA Vibe (AI) Coding Winter Camp 2025 (Seattle)** — linked out to its own repo, [team-molla-degree-of-labor](https://clarkngo.github.io/team-molla-degree-of-labor/).
-- **iKW Summer Program 2026** — submissions added day by day under `showcase/ikw-summer-2026/day1/`, `day2/`, `day3/`.
+- **iKW Summer Program 2026** — submissions added day by day under `showcase/ikw-summer-2026/day1/`, `day2/`, `day3/`. Day 1 has 9 student projects live (travel planner, a deep-sea game, a restaurant finder, two AI-truth-detection games, a waste-sorting game, a mock investing sim, an OOTD recommender, and a speed clicker).
 
 ### Adding a new submission
 
@@ -48,3 +50,4 @@ Bigger builds made with Claude Pro and/or Cursor Pro — past what free-tier Gem
 - **Aviation Industry Primer** — [12-section commercial aviation reference](https://clarkngo.github.io/playground/primer/industry/aviation/index.html).
 - **Primer Hub** — [full primer library across 20+ industries and technology domains](https://clarkngo.github.io/playground/primer/index.html).
 - **Data Governance — Module 1** — [class notes on governance foundations](https://clarkngo.github.io/playground/class-notes/data-governance/module-01.html).
+- **Wireshark Simulator** — [step-by-step packet capture network lab](https://clarkngo.github.io/playground/simulators/wireshark-simulator.html).
