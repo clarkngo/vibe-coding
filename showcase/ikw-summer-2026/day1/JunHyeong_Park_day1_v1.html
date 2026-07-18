@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco Belt: Waste Sorter</title>
+    <style>
+        :root {
+            --bg-color: #f5f1e6; /* 스케치 느낌의 따뜻한 베이지 배경 */
+            --border-color: #1e293b;
+            --bin-general: #94a3b8;
+            --bin-can: #f97316;
+            --bin-plastic: #38bdf8;
+            --bin-paper: #4ade80;
+            --bin-food: #a16207;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+            background-color: #dcd6cd;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* 메인 게임판 (이미지 비율에 맞게 600px 높이로 구성) */
+        #game-container {
+            width: 850px;
+            height: 600px;
+            background: var(--bg-color);
+            border: 4px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 8px 8px 0px var(--border-color);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* 헤더 UI */
+        .ui-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--border-color);
+            border-bottom: 3px dashed var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        /* 5개 쓰레기통 (카툰 느낌 스케치 스타일) */
+        .bins-zone {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .bin {
+            width: 130px;
+            height: 160px;
+            border: 4px solid var(--border-color);
+            border-radius: 15px 15px 8px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            font-weight: 900;
+            font-size: 14px;
+            color: white;
+            box-shadow: 4px 4px 0px var(--border-color);
+            position: relative;
+            padding-bottom: 15px;
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        /* 쓰레기통 뚜껑 표현 */
+        .bin::before {
+            content: "";
+            position: absolute;
+            top: -12px;
+            width: 110%;
+            height: 20px;
+            background: inherit;
+            border: 4px solid var(--border-color);
+            border-radius: 10px 10px 3px 3px;
+            box-shadow: 2px 2px 0px var(--border-color);
+        }
+
+        .bin-emoji {
+            font-size: 32px;
+            margin-bottom: 8px;
+            z-index: 1;
+        }
+
+        .bin-label {
+            z-index: 1;
+            letter-spacing: 0.5px;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+        }
+
+        #bin-general { background-color: var(--bin-general); }
+        #bin-can { background-color: var(--bin-can); }
+        #bin-plastic { background-color: var(--bin-plastic); }
+        #bin-paper { background-color: var(--bin-paper); }
+        #bin-food { background-color: var(--bin-food); }
+
+        /* 중앙 컨베이어 벨트 구역 */
+        .belt-zone {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            margin-top: 10px;
+        }
+
+        /* 벨트 라인 */
+        .conveyor-belt {
+            position: absolute;
+            top: 40px;
+            width: 100%;
+            height: 45px;
+            background: #cbd5e1;
+            border-top: 4px solid var(--border-color);
+            border-bottom: 4px solid var(--border-color);
+            z-index: 2;
+        }
+
+        /* ⚙️ 톱니바퀴 한쪽 쏠림 방지: 가로로 쫙 정렬 */
+        .gears-container {
+            position: absolute;
+            top: 85px;
+            width: 100%;
+            height: 25px;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+            box-sizing: border-box;
+            z-index: 3;
+        }
+
+        .gear {
+            font-size: 18px;
+            color: #64748b;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 이미지에 있는 나무 스탠드 지지대 구현 */
+        .wood-stand {
+            position: absolute;
+            top: 110px;
+            width: 100%;
+            height: 80px;
+            z-index: 1;
+        }
+
+        .wood-horizontal {
+            position: absolute;
+            top: 0;
+            width: 90%;
+            left: 5%;
+            height: 12px;
+            background: #b45309;
+            border: 3px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .wood-legs {
+            display: flex;
+            justify-content: space-around;
+            width: 80%;
+            margin: 12px auto 0 auto;
+        }
+
+        .leg {
+            width: 16px;
+            height: 60px;
+            background: #b45309;
+            border: 3px solid var(--border-color);
+            border-top: none;
+        }
+
+        /* 벨트 위 쓰레기 아이템 */
+        .trash-item {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: #ffffff;
+            border: 3px solid var(--border-color);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--border-color);
+            cursor: pointer;
+            box-shadow: 4px 4px 0px var(--border-color);
+            z-index: 10;
+            transition: transform 0.15s, border-color 0.15s;
+            text-align: center;
+        }
+
+        .trash-item.selected {
+            border-color: #eab308;
+            transform: scale(1.15) translateY(-8px);
+            box-shadow: 0px 8px 12px rgba(234, 179, 8, 0.4);
+        }
+
+        .trash-emoji {
+            font-size: 26px;
+            margin-bottom: 1px;
+        }
+
+        /* 시작 & 결과창 */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(245, 241, 230, 0.98);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+        .overlay h1 {
+            font-size: 44px;
+            color: var(--border-color);
+            margin-bottom: 10px;
+        }
+        .overlay p {
+            font-size: 18px;
+            color: #475569;
+            margin-bottom: 25px;
+        }
+        .btn-start {
+            padding: 12px 35px;
+            font-family: inherit;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            background: #10b981;
+            border: 3px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 4px 4px 0px var(--border-color);
+            cursor: pointer;
+        }
+        .btn-start:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div class="ui-header">
+            <div>Score: <span id="score-text">0</span></div>
+            <div>ECO BELT: Waste Sorter</div>
+            <div>Time: <span id="timer-text">45</span>s</div>
+        </div>
+
+        <div class="bins-zone">
+            <div id="bin-general" class="bin" data-type="general">
+                <span class="bin-emoji">🗑️</span>
+                <span class="bin-label">GENERAL</span>
+            </div>
+            <div id="bin-can" class="bin" data-type="can">
+                <span class="bin-emoji">🥫</span>
+                <span class="bin-label">CAN</span>
+            </div>
+            <div id="bin-plastic" class="bin" data-type="plastic">
+                <span class="bin-emoji">🍼</span>
+                <span class="bin-label">PLASTIC</span>
+            </div>
+            <div id="bin-paper" class="bin" data-type="paper">
+                <span class="bin-emoji">📦</span>
+                <span class="bin-label">PAPER</span>
+            </div>
+            <div id="bin-food" class="bin" data-type="food">
+                <span class="bin-emoji">🍎</span>
+                <span class="bin-label">FOOD</span>
+            </div>
+        </div>
+
+        <div class="belt-zone" id="belt-zone">
+            <div class="conveyor-belt"></div>
+
+            <div class="gears-container">
+                <span class="gear">⚙️</span>
+                <span class="gear">⚙️</span>
+                <span class="gear">⚙️</span>
+                <span class="gear">⚙️</span>
+                <span class="gear">⚙️</span>
+                <span class="gear">⚙️</span>
+                <span class="gear">⚙️</span>
+                <span class="gear">⚙️</span>
+                <span class="gear">⚙️</span>
+                <span class="gear">⚙️</span>
+                <span class="gear">⚙️</span>
+                <span class="gear">⚙️</span>
+            </div>
+
+            <div class="wood-stand">
+                <div class="wood-horizontal"></div>
+                <div class="wood-legs">
+                    <div class="leg"></div>
+                    <div class="leg"></div>
+                    <div class="leg"></div>
+                    <div class="leg"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="overlay" class="overlay">
+            <h1 id="overlay-title">ECO BELT</h1>
+            <p id="overlay-desc">Click a waste item, then click the correct bin!</p>
+            <button id="start-btn" class="btn-start">START GAME</button>
+        </div>
+    </div>
+
+    <script>
+        const trashPool = [
+            { name: "Tissue", type: "general", emoji: "🧻" },
+            { name: "Snack Bag", type: "general", emoji: "🫓" },
+            { name: "Soda Can", type: "can", emoji: "🥤" },
+            { name: "Tuna Can", type: "can", emoji: "🥫" },
+            { name: "Water Bottle", type: "plastic", emoji: "🍼" },
+            { name: "Plastic Cup", type: "plastic", emoji: "🥡" },
+            { name: "Box", type: "paper", emoji: "📦" },
+            { name: "Newspaper", type: "paper", emoji: "📰" },
+            { name: "Apple Core", type: "food", emoji: "🍎" },
+            { name: "Orange Peel", type: "food", emoji: "🍊" }
+        ];
+
+        let score = 0;
+        let timeLeft = 45;
+        let gameActive = false;
+        let gameInterval = null;
+        let spawnInterval = null;
+        let selectedTrash = null;
+        let activeTrashElements = [];
+
+        const beltZone = document.getElementById('belt-zone');
+        const scoreText = document.getElementById('score-text');
+        const timerText = document.getElementById('timer-text');
+        const overlay = document.getElementById('overlay');
+        const overlayTitle = document.getElementById('overlay-title');
+        const overlayDesc = document.getElementById('overlay-desc');
+        const startBtn = document.getElementById('start-btn');
+
+        function spawnTrash() {
+            if (!gameActive) return;
+
+            const randomTrash = trashPool[Math.floor(Math.random() * trashPool.length)];
+            const trashEl = document.createElement('div');
+            trashEl.classList.add('trash-item');
+            trashEl.innerHTML = `<span class="trash-emoji">${randomTrash.emoji}</span><span>${randomTrash.name}</span>`;
+            trashEl.dataset.type = randomTrash.type;
+            
+            // 벨트 위에 배치되도록 위치 잡기
+            trashEl.style.left = "-80px";
+            trashEl.style.top = "20px"; 
+            
+            beltZone.appendChild(trashEl);
+
+            let currentLeft = -80;
+            const moveSpeed = 1.0; 
+
+            const moveTimer = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(moveTimer);
+                    trashEl.remove();
+                    return;
+                }
+
+                currentLeft += moveSpeed;
+                trashEl.style.left = currentLeft + "px";
+
+                if (currentLeft > 850) {
+                    clearInterval(moveTimer);
+                    if (selectedTrash === trashEl) {
+                        selectedTrash = null;
+                    }
+                    trashEl.remove();
+                    activeTrashElements = activeTrashElements.filter(el => el !== trashEl);
+                    updateScore(-5);
+                }
+            }, 20);
+
+            trashEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (selectedTrash) {
+                    selectedTrash.classList.remove('selected');
+                }
+                selectedTrash = trashEl;
+                trashEl.classList.add('selected');
+            });
+
+            activeTrashElements.push(trashEl);
+        }
+
+        const bins = document.querySelectorAll('.bin');
+        bins.forEach(bin => {
+            bin.addEventListener('click', () => {
+                if (!gameActive || !selectedTrash) return;
+
+                const binType = bin.dataset.type;
+                const trashType = selectedTrash.dataset.type;
+
+                if (binType === trashType) {
+                    updateScore(10);
+                    bounceBin(bin);
+                } else {
+                    updateScore(-5);
+                }
+
+                selectedTrash.remove();
+                activeTrashElements = activeTrashElements.filter(el => el !== selectedTrash);
+                selectedTrash = null;
+            });
+        });
+
+        document.addEventListener('click', () => {
+            if (selectedTrash) {
+                selectedTrash.classList.remove('selected');
+                selectedTrash = null;
+            }
+        });
+
+        function updateScore(value) {
+            score = Math.max(0, score + value);
+            scoreText.textContent = score;
+        }
+
+        function bounceBin(binEl) {
+            binEl.style.transform = "scale(1.1)";
+            setTimeout(() => { binEl.style.transform = "scale(1)"; }, 100);
+        }
+
+        function startGame() {
+            score = 0;
+            timeLeft = 45;
+            gameActive = true;
+            selectedTrash = null;
+            scoreText.textContent = score;
+            timerText.textContent = timeLeft;
+            overlay.style.display = 'none';
+
+            spawnInterval = setInterval(spawnTrash, 3000);
+
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                timerText.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+
+            spawnTrash();
+        }
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(gameInterval);
+            clearInterval(spawnInterval);
+            
+            activeTrashElements.forEach(el => el.remove());
+            activeTrashElements = [];
+            selectedTrash = null;
+
+            overlay.style.display = 'flex';
+            overlayTitle.textContent = "GAME OVER";
+            overlayDesc.textContent = `Your Final Score: ${score} points`;
+            startBtn.textContent = "REPLAY";
+        }
+
+        startBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            startGame();
+        });
+    </script>
+</body>
+</html>

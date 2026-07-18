@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>심해 탐험가 - 코인과 함정</title>
+    <style>
+        body {
+            background-color: #111;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+        }
+        canvas {
+            background-color: #000;
+            border: 2px solid #333;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+            margin-top: 10px;
+        }
+        .instructions {
+            text-align: center;
+        }
+        kbd {
+            background-color: #333;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        #stats {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            font-weight: bold;
+            background-color: #222;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            display: flex;
+            gap: 20px;
+        }
+        .hp-text { color: #ff4444; }
+        .star-text { color: #ffd700; }
+    </style>
+</head>
+<body>
+
+    <div class="instructions">
+        <h2>심해 탐험가</h2>
+        <p><kbd>방향키</kbd> 이동 | <kbd>스페이스바</kbd> 음파 탐지</p>
+    </div>
+    
+    <div id="stats">
+        <span class="hp-text">HP: ❤️❤️❤️</span>
+        <span class="star-text">별: ☆☆☆</span>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const statsDiv = document.getElementById('stats');
+        
+        const TILE_SIZE = 30; 
+        const COLS = 21;
+        const ROWS = 21;
+
+        canvas.width = COLS * TILE_SIZE;
+        canvas.height = ROWS * TILE_SIZE;
+
+        let map = [];
+        let player = { x: 1, y: 1 };
+        
+        let hp = 3;
+        let stars = 0;
+        
+        let sonar = { 
+            active: false, 
+            radius: 150, 
+            maxTime: 700, 
+            timer: 0 
+        };
+
+        // UI 업데이트 함수
+        function updateStats() {
+            let hpString = '❤️'.repeat(hp) + '🖤'.repeat(3 - hp);
+            let starString = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+            statsDiv.innerHTML = `<span class="hp-text">HP: ${hpString}</span> <span class="star-text">별: ${starString}</span>`;
+        }
+
+        // 미로 및 아이템 생성
+        function generateMaze() {
+            for (let y = 0; y < ROWS; y++) {
+                map[y] = [];
+                for (let x = 0; x < COLS; x++) {
+                    map[y][x] = 1;
+                }
+            }
+
+            let stack = [];
+            let startX = 1, startY = 1;
+            map[startY][startX] = 0;
+            stack.push({x: startX, y: startY});
+
+            while (stack.length > 0) {
+                let current = stack[stack.length - 1];
+                let neighbors = [];
+                const dirs = [
+                    { dx: 0, dy: -2 }, { dx: 0, dy: 2 },
+                    { dx: -2, dy: 0 }, { dx: 2, dy: 0 }
+                ];
+
+                for (let d of dirs) {
+                    let nx = current.x + d.dx;
+                    let ny = current.y + d.dy;
+                    if (nx > 0 && nx < COLS - 1 && ny > 0 && ny < ROWS - 1 && map[ny][nx] === 1) {
+                        neighbors.push({ nx, ny, wallX: current.x + d.dx/2, wallY: current.y + d.dy/2 });
+                    }
+                }
+
+                if (neighbors.length > 0) {
+                    let next = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    map[next.wallY][next.wallX] = 0;
+                    map[next.ny][next.nx] = 0;
+                    stack.push({ x: next.nx, y: next.ny });
+                } else {
+                    stack.pop();
+                }
+            }
+
+            // 목표 지점 설정 (2)
+            map[ROWS - 2][COLS - 2] = 2;
+            
+            // 빈 공간 찾기 (시작점, 목표점 제외)
+            let emptySpaces = [];
+            for (let y = 1; y < ROWS - 1; y++) {
+                for (let x = 1; x < COLS - 1; x++) {
+                    if (map[y][x] === 0 && !(x === 1 && y === 1) && !(x === COLS - 2 && y === ROWS - 2)) {
+                        emptySpaces.push({x, y});
+                    }
+                }
+            }
+            
+            // 코인(별) 3개 배치 (3)
+            for(let i=0; i<3; i++) {
+                if(emptySpaces.length > 0) {
+                    let idx = Math.floor(Math.random() * emptySpaces.length);
+                    let pos = emptySpaces.splice(idx, 1)[0];
+                    map[pos.y][pos.x] = 3; 
+                }
+            }
+
+            // 함정 7개 배치 (4)
+            for(let i=0; i<7; i++) {
+                if(emptySpaces.length > 0) {
+                    let idx = Math.floor(Math.random() * emptySpaces.length);
+                    let pos = emptySpaces.splice(idx, 1)[0];
+                    map[pos.y][pos.x] = 4;
+                }
+            }
+            
+            player.x = 1;
+            player.y = 1;
+            stars = 0; // 맵 시작 시 별 초기화
+            updateStats();
+        }
+
+        generateMaze();
+
+        window.addEventListener('keydown', (e) => {
+            let newX = player.x;
+            let newY = player.y;
+
+            if (e.key === 'ArrowUp') newY--;
+            if (e.key === 'ArrowDown') newY++;
+            if (e.key === 'ArrowLeft') newX--;
+            if (e.key === 'ArrowRight') newX++;
+
+            let nextTile = map[newY] && map[newY][newX];
+
+            if (nextTile !== undefined && nextTile !== 1) {
+                player.x = newX;
+                player.y = newY;
+
+                // 아이템 획득 및 함정 처리
+                if (nextTile === 3) {
+                    stars++;
+                    map[newY][newX] = 0; // 코인 획득 후 빈 공간 처리
+                    updateStats();
+                } else if (nextTile === 4) {
+                    hp--;
+                    map[newY][newX] = 0; // 함정 밟은 후 사라짐
+                    updateStats();
+                    
+                    if (hp <= 0) {
+                        setTimeout(() => {
+                            alert('게임 오버! 함정에 의해 체력을 모두 잃었습니다.');
+                            hp = 3;
+                            generateMaze();
+                        }, 50);
+                    }
+                } else if (nextTile === 2) {
+                    setTimeout(() => {
+                        if (stars === 3) {
+                            alert('완벽합니다! 별 3개를 모두 모으고 탈출했습니다! 다음 구역으로 이동합니다.');
+                        } else {
+                            alert(`탈출 성공! 하지만 획득한 별이 ${stars}개뿐이군요. 다음 구역으로 이동합니다.`);
+                        }
+                        generateMaze();
+                    }, 50);
+                }
+            }
+
+            if (e.key === ' ' && !sonar.active) {
+                sonar.active = true;
+                sonar.timer = Date.now();
+                e.preventDefault(); 
+            }
+        });
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let now = Date.now();
+            let elapsedTime = now - sonar.timer;
+            
+            if (sonar.active && elapsedTime > sonar.maxTime) {
+                sonar.active = false;
+            }
+
+            const px = player.x * TILE_SIZE + TILE_SIZE / 2;
+            const py = player.y * TILE_SIZE + TILE_SIZE / 2;
+
+            for (let y = 0; y < ROWS; y++) {
+                for (let x = 0; x < COLS; x++) {
+                    const tx = x * TILE_SIZE + TILE_SIZE / 2;
+                    const ty = y * TILE_SIZE + TILE_SIZE / 2;
+                    const dist = Math.hypot(px - tx, py - ty);
+
+                    // 음파 닿은 범위 렌더링
+                    if (sonar.active && dist < sonar.radius) {
+                        if (map[y][x] === 1) {
+                            // 벽
+                            ctx.fillStyle = '#222';
+                            ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                            ctx.strokeStyle = '#00ffcc';
+                            ctx.lineWidth = 1;
+                            ctx.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                        } else if (map[y][x] === 2) {
+                            // 목표 지점
+                            ctx.fillStyle = 'gold';
+                            ctx.fillRect(x * TILE_SIZE + 5, y * TILE_SIZE + 5, TILE_SIZE - 10, TILE_SIZE - 10);
+                        } else if (map[y][x] === 3) {
+                            // 코인 (노란색 원형)
+                            ctx.beginPath();
+                            ctx.arc(tx, ty, TILE_SIZE / 4, 0, Math.PI * 2);
+                            ctx.fillStyle = 'yellow';
+                            ctx.fill();
+                            ctx.strokeStyle = '#fff';
+                            ctx.stroke();
+                        } else if (map[y][x] === 4) {
+                            // 함정 (빨간색 삼각형)
+                            ctx.beginPath();
+                            ctx.moveTo(tx, ty - TILE_SIZE/3);
+                            ctx.lineTo(tx + TILE_SIZE/3, ty + TILE_SIZE/3);
+                            ctx.lineTo(tx - TILE_SIZE/3, ty + TILE_SIZE/3);
+                            ctx.closePath();
+                            ctx.fillStyle = 'red';
+                            ctx.fill();
+                        }
+                    }
+                }
+            }
+
+            // 음파 파동 이펙트
+            if (sonar.active) {
+                let progress = elapsedTime / sonar.maxTime; 
+                ctx.beginPath();
+                ctx.arc(px, py, sonar.radius * progress, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(0, 255, 204, ${1 - progress})`;
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+
+            // 플레이어
+            ctx.beginPath();
+            ctx.arc(px, py, TILE_SIZE / 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#00ffcc';
+            ctx.fill();
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+</html>

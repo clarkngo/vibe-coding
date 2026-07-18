@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>AI Truth Detection Game</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top, #12372c 0%, #0b1512 35%, #050807 100%);
+      color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 760px;
+      padding: 36px;
+      border: 1px solid rgba(0, 255, 136, 0.35);
+      border-radius: 20px;
+      background-color: rgba(10, 18, 15, 0.94);
+      box-shadow: 0 0 35px rgba(0, 255, 136, 0.12);
+    }
+
+    .header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin-bottom: 10px;
+      color: #00ff88;
+      font-size: 40px;
+      letter-spacing: 1px;
+    }
+
+    .header p {
+      color: #b7c8c0;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .status-badge {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 7px 14px;
+      border: 1px solid #00ff88;
+      border-radius: 999px;
+      color: #00ff88;
+      font-size: 13px;
+    }
+
+    .panel {
+      padding: 24px;
+      border: 1px solid #263d34;
+      border-radius: 16px;
+      background-color: #101a16;
+    }
+
+    .section-label {
+      margin-bottom: 12px;
+      color: #00ff88;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .question-box {
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      border-left: 5px solid #00ff88;
+      border-radius: 12px;
+      background-color: #17251f;
+      text-align: center;
+    }
+
+    #questionText {
+      font-size: 24px;
+      line-height: 1.5;
+    }
+
+    .answer-area {
+      margin-top: 24px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 130px;
+      padding: 16px;
+      border: 1px solid #3d5c4f;
+      border-radius: 12px;
+      outline: none;
+      background-color: #0b120f;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 17px;
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    textarea:focus {
+      border-color: #00ff88;
+      box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.12);
+    }
+
+    textarea::placeholder {
+      color: #6f8179;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    button {
+      flex: 1;
+      min-height: 52px;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+      transform: none;
+    }
+
+    .primary-button {
+      background-color: #00ff88;
+      color: #07100c;
+    }
+
+    .primary-button:hover {
+      background-color: #39ffa3;
+    }
+
+    .secondary-button {
+      border: 1px solid #426152;
+      background-color: #1a2922;
+      color: #ffffff;
+    }
+
+    .secondary-button:hover {
+      background-color: #263b31;
+    }
+
+    #loadingSection,
+    #resultSection {
+      display: none;
+      margin-top: 24px;
+    }
+
+    .loading-title {
+      margin-bottom: 14px;
+      color: #00ff88;
+      text-align: center;
+    }
+
+    .progress-track {
+      height: 18px;
+      overflow: hidden;
+      border-radius: 999px;
+      background-color: #26342e;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #00c96b, #00ff88);
+      transition: width 0.2s ease;
+    }
+
+    #statusText {
+      margin-top: 12px;
+      color: #c7d6cf;
+      text-align: center;
+    }
+
+    .scan-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .scan-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background-color: #16231d;
+      color: #aebdb6;
+      font-size: 14px;
+    }
+
+    .scan-item span:last-child {
+      color: #00ff88;
+    }
+
+    .result-title {
+      margin-bottom: 18px;
+      color: #00ff88;
+      text-align: center;
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .score-card {
+      padding: 20px;
+      border: 1px solid #315144;
+      border-radius: 14px;
+      background-color: #14211b;
+      text-align: center;
+    }
+
+    .score-card p {
+      margin-bottom: 8px;
+      color: #9db0a7;
+    }
+
+    .score-card strong {
+      font-size: 40px;
+    }
+
+    .truth-score {
+      color: #00ff88;
+    }
+
+    .lie-score {
+      color: #ff6b6b;
+    }
+
+    .opinion-box {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 12px;
+      background-color: #192820;
+      text-align: center;
+    }
+
+    #opinionText {
+      margin-bottom: 8px;
+      font-size: 24px;
+    }
+
+    #confidenceText {
+      color: #aebdb6;
+    }
+
+    .report-box {
+      margin-top: 18px;
+      padding: 18px;
+      border: 1px solid #2f483e;
+      border-radius: 12px;
+      background-color: #0d1612;
+    }
+
+    .report-box h3 {
+      margin-bottom: 12px;
+      color: #00ff88;
+    }
+
+    #reportList {
+      padding-left: 22px;
+      color: #c8d5cf;
+      line-height: 1.8;
+    }
+
+    .disclaimer {
+      margin-top: 22px;
+      color: #75877f;
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    @media (max-width: 620px) {
+      .game-container {
+        padding: 22px;
+      }
+
+      .header h1 {
+        font-size: 30px;
+      }
+
+      #questionText {
+        font-size: 20px;
+      }
+
+      .button-row {
+        flex-direction: column;
+      }
+
+      .score-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="game-container">
+    <header class="header">
+      <h1>AI Truth Detection Game</h1>
+
+      <p>
+        Answer a randomly selected question.<br />
+        The system will analyze your response and generate a simulated result.
+      </p>
+
+      <span class="status-badge">AI ANALYSIS READY</span>
+    </header>
+
+    <section class="panel">
+      <p class="section-label">Random Question</p>
+
+      <div class="question-box">
+        <p id="questionText">Press “New Question” to begin.</p>
+      </div>
+
+      <div class="answer-area">
+        <p class="section-label">Your Answer</p>
+
+        <textarea
+          id="answerInput"
+          placeholder="Type your answer here..."
+          disabled
+        ></textarea>
+
+        <div class="button-row">
+          <button
+            type="button"
+            id="newQuestionButton"
+            class="secondary-button"
+          >
+            New Question
+          </button>
+
+          <button
+            type="button"
+            id="analyzeButton"
+            class="primary-button"
+            disabled
+          >
+            Analyze Answer
+          </button>
+        </div>
+      </div>
+
+      <section id="loadingSection">
+        <h2 class="loading-title">Analyzing Response...</h2>
+
+        <div class="progress-track">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+
+        <p id="statusText">Initializing AI system...</p>
+
+        <div class="scan-list">
+          <div class="scan-item">
+            <span>Response Length</span>
+            <span id="lengthStatus">Waiting</span>
+          </div>
+
+          <div class="scan-item">
+            <span>Language Pattern</span>
+            <span id="languageStatus">Waiting</span>
+          </div>
+
+          <div class="scan-item">
+            <span>Confidence Level</span>
+            <span id="confidenceStatus">Waiting</span>
+          </div>
+
+          <div class="scan-item">
+            <span>Response Timing</span>
+            <span id="timingStatus">Waiting</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="resultSection">
+        <h2 class="result-title">AI Analysis Complete</h2>
+
+        <div class="score-grid">
+          <div class="score-card">
+            <p>Truth Probability</p>
+            <strong id="truthScore" class="truth-score">0%</strong>
+          </div>
+
+          <div class="score-card">
+            <p>Lie Probability</p>
+            <strong id="lieScore" class="lie-score">0%</strong>
+          </div>
+        </div>
+
+        <div class="opinion-box">
+          <h3 id="opinionText"></h3>
+          <p id="confidenceText"></p>
+        </div>
+
+        <div class="report-box">
+          <h3>AI Report</h3>
+          <ul id="reportList"></ul>
+        </div>
+
+        <div class="button-row">
+          <button
+            type="button"
+            id="nextQuestionButton"
+            class="primary-button"
+          >
+            Next Random Question
+          </button>
+        </div>
+      </section>
+    </section>
+
+    <p class="disclaimer">
+      This game is for entertainment purposes only. It cannot scientifically
+      determine whether a person is telling the truth.
+    </p>
+  </main>
+
+  <script>
+    const questions = [
+      "What is your name?",
+      "Did you eat breakfast this morning?",
+      "Are you a man?",
+      "Are you a woman?",
+      "Did you sleep well last night?",
+      "Did you brush your teeth today?",
+      "Do you enjoy programming?",
+      "Do you use AI every day?",
+      "Have you ever skipped a class?",
+      "Have you ever been late for class?",
+      "Have you ever told a lie to your friend?",
+      "Have you ever cheated on an exam?",
+      "Did you finish all of your homework?",
+      "Do you always tell the truth?",
+      "Have you ever blamed someone else for your mistake?",
+      "Have you ever broken a promise?",
+      "Have you ever pretended to be sick?",
+      "Have you ever forgotten a friend's birthday?",
+      "Do you like coffee?",
+      "Do you like pizza?",
+      "Do you like studying?",
+      "Do you exercise regularly?",
+      "Are you a morning person?",
+      "Did you sleep more than seven hours last night?",
+      "Are you over twenty years old?",
+      "Do you enjoy traveling?",
+      "Have you ever lost your wallet?",
+      "Have you ever cried while watching a movie?",
+      "Would you tell a small lie to protect a friend?",
+      "Do you think AI will replace humans?",
+      "Would you survive a zombie apocalypse?",
+      "Do you think you are a lucky person?",
+      "Have you ever laughed at the wrong moment?",
+      "Are you answering this question honestly?",
+      "Do you think this AI system is accurate?"
+    ];
+
+    const questionText = document.getElementById("questionText");
+    const answerInput = document.getElementById("answerInput");
+
+    const newQuestionButton =
+      document.getElementById("newQuestionButton");
+
+    const analyzeButton =
+      document.getElementById("analyzeButton");
+
+    const nextQuestionButton =
+      document.getElementById("nextQuestionButton");
+
+    const loadingSection =
+      document.getElementById("loadingSection");
+
+    const resultSection =
+      document.getElementById("resultSection");
+
+    const progressBar =
+      document.getElementById("progressBar");
+
+    const statusText =
+      document.getElementById("statusText");
+
+    const lengthStatus =
+      document.getElementById("lengthStatus");
+
+    const languageStatus =
+      document.getElementById("languageStatus");
+
+    const confidenceStatus =
+      document.getElementById("confidenceStatus");
+
+    const timingStatus =
+      document.getElementById("timingStatus");
+
+    const truthScore =
+      document.getElementById("truthScore");
+
+    const lieScore =
+      document.getElementById("lieScore");
+
+    const opinionText =
+      document.getElementById("opinionText");
+
+    const confidenceText =
+      document.getElementById("confidenceText");
+
+    const reportList =
+      document.getElementById("reportList");
+
+    let currentQuestionIndex = -1;
+    let answerStartTime = null;
+    let isAnalyzing = false;
+
+    function createRandomQuestion() {
+      if (isAnalyzing) {
+        return;
+      }
+
+      let newIndex;
+
+      do {
+        newIndex = Math.floor(Math.random() * questions.length);
+      } while (
+        questions.length > 1 &&
+        newIndex === currentQuestionIndex
+      );
+
+      currentQuestionIndex = newIndex;
+
+      questionText.textContent = questions[currentQuestionIndex];
+      answerInput.value = "";
+      answerInput.disabled = false;
+      analyzeButton.disabled = true;
+
+      loadingSection.style.display = "none";
+      resultSection.style.display = "none";
+
+      resetAnalysisDisplay();
+
+      answerStartTime = Date.now();
+      answerInput.focus();
+    }
+
+    function resetAnalysisDisplay() {
+      progressBar.style.width = "0%";
+      statusText.textContent = "Initializing AI system...";
+
+      lengthStatus.textContent = "Waiting";
+      languageStatus.textContent = "Waiting";
+      confidenceStatus.textContent = "Waiting";
+      timingStatus.textContent = "Waiting";
+    }
+
+    function clamp(number, minimum, maximum) {
+      return Math.min(Math.max(number, minimum), maximum);
+    }
+
+    function calculateResult(answer, responseTime) {
+      let truth = 50;
+      const reasons = [];
+
+      const normalizedAnswer = answer.toLowerCase().trim();
+      const wordCount = normalizedAnswer
+        .split(/\s+/)
+        .filter(Boolean).length;
+
+      const uncertainWords = [
+        "maybe",
+        "probably",
+        "perhaps",
+        "i think",
+        "not sure",
+        "i guess"
+      ];
+
+      const defensiveWords = [
+        "honestly",
+        "believe me",
+        "trust me",
+        "i swear",
+        "to be honest"
+      ];
+
+      if (wordCount <= 2) {
+        truth -= 10;
+        reasons.push("Very short answer: Lie probability +10%");
+      } else if (wordCount >= 8) {
+        truth += 8;
+        reasons.push("Detailed answer: Truth probability +8%");
+      } else {
+        reasons.push("Normal answer length detected");
+      }
+
+      let uncertainCount = 0;
+
+      uncertainWords.forEach((word) => {
+        if (normalizedAnswer.includes(word)) {
+          uncertainCount += 1;
+        }
+      });
+
+      if (uncertainCount > 0) {
+        const penalty = Math.min(uncertainCount * 10, 20);
+        truth -= penalty;
+
+        reasons.push(
+          `Uncertain language detected: Lie probability +${penalty}%`
+        );
+      } else {
+        reasons.push("No uncertain expressions detected");
+      }
+
+      let defensiveCount = 0;
+
+      defensiveWords.forEach((word) => {
+        if (normalizedAnswer.includes(word)) {
+          defensiveCount += 1;
+        }
+      });
+
+      if (defensiveCount > 0) {
+        const penalty = Math.min(defensiveCount * 5, 10);
+        truth -= penalty;
+
+        reasons.push(
+          `Defensive language detected: Lie probability +${penalty}%`
+        );
+      }
+
+      const exclamationCount =
+        (normalizedAnswer.match(/!/g) || []).length;
+
+      if (exclamationCount >= 3) {
+        truth -= 5;
+        reasons.push("Too many exclamation marks: Lie probability +5%");
+      }
+
+      const repeatedWordPattern = /\b(\w+)\s+\1\b/i;
+
+      if (repeatedWordPattern.test(normalizedAnswer)) {
+        truth -= 7;
+        reasons.push("Repeated words detected: Lie probability +7%");
+      }
+
+      if (responseTime < 3) {
+        truth += 5;
+        reasons.push("Fast response: Truth probability +5%");
+      } else if (responseTime > 20) {
+        truth -= 8;
+        reasons.push("Long hesitation: Lie probability +8%");
+      } else {
+        reasons.push("Normal response time detected");
+      }
+
+      const randomAdjustment =
+        Math.floor(Math.random() * 17) - 8;
+
+      truth += randomAdjustment;
+
+      if (randomAdjustment >= 0) {
+        reasons.push(
+          `Random AI adjustment: Truth probability +${randomAdjustment}%`
+        );
+      } else {
+        reasons.push(
+          `Random AI adjustment: Lie probability +${Math.abs(
+            randomAdjustment
+          )}%`
+        );
+      }
+
+      truth = clamp(Math.round(truth), 5, 95);
+
+      return {
+        truth,
+        lie: 100 - truth,
+        reasons
+      };
+    }
+
+    function displayFinalResult(result) {
+      truthScore.textContent = `${result.truth}%`;
+      lieScore.textContent = `${result.lie}%`;
+
+      if (result.truth >= 70) {
+        opinionText.textContent = "Likely Telling the Truth";
+        confidenceText.textContent = "AI Confidence Level: HIGH";
+      } else if (result.truth >= 45) {
+        opinionText.textContent = "Result Is Uncertain";
+        confidenceText.textContent = "AI Confidence Level: MEDIUM";
+      } else {
+        opinionText.textContent = "Probably Telling a Lie";
+        confidenceText.textContent = "AI Confidence Level: HIGH";
+      }
+
+      reportList.innerHTML = "";
+
+      result.reasons.forEach((reason) => {
+        const item = document.createElement("li");
+        item.textContent = reason;
+        reportList.appendChild(item);
+      });
+
+      loadingSection.style.display = "none";
+      resultSection.style.display = "block";
+
+      answerInput.disabled = false;
+      newQuestionButton.disabled = false;
+      analyzeButton.disabled = false;
+      isAnalyzing = false;
+    }
+
+    function startAnalysis() {
+      const answer = answerInput.value.trim();
+
+      if (!answer) {
+        alert("Please enter your answer.");
+        answerInput.focus();
+        return;
+      }
+
+      if (isAnalyzing) {
+        return;
+      }
+
+      isAnalyzing = true;
+
+      answerInput.disabled = true;
+      analyzeButton.disabled = true;
+      newQuestionButton.disabled = true;
+
+      resultSection.style.display = "none";
+      loadingSection.style.display = "block";
+
+      resetAnalysisDisplay();
+
+      const responseTime = Math.max(
+        1,
+        Math.round((Date.now() - answerStartTime) / 1000)
+      );
+
+      const result = calculateResult(answer, responseTime);
+
+      let progress = 0;
+
+      const analysisTimer = setInterval(() => {
+        progress += 4;
+        progressBar.style.width = `${progress}%`;
+
+        if (progress >= 12) {
+          statusText.textContent = "Scanning response length...";
+          lengthStatus.textContent = "Scanning";
+        }
+
+        if (progress >= 30) {
+          lengthStatus.textContent = "Complete";
+          statusText.textContent = "Checking language patterns...";
+          languageStatus.textContent = "Scanning";
+        }
+
+        if (progress >= 50) {
+          languageStatus.textContent = "Complete";
+          statusText.textContent = "Measuring confidence...";
+          confidenceStatus.textContent = "Scanning";
+        }
+
+        if (progress >= 70) {
+          confidenceStatus.textContent = "Complete";
+          statusText.textContent = "Analyzing response timing...";
+          timingStatus.textContent = "Scanning";
+        }
+
+        if (progress >= 88) {
+          timingStatus.textContent = "Complete";
+          statusText.textContent = "Generating final AI report...";
+        }
+
+        if (progress >= 100) {
+          clearInterval(analysisTimer);
+
+          setTimeout(() => {
+            displayFinalResult(result);
+          }, 500);
+        }
+      }, 100);
+    }
+
+    answerInput.addEventListener("input", () => {
+      analyzeButton.disabled = answerInput.value.trim().length === 0;
+    });
+
+    newQuestionButton.addEventListener(
+      "click",
+      createRandomQuestion
+    );
+
+    nextQuestionButton.addEventListener(
+      "click",
+      createRandomQuestion
+    );
+
+    analyzeButton.addEventListener(
+      "click",
+      startAnalysis
+    );
+
+    answerInput.addEventListener("keydown", (event) => {
+      if (
+        event.ctrlKey &&
+        event.key === "Enter" &&
+        !analyzeButton.disabled
+      ) {
+        startAnalysis();
+      }
+    });
+
+    createRandomQuestion();
+  </script>
+</body>
+</html>

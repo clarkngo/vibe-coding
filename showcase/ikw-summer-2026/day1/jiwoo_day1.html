@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>오늘 뭐 입지? 🐣 대학생 OOTD 코디 추천</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --baby-blue: #8FCBEF;
+    --baby-blue-deep: #5FAEDD;
+    --baby-blue-light: #E4F4FC;
+    --cream: #FFFBF5;
+    --pink: #FFD9E6;
+    --yellow: #FFF0B8;
+    --navy: #33374C;
+    --gray: #8A8FA3;
+    --white: #FFFFFF;
+    --shadow: 0 10px 28px rgba(95, 174, 221, 0.16);
+    --shadow-sm: 0 4px 12px rgba(51,55,76,0.06);
+    --radius-lg: 28px;
+    --radius-md: 20px;
+    --radius-sm: 14px;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  body{
+    font-family:'Gowun Dodum', sans-serif;
+    background:
+      radial-gradient(circle at 15% 0%, var(--baby-blue-light) 0%, transparent 45%),
+      radial-gradient(circle at 90% 15%, var(--pink) 0%, transparent 35%),
+      var(--cream);
+    min-height:100vh;
+    color:var(--navy);
+    display:flex;
+    justify-content:center;
+    padding:24px 12px 60px;
+  }
+
+  .app{
+    width:100%;
+    max-width:460px;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    text-align:center;
+    padding:18px 10px 6px;
+    position:relative;
+  }
+  .hero .badge{
+    display:inline-block;
+    background:var(--white);
+    border:2px dashed var(--baby-blue-deep);
+    color:var(--baby-blue-deep);
+    font-family:'Jua', sans-serif;
+    font-size:13px;
+    padding:5px 14px;
+    border-radius:999px;
+    margin-bottom:10px;
+    letter-spacing:0.5px;
+  }
+  .hero h1{
+    font-family:'Jua', sans-serif;
+    font-size:30px;
+    line-height:1.35;
+    color:var(--navy);
+  }
+  .hero h1 span{
+    color:var(--baby-blue-deep);
+  }
+  .hero p{
+    margin-top:8px;
+    font-size:14.5px;
+    color:var(--gray);
+  }
+
+  /* ---------- Section shared ---------- */
+  .section-title{
+    font-family:'Jua', sans-serif;
+    font-size:17px;
+    margin-bottom:12px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .section-title .num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:24px; height:24px;
+    background:var(--baby-blue);
+    color:var(--white);
+    border-radius:50%;
+    font-size:13px;
+    font-family:'Jua', sans-serif;
+  }
+
+  /* ---------- Weather cards ---------- */
+  .weather-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:10px;
+  }
+  .weather-card{
+    background:var(--white);
+    border:2px solid transparent;
+    border-radius:var(--radius-sm);
+    box-shadow:var(--shadow-sm);
+    padding:14px 4px 10px;
+    text-align:center;
+    cursor:pointer;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .weather-card:hover{ transform:translateY(-3px); }
+  .weather-card .emoji{ font-size:26px; display:block; margin-bottom:6px; }
+  .weather-card .label{ font-size:12.5px; color:var(--navy); }
+  .weather-card.selected{
+    border-color:var(--baby-blue-deep);
+    background:var(--baby-blue-light);
+    box-shadow:var(--shadow);
+    transform:translateY(-3px) scale(1.03);
+  }
+
+  /* ---------- Style cards ---------- */
+  .style-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .style-card{
+    background:var(--white);
+    border:2px solid transparent;
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow-sm);
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .style-card:hover{ transform:translateY(-2px); }
+  .style-card .icon{
+    font-size:26px;
+    width:44px; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--baby-blue-light);
+    border-radius:14px;
+    flex-shrink:0;
+  }
+  .style-card .txt strong{ font-size:14.5px; display:block; }
+  .style-card .txt span{ font-size:12px; color:var(--gray); }
+  .style-card.selected{
+    border-color:var(--baby-blue-deep);
+    background:linear-gradient(90deg, var(--baby-blue-light), var(--white));
+    box-shadow:var(--shadow);
+  }
+  .style-card.gwajam .icon{ background:var(--baby-blue); color:var(--white); }
+
+  /* ---------- Gwajam forced banner ---------- */
+  .gwajam-banner{
+    display:none;
+    align-items:center;
+    gap:10px;
+    background:var(--baby-blue);
+    color:var(--white);
+    border-radius:var(--radius-sm);
+    padding:12px 14px;
+    font-size:13px;
+    font-family:'Jua', sans-serif;
+    box-shadow:var(--shadow);
+    animation: pop-in .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .gwajam-banner.show{ display:flex; }
+  .gwajam-banner .b-emoji{ font-size:24px; animation: wiggle 1.1s ease-in-out infinite; }
+  @keyframes pop-in{
+    0%{ transform:scale(.7); opacity:0; }
+    100%{ transform:scale(1); opacity:1; }
+  }
+  @keyframes wiggle{
+    0%,100%{ transform:rotate(-6deg); }
+    50%{ transform:rotate(6deg); }
+  }
+
+  /* ---------- Result ---------- */
+  .result-section{ display:flex; flex-direction:column; gap:14px; }
+  .result-card{
+    background:var(--white);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow);
+    padding:20px;
+    position:relative;
+    overflow:hidden;
+  }
+  .result-card::before{
+    content:"";
+    position:absolute;
+    top:-40px; right:-40px;
+    width:120px; height:120px;
+    background:var(--baby-blue-light);
+    border-radius:50%;
+    z-index:0;
+  }
+  .result-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:relative;
+    z-index:1;
+    margin-bottom:14px;
+  }
+  .result-header h2{
+    font-family:'Jua', sans-serif;
+    font-size:17px;
+  }
+  .result-header .tag{
+    font-size:11.5px;
+    background:var(--baby-blue-light);
+    color:var(--baby-blue-deep);
+    padding:4px 10px;
+    border-radius:999px;
+  }
+
+  .item-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    position:relative;
+    z-index:1;
+  }
+  .item-grid .item-card.wide{ grid-column:1 / -1; }
+  .item-card{
+    background:var(--cream);
+    border-radius:var(--radius-sm);
+    padding:12px 10px;
+    text-align:center;
+    transition: transform .15s ease;
+  }
+  .item-card .item-emoji{
+    font-size:26px;
+    display:block;
+    margin-bottom:4px;
+  }
+  .item-card .item-label{
+    font-size:10.5px;
+    color:var(--gray);
+    margin-bottom:2px;
+  }
+  .item-card .item-value{
+    font-size:12.5px;
+    font-weight:600;
+  }
+  .item-card.settle{ animation: settle-pop .3s ease; }
+  @keyframes settle-pop{
+    0%{ transform:scale(1.12); }
+    100%{ transform:scale(1); }
+  }
+  .item-card.forced{
+    background:var(--baby-blue);
+    color:var(--white);
+  }
+  .item-card.forced .item-label{ color:rgba(255,255,255,.85); }
+
+  .comment-box{
+    margin-top:14px;
+    background:var(--yellow);
+    border-radius:var(--radius-sm);
+    padding:12px 14px;
+    font-size:13px;
+    display:flex;
+    gap:8px;
+    align-items:flex-start;
+    position:relative;
+    z-index:1;
+  }
+  .comment-box .quote-emoji{ font-size:16px; }
+
+  .shuffle-btn{
+    width:100%;
+    background:var(--baby-blue-deep);
+    color:var(--white);
+    border:none;
+    border-radius:999px;
+    padding:15px;
+    font-family:'Jua', sans-serif;
+    font-size:15px;
+    cursor:pointer;
+    box-shadow:var(--shadow);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition: transform .15s ease, background .15s ease;
+  }
+  .shuffle-btn:hover{ background:#4C9DD0; transform:translateY(-2px); }
+  .shuffle-btn:active{ transform:translateY(0); }
+  .shuffle-btn .dice{ display:inline-block; }
+  .shuffle-btn.spinning .dice{ animation: spin .5s linear infinite; }
+  @keyframes spin{
+    100%{ transform:rotate(360deg); }
+  }
+
+  .empty-hint{
+    text-align:center;
+    color:var(--gray);
+    font-size:13px;
+    padding:26px 10px;
+    background:var(--white);
+    border-radius:var(--radius-md);
+    border:2px dashed var(--baby-blue);
+  }
+
+  footer{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--gray);
+    padding-top:6px;
+  }
+
+  @media (max-width:360px){
+    .weather-card .label{ font-size:11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="hero">
+    <span class="badge">경운대 국룰 코디 도우미</span>
+    <h1>오늘 뭐 입지? <span>OOTD</span> 🐣</h1>
+    <p>날씨랑 기분만 골라봐, 코디는 내가 책임질게!</p>
+  </div>
+
+  <div>
+    <div class="section-title"><span class="num">1</span> 오늘 날씨는 어때?</div>
+    <div class="weather-grid" id="weatherGrid"></div>
+  </div>
+
+  <div>
+    <div class="section-title"><span class="num">2</span> 오늘 컨셉을 골라줘</div>
+    <div class="style-list" id="styleList"></div>
+  </div>
+
+  <div id="gwajamBanner" class="gwajam-banner">
+    <span class="b-emoji">🧥</span>
+    <span>🚨 무적의 과잠 모드 발동! 베이비 블루 과잠으로 강제 소환됩니다 (거부 불가)</span>
+  </div>
+
+  <div class="result-section">
+    <div id="emptyHint" class="empty-hint">
+      날씨랑 컨셉을 고르면<br>맞춤 코디가 짠! 하고 나타나요 ✨
+    </div>
+
+    <div id="resultCard" class="result-card" style="display:none;">
+      <div class="result-header">
+        <h2 id="resultTitle">오늘의 추천 코디</h2>
+        <span class="tag" id="resultTag">-</span>
+      </div>
+      <div class="item-grid" id="itemGrid"></div>
+      <div class="comment-box">
+        <span class="quote-emoji">💬</span>
+        <span id="commentText">코디를 골라보세요!</span>
+      </div>
+    </div>
+
+    <button class="shuffle-btn" id="shuffleBtn" style="display:none;">
+      <span class="dice">🎲</span> 랜덤 셔플
+    </button>
+  </div>
+
+  <footer>매일 아침 3초 컷, 옷 고민은 이제 그만 💙</footer>
+</div>
+
+<script>
+/* ---------------- 데이터 ---------------- */
+const weathers = [
+  { key:'hot',   label:'더움',  emoji:'☀️' },
+  { key:'mild',  label:'선선함', emoji:'🌤️' },
+  { key:'cool',  label:'쌀쌀함', emoji:'🍂' },
+  { key:'cold',  label:'추움',  emoji:'❄️' },
+];
+
+const styles = [
+  { key:'comfy',    icon:'🛋️', title:'완전 편하게', desc:'꾸안꾸 츄리닝 모드' },
+  { key:'polished', icon:'💼', title:'나름 꾸밈',   desc:'깔끔 발표 룩 모드' },
+  { key:'gwajam',   icon:'🧥', title:'무적의 과잠 룩', desc:'경운대 과잠 치트키', special:true },
+];
+
+const outfitData = {
+  hot: {
+    comfy:    { outer:['🚫 아우터 없이 쿨하게'], top:['🎽 루즈핏 나시','👕 오버사이즈 반팔티','👚 시원한 린넨 셔츠'], bottom:['🩳 코튼 반바지','👖 와이드 반바지','🩲 트레이닝 반바지'], shoes:['🩴 슬리퍼','👟 캔버스 슬립온','🥿 편한 샌들'], accessory:['🧢 볼캡','🕶️ 선글라스','🧴 선크림'] },
+    polished: { outer:['🚫 아우터 없이 깔끔하게'], top:['👔 반팔 셔츠','👚 카라 니트'], bottom:['👖 슬랙스','👗 미디 스커트'], shoes:['👞 로퍼','🥿 플랫슈즈'], accessory:['⌚ 시계','💼 에코백'] },
+    gwajam:   { outer:['🧥 베이비 블루 과잠'], top:['👕 흰색 반팔티','🎽 시원한 이너티'], bottom:['👖 데님 반바지','🩳 편한 반바지'], shoes:['👟 스니커즈','🩴 슬리퍼'], accessory:['📱 에어팟과 전공책','🌬️ 부채 대신 과잠 펄럭이기'] },
+  },
+  mild: {
+    comfy:    { outer:['🧥 얇은 가디건','👚 셔츠 재킷'], top:['👕 반팔 티셔츠','🎽 크롭 나시(이너 필수)'], bottom:['👖 와이드 데님','🩳 카고 반바지'], shoes:['👟 스니커즈','🥿 로퍼'], accessory:['🎧 에어팟','📓 노트'] },
+    polished: { outer:['🧥 가벼운 블레이저','🧥 라이트 트렌치코트'], top:['👔 셔츠','👚 블라우스'], bottom:['👖 슬랙스','👗 플리츠 스커트'], shoes:['👞 로퍼','👠 로우힐'], accessory:['💼 크로스백','📑 발표자료'] },
+    gwajam:   { outer:['🧥 베이비 블루 과잠'], top:['👕 흰색 반팔티','👕 무지 반팔티'], bottom:['👖 그레이 와이드 트레이닝 팬츠','👖 편한 데님'], shoes:['👟 편안한 스니커즈','👟 캔버스화'], accessory:['📱 에어팟과 전공책','🎒 백팩'] },
+  },
+  cool: {
+    comfy:    { outer:['🧥 후드집업','🧶 니트 가디건'], top:['👕 맨투맨','👚 기모 후드티'], bottom:['👖 조거팬츠','👖 스트레이트 데님'], shoes:['👟 운동화','🥾 첼시부츠'], accessory:['🧣 목도리','☕ 텀블러'] },
+    polished: { outer:['🧥 니트 가디건','🧥 트위드 재킷'], top:['👔 셔츠','🧶 니트'], bottom:['👖 슬랙스','👗 H라인 스커트'], shoes:['👞 더비슈즈','🥿 로퍼'], accessory:['🧣 실크 스카프','📱 아이패드'] },
+    gwajam:   { outer:['🧥 베이비 블루 과잠'], top:['👕 맨투맨','👕 후드티(과잠 이너)'], bottom:['👖 트레이닝 팬츠','👖 편한 데님'], shoes:['👟 스니커즈','🥾 워커'], accessory:['📓 과제 프린트물','🎧 에어팟'] },
+  },
+  cold: {
+    comfy:    { outer:['🧥 패딩','🧥 롱패딩'], top:['👕 기모 맨투맨','🧶 니트'], bottom:['👖 기모 조거팬츠','👖 두꺼운 트레이닝 팬츠'], shoes:['👢 어그부츠','👟 방한 스니커즈'], accessory:['🧤 장갑','🧣 목도리','🥶 핫팩'] },
+    polished: { outer:['🧥 울코트','🧥 더블코트'], top:['🧶 터틀넥 니트','👔 셔츠+니트'], bottom:['👖 슬랙스','👗 기모 스커트+레깅스'], shoes:['👢 앵클부츠','👞 로퍼'], accessory:['🧤 가죽장갑','☕ 따뜻한 라떼'] },
+    gwajam:   { outer:['🧥 베이비 블루 과잠'], top:['🧶 기모 맨투맨','🧥 기모 후드(과잠 이너)'], bottom:['👖 기모 조거팬츠','👖 두꺼운 트레이닝 팬츠'], shoes:['👢 방한 스니커즈','👟 어그'], accessory:['🧤 장갑','🥶 핫팩','☕ 아이스 아메리카노(얼죽아 필수템)'] },
+  },
+};
+
+const commentsGeneral = [
+  '이 코디면 오늘 1교시 지각해도 전공 강의실 런웨이 가능!',
+  '과대표 포스가 나는 깔끔한 조합이네요!',
+  '이 정도면 미팅룸도 캠퍼스도 다 씹어먹는 각!',
+  '오늘의 너, 국룰 대학생 그 자체!',
+  '교수님도 눈여겨볼 스타일 지수 100점!',
+  '편의점 갈 때도 인생샷 건질 수 있는 조합!',
+  '이 코디로 캠퍼스 인싸력 +10 상승!',
+  '오늘 하루도 무사히, 그리고 힙하게!',
+  '조모임 자신감 200% 충전 완료!',
+  '이 조합, 소개팅 나가도 안 꿀릴 각!',
+];
+
+const commentsGwajam = [
+  '🚨 무적의 과잠파워 발동! 오늘 학교에서 안 마주치는 사람이 없을 예정!',
+  '과잠 입으면 국룰이지, 어디 가서든 우리 학교 홍보대사!',
+  '이 조합이면 오티, MT, 강의실 어디든 완벽 방어!',
+  '과잠 입은 순간 학과 이미지 담당자로 임명되었습니다 🧥',
+];
+
+const itemMeta = [
+  { key:'outer',     label:'아우터' },
+  { key:'top',       label:'상의' },
+  { key:'bottom',    label:'하의' },
+  { key:'shoes',     label:'신발' },
+  { key:'accessory', label:'소지품' },
+];
+
+/* ---------------- 상태 & 렌더 ---------------- */
+const state = { weather:null, style:null };
+
+const weatherGrid = document.getElementById('weatherGrid');
+const styleList = document.getElementById('styleList');
+const gwajamBanner = document.getElementById('gwajamBanner');
+const emptyHint = document.getElementById('emptyHint');
+const resultCard = document.getElementById('resultCard');
+const resultTag = document.getElementById('resultTag');
+const itemGrid = document.getElementById('itemGrid');
+const commentText = document.getElementById('commentText');
+const shuffleBtn = document.getElementById('shuffleBtn');
+
+function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+weathers.forEach(w=>{
+  const card = document.createElement('div');
+  card.className = 'weather-card';
+  card.dataset.key = w.key;
+  card.innerHTML = `<span class="emoji">${w.emoji}</span><span class="label">${w.label}</span>`;
+  card.addEventListener('click', ()=>{
+    state.weather = w.key;
+    document.querySelectorAll('.weather-card').forEach(c=>c.classList.remove('selected'));
+    card.classList.add('selected');
+    tryRender(true);
+  });
+  weatherGrid.appendChild(card);
+});
+
+styles.forEach(s=>{
+  const card = document.createElement('div');
+  card.className = 'style-card' + (s.special ? ' gwajam' : '');
+  card.dataset.key = s.key;
+  card.innerHTML = `
+    <div class="icon">${s.icon}</div>
+    <div class="txt"><strong>${s.title}</strong><span>${s.desc}</span></div>
+  `;
+  card.addEventListener('click', ()=>{
+    state.style = s.key;
+    document.querySelectorAll('.style-card').forEach(c=>c.classList.remove('selected'));
+    card.classList.add('selected');
+    gwajamBanner.classList.toggle('show', s.key === 'gwajam');
+    tryRender(true);
+  });
+  styleList.appendChild(card);
+});
+
+function tryRender(animate){
+  if(!state.weather || !state.style) return;
+  emptyHint.style.display = 'none';
+  resultCard.style.display = 'block';
+  shuffleBtn.style.display = 'flex';
+
+  const weatherInfo = weathers.find(w=>w.key===state.weather);
+  const styleInfo = styles.find(s=>s.key===state.style);
+  resultTag.textContent = `${weatherInfo.emoji} ${weatherInfo.label} · ${styleInfo.title}`;
+
+  buildItemGrid(animate);
+  setComment();
+}
+
+function buildItemGrid(animate){
+  const pool = outfitData[state.weather][state.style];
+  itemGrid.innerHTML = '';
+
+  itemMeta.forEach(meta=>{
+    const isForcedOuter = (state.style === 'gwajam' && meta.key === 'outer');
+    const finalValue = pickRandom(pool[meta.key]);
+
+    const el = document.createElement('div');
+    el.className = 'item-card' + (isForcedOuter ? ' forced' : '');
+    el.dataset.key = meta.key;
+    el.innerHTML = `
+      <span class="item-label">${meta.label}${isForcedOuter ? ' · 강제 소환 🚨' : ''}</span>
+      <span class="item-value">${finalValue}</span>
+    `;
+    itemGrid.appendChild(el);
+  });
+
+  // 소지품 카드는 넓게
+  const accEl = itemGrid.querySelector('[data-key="accessory"]');
+  if(accEl) accEl.classList.add('wide');
+
+  if(animate){
+    itemGrid.querySelectorAll('.item-card').forEach(el=>{
+      el.classList.add('settle');
+      setTimeout(()=>el.classList.remove('settle'), 300);
+    });
+  }
+}
+
+function setComment(){
+  let pool = commentsGeneral;
+  if(state.style === 'gwajam') pool = commentsGeneral.concat(commentsGwajam);
+  commentText.textContent = pickRandom(pool);
+}
+
+/* ---------------- 셔플 (슬롯머신 연출) ---------------- */
+shuffleBtn.addEventListener('click', ()=>{
+  if(!state.weather || !state.style) return;
+  shuffleBtn.classList.add('spinning');
+  shuffleBtn.disabled = true;
+
+  const pool = outfitData[state.weather][state.style];
+  const cards = itemGrid.querySelectorAll('.item-card');
+  const duration = 1000;
+  const interval = 70;
+
+  const finalValues = {};
+  itemMeta.forEach(meta=>{ finalValues[meta.key] = pickRandom(pool[meta.key]); });
+
+  cards.forEach(card=>{
+    const key = card.dataset.key;
+    const valueEl = card.querySelector('.item-value');
+    const isForcedOuter = (state.style === 'gwajam' && key === 'outer');
+
+    if(isForcedOuter){
+      // 과잠은 흔들리기만 하고 결과는 항상 고정
+      card.style.transform = 'scale(1.05) rotate(-2deg)';
+      setTimeout(()=>{ card.style.transform=''; }, duration);
+      return;
+    }
+
+    const t = setInterval(()=>{
+      valueEl.textContent = pickRandom(pool[key]);
+    }, interval);
+
+    setTimeout(()=>{
+      clearInterval(t);
+      valueEl.textContent = finalValues[key];
+      card.classList.add('settle');
+      setTimeout(()=>card.classList.remove('settle'), 300);
+    }, duration);
+  });
+
+  setTimeout(()=>{
+    shuffleBtn.classList.remove('spinning');
+    shuffleBtn.disabled = false;
+    setComment();
+  }, duration + 60);
+});
+</script>
+</body>
+</html>

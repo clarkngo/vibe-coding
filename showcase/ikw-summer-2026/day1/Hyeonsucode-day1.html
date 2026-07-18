@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>고평점 맛집 추천</title>
+  <style>
+    /* 깔끔하고 직관적인 스타일 적용 */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      text-align: center;
+      background-color: #f5f5f7;
+      padding: 50px 20px;
+      margin: 0;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      background-color: #007aff;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover { background-color: #005bb5; }
+    #results {
+      margin: 30px auto;
+      max-width: 400px;
+      text-align: left;
+    }
+    .restaurant-card {
+      background: #fff;
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .restaurant-card h3 { margin: 0 0 4px 0; font-size: 18px; }
+    .restaurant-card p { margin: 0; color: #555; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <h2>⭐ 평점 4.0 이상 맛집 찾기</h2>
+  <button onclick="findHighRatedRestaurants()">주변 맛집 검색</button>
+  
+  <!-- 검색을 위해 지도 객체가 필요하지만 화면에는 숨김 처리 -->
+  <div id="map" style="display:none;"></div>
+  <div id="results"></div>
+
+  <script>
+    function findHighRatedRestaurants() {
+      // 임의의 기준 좌표 (현재 시애틀)
+      const centerLocation = { lat: 47.6062, lng: -122.3321 };
+      
+      const map = new google.maps.Map(document.getElementById('map'), {
+        center: centerLocation,
+        zoom: 15
+      });
+
+      const service = new google.maps.places.PlacesService(map);
+      const resultsDiv = document.getElementById('results');
+      
+      resultsDiv.innerHTML = "<p style='text-align:center;'>검색 중...</p>";
+
+      // 반경 1.5km 내의 식당 검색
+      service.nearbySearch({
+        location: centerLocation,
+        radius: 1500,
+        type: ['restaurant']
+      }, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          // 평점 4.0 이상만 필터링
+          const highRated = results.filter(place => place.rating && place.rating >= 4.0);
+          
+          if(highRated.length === 0) {
+            resultsDiv.innerHTML = "<p style='text-align:center;'>조건에 맞는 식당이 없습니다.</p>";
+            return;
+          }
+
+          // 결과를 HTML로 변환하여 출력
+          resultsDiv.innerHTML = highRated.map(place => `
+            <div class="restaurant-card">
+              <h3>${place.name}</h3>
+              <p>평점: ⭐ ${place.rating} / 5.0</p>
+            </div>
+          `).join('');
+        } else {
+          resultsDiv.innerHTML = "<p style='text-align:center;'>검색에 실패했습니다.</p>";
+        }
+      });
+    }
+  </script>
+
+  <!-- 아래 YOUR_API_KEY 부분에 실제 구글 맵스 API 키를 넣어야 작동합니다 -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+</body>
+</html>
