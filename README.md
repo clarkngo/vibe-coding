@@ -26,12 +26,12 @@ Gallery of personal builds and student HTML submissions from vibe-coding worksho
 
 **Student Showcase**
 - **KOCSEA Vibe (AI) Coding Winter Camp 2025 (Seattle)** — linked out to its own repo, [team-molla-degree-of-labor](https://clarkngo.github.io/team-molla-degree-of-labor/).
-- **iKW Summer Program 2026** — submissions added day by day under `showcase/ikw-summer-2026/day1/`, `day2/`, `day3/`. Day 1 has 9 student projects live (travel planner, a deep-sea game, a restaurant finder, two AI-truth-detection games, a waste-sorting game, a mock investing sim, an OOTD recommender, and a speed clicker). Day 2 is split into two tracks — `day2/general/` and `day2/engineering-cs/` — since some students already have a programming or engineering background.
+- **iKW Summer Program 2026** — submissions added day by day under `showcase/ikw-summer-2026/day1/`, `day2/`, `day3/`. Day 1 has 9 student projects live (travel planner, a deep-sea game, a restaurant finder, two AI-truth-detection games, a waste-sorting game, a mock investing sim, an OOTD recommender, and a speed clicker), each card credited "by <Name>".
 
 ### Adding a new submission
 
-1. Drop the student's HTML file into the matching day folder, e.g. `showcase/ikw-summer-2026/day1/student-name.html`. For Day 2, use `day2/general/` or `day2/engineering-cs/` depending on the student's track.
-2. Add a card for it in [`showcase/index.html`](showcase/index.html) under that day's (and track's) section (copy an existing `.card` block and update the name, file link, and description).
+1. Drop the student's HTML file into the matching day folder, e.g. `showcase/ikw-summer-2026/day1/student-name.html`.
+2. Add a card for it in [`showcase/index.html`](showcase/index.html) under that day's section (copy an existing `.card` block, update the name/file link/description, and set the `.by` line to the student's name).
 3. Commit and push — GitHub Pages redeploys automatically.
 
 ## Playground
