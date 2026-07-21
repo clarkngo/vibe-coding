@@ -693,7 +693,7 @@
     });
   </script>
 
-  <button id="lang-toggle" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.25);background:rgba(15,35,29,0.85);color:#f3efe6;font:700 12px system-ui,sans-serif;cursor:pointer;backdrop-filter:blur(4px);">EN</button>
+  <button id="lang-toggle" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.25);background:rgba(15,35,29,0.85);color:#f3efe6;font:700 12px system-ui,sans-serif;cursor:pointer;backdrop-filter:blur(4px);">한국어</button>
   <script>
   (function () {
     var DICT = [
@@ -782,7 +782,7 @@
     }
 
     var originalText = new WeakMap();
-    var lang = "ko";
+    var lang = "en";
 
     function walk(node) {
       if (node.nodeType === 3) {
@@ -838,6 +838,9 @@
       });
     });
     mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+
+    document.documentElement.lang = lang;
+    applyLanguage();
   })();
   </script>
 </body>
