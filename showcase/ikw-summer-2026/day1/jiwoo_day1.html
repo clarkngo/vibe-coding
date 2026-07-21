@@ -586,5 +586,234 @@ shuffleBtn.addEventListener('click', ()=>{
   }, duration + 60);
 });
 </script>
+
+<button id="lang-toggle" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 14px;border-radius:20px;border:2px dashed #5FAEDD;background:#FFFBF5;color:#33374C;font:700 12px 'Jua',system-ui,sans-serif;cursor:pointer;">EN</button>
+<script>
+(function () {
+  var DICT = [
+    ["경운대 국룰 코디 도우미", "Gyeongun University's Go-To Outfit Helper"],
+    ["오늘 뭐 입지?", "What should I wear today?"],
+    ["날씨랑 기분만 골라봐, 코디는 내가 책임질게!", "Just pick the weather and mood — I'll handle the outfit!"],
+    ["오늘 날씨는 어때?", "How's the weather today?"],
+    ["오늘 컨셉을 골라줘", "Pick today's vibe"],
+    ["🚨 무적의 과잠 모드 발동! 베이비 블루 과잠으로 강제 소환됩니다 (거부 불가)", "🚨 Invincible Varsity Jacket Mode activated! You're being auto-equipped with the baby blue varsity jacket (no refusals)."],
+    ["날씨랑 컨셉을 고르면", "Pick a weather and a vibe,"],
+    ["맞춤 코디가 짠! 하고 나타나요 ✨", "and your perfect outfit will pop right up ✨"],
+    ["오늘의 추천 코디", "Today's Outfit Pick"],
+    ["코디를 골라보세요!", "Pick your outfit!"],
+    ["랜덤 셔플", "Random Shuffle"],
+    ["매일 아침 3초 컷, 옷 고민은 이제 그만 💙", "Three seconds every morning, no more outfit stress 💙"],
+
+    ["더움", "Hot"],
+    ["선선함", "Mild"],
+    ["쌀쌀함", "Cool"],
+    ["추움", "Cold"],
+
+    ["완전 편하게", "Totally Comfy"],
+    ["꾸안꾸 츄리닝 모드", "Effortless sweats mode"],
+    ["나름 꾸밈", "Put-Together"],
+    ["깔끔 발표 룩 모드", "Clean presentation-look mode"],
+    ["무적의 과잠 룩", "Invincible Varsity Jacket Look"],
+    ["경운대 과잠 치트키", "Gyeongun University varsity jacket cheat code"],
+
+    ["아우터", "Outer"],
+    ["상의", "Top"],
+    ["하의", "Bottom"],
+    ["신발", "Shoes"],
+    ["소지품", "Accessories"],
+
+    ["🚫 아우터 없이 쿨하게", "🚫 No outer, keep it cool"],
+    ["🚫 아우터 없이 깔끔하게", "🚫 No outer, keep it clean"],
+    ["🧥 베이비 블루 과잠", "🧥 Baby blue varsity jacket"],
+    ["🧥 얇은 가디건", "🧥 Thin cardigan"],
+    ["👚 셔츠 재킷", "👚 Shirt jacket"],
+    ["🧥 가벼운 블레이저", "🧥 Light blazer"],
+    ["🧥 라이트 트렌치코트", "🧥 Light trench coat"],
+    ["🧥 후드집업", "🧥 Zip-up hoodie"],
+    ["🧶 니트 가디건", "🧶 Knit cardigan"],
+    ["🧥 트위드 재킷", "🧥 Tweed jacket"],
+    ["🧥 패딩", "🧥 Padded jacket"],
+    ["🧥 롱패딩", "🧥 Long padded jacket"],
+    ["🧥 울코트", "🧥 Wool coat"],
+    ["🧥 더블코트", "🧥 Double-breasted coat"],
+
+    ["🎽 루즈핏 나시", "🎽 Loose-fit tank"],
+    ["👕 오버사이즈 반팔티", "👕 Oversized short-sleeve tee"],
+    ["👚 시원한 린넨 셔츠", "👚 Breezy linen shirt"],
+    ["👔 반팔 셔츠", "👔 Short-sleeve shirt"],
+    ["👚 카라 니트", "👚 Collared knit top"],
+    ["👕 흰색 반팔티", "👕 White short-sleeve tee"],
+    ["🎽 시원한 이너티", "🎽 Cool inner tee"],
+    ["👕 반팔 티셔츠", "👕 Short-sleeve t-shirt"],
+    ["🎽 크롭 나시(이너 필수)", "🎽 Crop tank (inner layer required)"],
+    ["👔 셔츠", "👔 Shirt"],
+    ["👚 블라우스", "👚 Blouse"],
+    ["👕 무지 반팔티", "👕 Plain short-sleeve tee"],
+    ["👕 맨투맨", "👕 Sweatshirt"],
+    ["👚 기모 후드티", "👚 Fleece-lined hoodie"],
+    ["🧶 니트", "🧶 Knit top"],
+    ["👕 후드티(과잠 이너)", "👕 Hoodie (varsity jacket inner layer)"],
+    ["👕 기모 맨투맨", "👕 Fleece-lined sweatshirt"],
+    ["🧶 터틀넥 니트", "🧶 Turtleneck knit"],
+    ["👔 셔츠+니트", "👔 Shirt + knit layer"],
+    ["🧶 기모 맨투맨", "🧶 Fleece-lined sweatshirt"],
+    ["🧥 기모 후드(과잠 이너)", "🧥 Fleece-lined hoodie (varsity jacket inner layer)"],
+
+    ["🩳 코튼 반바지", "🩳 Cotton shorts"],
+    ["👖 와이드 반바지", "👖 Wide-leg shorts"],
+    ["🩲 트레이닝 반바지", "🩲 Training shorts"],
+    ["👖 슬랙스", "👖 Slacks"],
+    ["👗 미디 스커트", "👗 Midi skirt"],
+    ["👖 데님 반바지", "👖 Denim shorts"],
+    ["🩳 편한 반바지", "🩳 Comfy shorts"],
+    ["👖 와이드 데님", "👖 Wide-leg denim"],
+    ["🩳 카고 반바지", "🩳 Cargo shorts"],
+    ["👗 플리츠 스커트", "👗 Pleated skirt"],
+    ["👖 그레이 와이드 트레이닝 팬츠", "👖 Gray wide training pants"],
+    ["👖 편한 데님", "👖 Comfy denim"],
+    ["👖 조거팬츠", "👖 Jogger pants"],
+    ["👖 스트레이트 데님", "👖 Straight-leg denim"],
+    ["👗 H라인 스커트", "👗 H-line skirt"],
+    ["👖 트레이닝 팬츠", "👖 Training pants"],
+    ["👖 기모 조거팬츠", "👖 Fleece-lined jogger pants"],
+    ["👖 두꺼운 트레이닝 팬츠", "👖 Thick training pants"],
+    ["👗 기모 스커트+레깅스", "👗 Fleece-lined skirt + leggings"],
+
+    ["🩴 슬리퍼", "🩴 Slides"],
+    ["👟 캔버스 슬립온", "👟 Canvas slip-ons"],
+    ["🥿 편한 샌들", "🥿 Comfy sandals"],
+    ["👞 로퍼", "👞 Loafers"],
+    ["🥿 플랫슈즈", "🥿 Flats"],
+    ["👟 스니커즈", "👟 Sneakers"],
+    ["👟 편안한 스니커즈", "👟 Comfy sneakers"],
+    ["👟 캔버스화", "👟 Canvas shoes"],
+    ["👟 운동화", "👟 Running shoes"],
+    ["🥾 첼시부츠", "🥾 Chelsea boots"],
+    ["👞 더비슈즈", "👞 Derby shoes"],
+    ["🥾 워커", "🥾 Combat boots"],
+    ["👢 어그부츠", "👢 UGG boots"],
+    ["👟 방한 스니커즈", "👟 Winter sneakers"],
+    ["👢 앵클부츠", "👢 Ankle boots"],
+    ["👢 방한 스니커즈", "👢 Winter boots"],
+    ["👟 어그", "👟 UGGs"],
+
+    ["🧢 볼캡", "🧢 Ball cap"],
+    ["🕶️ 선글라스", "🕶️ Sunglasses"],
+    ["🧴 선크림", "🧴 Sunscreen"],
+    ["⌚ 시계", "⌚ Watch"],
+    ["💼 에코백", "💼 Eco bag"],
+    ["📱 에어팟과 전공책", "📱 AirPods and a major textbook"],
+    ["🌬️ 부채 대신 과잠 펄럭이기", "🌬️ Flap your varsity jacket instead of a fan"],
+    ["🎧 에어팟", "🎧 AirPods"],
+    ["📓 노트", "📓 Notebook"],
+    ["💼 크로스백", "💼 Crossbody bag"],
+    ["📑 발표자료", "📑 Presentation slides"],
+    ["🎒 백팩", "🎒 Backpack"],
+    ["🧣 목도리", "🧣 Scarf"],
+    ["☕ 텀블러", "☕ Tumbler"],
+    ["🧣 실크 스카프", "🧣 Silk scarf"],
+    ["📱 아이패드", "📱 iPad"],
+    ["📓 과제 프린트물", "📓 Assignment printouts"],
+    ["🧤 장갑", "🧤 Gloves"],
+    ["🥶 핫팩", "🥶 Hand warmers"],
+    ["🧤 가죽장갑", "🧤 Leather gloves"],
+    ["☕ 따뜻한 라떼", "☕ Warm latte"],
+    ["☕ 아이스 아메리카노(얼죽아 필수템)", "☕ Iced Americano (a must even in winter)"],
+
+    ["이 코디면 오늘 1교시 지각해도 전공 강의실 런웨이 가능!", "With this fit, even showing up late to your first class turns the lecture hall into a runway!"],
+    ["과대표 포스가 나는 깔끔한 조합이네요!", "A clean combo with total class-president energy!"],
+    ["이 정도면 미팅룸도 캠퍼스도 다 씹어먹는 각!", "This look owns both the meeting room and the campus!"],
+    ["오늘의 너, 국룰 대학생 그 자체!", "Today's you: peak default college student!"],
+    ["교수님도 눈여겨볼 스타일 지수 100점!", "A 100-point style score even your professor would notice!"],
+    ["편의점 갈 때도 인생샷 건질 수 있는 조합!", "A combo good enough for a great photo, even on a convenience-store run!"],
+    ["이 코디로 캠퍼스 인싸력 +10 상승!", "This outfit gives your campus social points a +10 boost!"],
+    ["오늘 하루도 무사히, 그리고 힙하게!", "Have a safe day — and a stylish one!"],
+    ["조모임 자신감 200% 충전 완료!", "Group project confidence: 200% charged!"],
+    ["이 조합, 소개팅 나가도 안 꿀릴 각!", "This combo would hold its own on a blind date too!"],
+    ["🚨 무적의 과잠파워 발동! 오늘 학교에서 안 마주치는 사람이 없을 예정!", "🚨 Invincible varsity-jacket power activated! You're bound to run into everyone on campus today!"],
+    ["과잠 입으면 국룰이지, 어디 가서든 우리 학교 홍보대사!", "Wearing the varsity jacket is the default move — you're our school's ambassador wherever you go!"],
+    ["이 조합이면 오티, MT, 강의실 어디든 완벽 방어!", "This combo has you fully covered for orientation, retreats, or the lecture hall!"],
+    ["과잠 입은 순간 학과 이미지 담당자로 임명되었습니다 🧥", "The moment you put on the varsity jacket, you're officially appointed department image ambassador 🧥"],
+
+    [/^(.+) · 강제 소환 🚨$/, function (m) { var d = translate(m[1]); return (d !== null ? d : m[1]) + " · Auto-Equipped 🚨"; }],
+    [/^(\S+) (.+) · (.+)$/, function (m) {
+      var wd = translate(m[2]);
+      var sd = translate(m[3]);
+      return m[1] + " " + (wd !== null ? wd : m[2]) + " · " + (sd !== null ? sd : m[3]);
+    }]
+  ];
+
+  function translate(text) {
+    for (var i = 0; i < DICT.length; i++) {
+      var pattern = DICT[i][0], repl = DICT[i][1];
+      if (typeof pattern === "string") {
+        if (text === pattern) return repl;
+      } else {
+        var m = pattern.exec(text);
+        if (m) return repl(m);
+      }
+    }
+    return null;
+  }
+
+  var originalText = new WeakMap();
+  var lang = "ko";
+
+  function walk(node) {
+    if (node.nodeType === 3) {
+      if (!originalText.has(node)) originalText.set(node, node.nodeValue);
+      var orig = originalText.get(node);
+      var trimmed = orig.trim();
+      if (!trimmed) return;
+      if (lang === "en") {
+        var t = translate(trimmed);
+        var next = t !== null ? orig.replace(trimmed, t) : orig;
+        if (node.nodeValue !== next) node.nodeValue = next;
+      } else if (node.nodeValue !== orig) {
+        node.nodeValue = orig;
+      }
+    } else if (node.nodeType === 1) {
+      var tag = node.tagName;
+      if (tag === "SCRIPT" || tag === "STYLE" || node.id === "lang-toggle") return;
+      for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+      ["placeholder", "title", "aria-label", "alt"].forEach(function (attr) {
+        if (!node.hasAttribute(attr)) return;
+        var store = node.__i18nAttrs || (node.__i18nAttrs = {});
+        if (!(attr in store)) store[attr] = node.getAttribute(attr);
+        var origV = store[attr];
+        if (lang === "en") {
+          var tv = translate(origV.trim());
+          var nextV = tv !== null ? origV.replace(origV.trim(), tv) : origV;
+          if (node.getAttribute(attr) !== nextV) node.setAttribute(attr, nextV);
+        } else if (node.getAttribute(attr) !== origV) {
+          node.setAttribute(attr, origV);
+        }
+      });
+    }
+  }
+
+  function applyLanguage() { walk(document.body); }
+
+  var btn = document.getElementById("lang-toggle");
+  btn.addEventListener("click", function () {
+    lang = lang === "ko" ? "en" : "ko";
+    btn.textContent = lang === "ko" ? "EN" : "한국어";
+    document.documentElement.lang = lang;
+    applyLanguage();
+  });
+
+  var mo = new MutationObserver(function (mutations) {
+    if (lang !== "en") return;
+    mutations.forEach(function (m) {
+      if (m.type === "childList") {
+        m.addedNodes.forEach(function (n) { walk(n); });
+      } else if (m.type === "characterData") {
+        walk(m.target);
+      }
+    });
+  });
+  mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+})();
+</script>
 </body>
 </html>

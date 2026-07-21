@@ -692,5 +692,153 @@
       }, 500);
     });
   </script>
+
+  <button id="lang-toggle" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.25);background:rgba(15,35,29,0.85);color:#f3efe6;font:700 12px system-ui,sans-serif;cursor:pointer;backdrop-filter:blur(4px);">EN</button>
+  <script>
+  (function () {
+    var DICT = [
+      ["지", "GEO"],
+      ["리", ""],
+      ["는", ""],
+      ["여행", "Journey"],
+      ["지금", "Right here,"],
+      ["이 자리", "right now"],
+      ["에서", ""],
+      ["시작하는", "starts your"],
+      ["위치만 알려주면 도보 또는 근거리로 다닐 수 있는 코스를 순서대로 짜드립니다. 바로 열어볼 수 있는 데모 형태로 구성했습니다.", "Just tell us your location and we'll put together a walkable, nearby route in order for you. This is set up as a demo you can try right away."],
+      ["01 — 위치", "01 — Location"],
+      ["예: 서울 성수동, 부산 해운대 / 비워두고 위치 찾기를 눌러도 됩니다", "e.g. Seongsu-dong Seoul, Haeundae Busan / or leave blank and press Find My Location"],
+      ["📍 내 위치 찾기", "📍 Find My Location"],
+      ["02 — 관심사 (여러 개 선택 가능)", "02 — Interests (select multiple)"],
+      ["맛집", "Restaurants"],
+      ["카페", "Cafés"],
+      ["자연·공원", "Nature & Parks"],
+      ["역사·문화", "History & Culture"],
+      ["쇼핑", "Shopping"],
+      ["야경", "Night Views"],
+      ["사진 명소", "Photo Spots"],
+      ["03 — 코스 길이", "03 — Trip Length"],
+      ["반나절", "Half Day"],
+      ["하루 종일", "Full Day"],
+      ["저녁 나들이", "Evening Outing"],
+      ["코스 만들기", "Build My Route"],
+      ["04 — 지도", "04 — Map"],
+      ["지도 열기", "Open in Maps"],
+      ["이 브라우저는 위치 정보를 지원하지 않습니다. 직접 입력해 주세요.", "This browser doesn't support location services. Please enter your location manually."],
+      ["위치를 확인하는 중입니다…", "Checking your location…"],
+      ["현재 위치 좌표를 확인했습니다. 입력창에 표시해 두었습니다.", "Found your current coordinates. We've filled them into the input above."],
+      ["위치 접근이 거부되었습니다. 위 입력창에 지역명을 직접 적어주세요.", "Location access was denied. Please type a place name into the input above."],
+      ["위치를 입력하거나 \"내 위치 찾기\"를 눌러주세요.", "Please enter a location or press \"Find My Location\"."],
+      ["코스를 짜는 중…", "Building your route…"],
+      ["주변 장소를 조합해 동선을 정리하는 중입니다…", "Putting together nearby places into a route…"],
+      ["코스", "Route"],
+      ["자연", "Nature"],
+      ["문화", "Culture"],
+      ["사진", "Photo"],
+      ["약 6~8시간", "about 6–8 hours"],
+      ["약 2~3시간", "about 2–3 hours"],
+      ["약 3~4시간", "about 3–4 hours"],
+      ["장소 주변 상권", "Near the local commercial area"],
+      ["중심가 바로 근처", "Right near the main street"],
+      ["거리의 한복판", "In the middle of the street"],
+      ["포토존이 많은 골목", "An alley with lots of photo spots"],
+      ["공원 입구", "Park entrance"],
+      ["문화거리", "Culture street"],
+      ["상가 중심부", "Heart of the shopping area"],
+      ["전망이 좋은 지점", "A spot with a great view"],
+      ["눈에 띄는 포인트", "A striking spot"],
+      ["현지인에게도 사랑받는 메뉴와 편안한 분위기를 갖춘 곳으로, 첫 번째 정차 지점으로 만족도가 높습니다.", "A place loved by locals too, with a comfortable atmosphere — a highly satisfying first stop."],
+      ["간단한 식사와 여유로운 시간 보내기에 좋은 포인트입니다.", "A great spot for a simple meal and some relaxed time."],
+      ["커피와 디저트를 즐기며 산책 전후로 쉬어가기 좋은 공간입니다.", "A cozy space to enjoy coffee and dessert, perfect for resting before or after a walk."],
+      ["사진과 휴식이 모두 가능한 분위기 있는 카페입니다.", "An atmospheric café where you can both take photos and relax."],
+      ["바람을 느끼며 천천히 걷기 좋은 공간으로, 코스의 여유를 더해줍니다.", "A pleasant space for a slow walk in the breeze, adding some ease to the route."],
+      ["지역의 이야기를 느낄 수 있는 전시나 명소로, 여행의 맥락을 더해줍니다.", "An exhibit or landmark that lets you feel the area's story, adding context to your trip."],
+      ["간식과 기념품을 함께 챙기기 좋은 구역입니다.", "A good area to pick up snacks and souvenirs together."],
+      ["저녁 무렵의 분위기를 살려주는 조용한 전망 지점입니다.", "A quiet viewpoint that brings out the evening atmosphere."],
+      ["색감과 구성이 좋아 기록 남기기 좋은 곳입니다.", "A place with great color and composition, perfect for capturing memories."],
+      [/^(.+)의 숨은 맛집$/, function (m) { return "Hidden Local Spot in " + m[1]; }],
+      [/^(.+)의 가성비 식당$/, function (m) { return "Budget-Friendly Restaurant in " + m[1]; }],
+      [/^(.+)의 조용한 카페$/, function (m) { return "Quiet Café in " + m[1]; }],
+      [/^(.+)의 감성 카페$/, function (m) { return "Aesthetic Café in " + m[1]; }],
+      [/^(.+)의 공원 산책로$/, function (m) { return "Park Walking Trail in " + m[1]; }],
+      [/^(.+)의 문화 공간$/, function (m) { return "Cultural Space in " + m[1]; }],
+      [/^(.+)의 쇼핑 거리$/, function (m) { return "Shopping Street in " + m[1]; }],
+      [/^(.+)의 야경 포인트$/, function (m) { return "Night View Spot in " + m[1]; }],
+      [/^(.+)의 사진 명소$/, function (m) { return "Photo Spot in " + m[1]; }],
+      [/^(\d+)곳 · (.+)$/, function (m) { var d = translate(m[2]); return m[1] + " stop(s) · " + (d !== null ? d : m[2]); }]
+    ];
+
+    function translate(text) {
+      for (var i = 0; i < DICT.length; i++) {
+        var pattern = DICT[i][0], repl = DICT[i][1];
+        if (typeof pattern === "string") {
+          if (text === pattern) return repl;
+        } else {
+          var m = pattern.exec(text);
+          if (m) return repl(m);
+        }
+      }
+      return null;
+    }
+
+    var originalText = new WeakMap();
+    var lang = "ko";
+
+    function walk(node) {
+      if (node.nodeType === 3) {
+        if (!originalText.has(node)) originalText.set(node, node.nodeValue);
+        var orig = originalText.get(node);
+        var trimmed = orig.trim();
+        if (!trimmed) return;
+        if (lang === "en") {
+          var t = translate(trimmed);
+          var next = t !== null ? orig.replace(trimmed, t) : orig;
+          if (node.nodeValue !== next) node.nodeValue = next;
+        } else if (node.nodeValue !== orig) {
+          node.nodeValue = orig;
+        }
+      } else if (node.nodeType === 1) {
+        var tag = node.tagName;
+        if (tag === "SCRIPT" || tag === "STYLE" || node.id === "lang-toggle") return;
+        for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+        ["placeholder", "title", "aria-label", "alt"].forEach(function (attr) {
+          if (!node.hasAttribute(attr)) return;
+          var store = node.__i18nAttrs || (node.__i18nAttrs = {});
+          if (!(attr in store)) store[attr] = node.getAttribute(attr);
+          var origV = store[attr];
+          if (lang === "en") {
+            var tv = translate(origV.trim());
+            var nextV = tv !== null ? origV.replace(origV.trim(), tv) : origV;
+            if (node.getAttribute(attr) !== nextV) node.setAttribute(attr, nextV);
+          } else if (node.getAttribute(attr) !== origV) {
+            node.setAttribute(attr, origV);
+          }
+        });
+      }
+    }
+
+    function applyLanguage() { walk(document.body); }
+
+    var btn = document.getElementById("lang-toggle");
+    btn.addEventListener("click", function () {
+      lang = lang === "ko" ? "en" : "ko";
+      btn.textContent = lang === "ko" ? "EN" : "한국어";
+      document.documentElement.lang = lang;
+      applyLanguage();
+    });
+
+    var mo = new MutationObserver(function (mutations) {
+      if (lang !== "en") return;
+      mutations.forEach(function (m) {
+        if (m.type === "childList") {
+          m.addedNodes.forEach(function (n) { walk(n); });
+        } else if (m.type === "characterData") {
+          walk(m.target);
+        }
+      });
+    });
+    mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+  })();
+  </script>
 </body>
 </html>
