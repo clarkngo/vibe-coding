@@ -26,7 +26,7 @@ Gallery of personal builds and student HTML submissions from vibe-coding worksho
 
 **Student Showcase**
 - **KOCSEA Vibe (AI) Coding Winter Camp 2025 (Seattle)** — linked out to its own repo, [team-molla-degree-of-labor](https://clarkngo.github.io/team-molla-degree-of-labor/).
-- **iKW Summer Program 2026** — submissions added day by day under `showcase/ikw-summer-2026/day1/`, `day2/`, `day3/`. Day 1 has 9 student projects live (travel planner, a deep-sea game, a restaurant finder, two AI-truth-detection games, a waste-sorting game, a mock investing sim, an OOTD recommender, and a speed clicker), each card credited "by <Name>".
+- **iKW Summer Program 2026** — submissions added day by day under `showcase/ikw-summer-2026/day1/`, `day2/`, `day3/`. Day 1 has 10 student projects live (travel planner, a deep-sea game, a restaurant finder, two AI-truth-detection games, two waste/recycling-sorting games, a mock investing sim, an OOTD recommender, and a speed clicker), each card credited "by <Name>".
 
 ### Adding a new submission
 
