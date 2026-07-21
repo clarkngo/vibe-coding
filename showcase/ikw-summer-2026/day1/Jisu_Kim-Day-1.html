@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>분리수거 미니 게임</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #233142;
+      --accent: #3b82f6;
+      --danger: #ef4444;
+      --success: #22c55e;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #e0f2fe, #fef3c7);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .game-wrap {
+      width: min(900px, 100%);
+      background: var(--panel);
+      border-radius: 24px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
+      padding: 24px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .top-bar h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .info {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      background: #eef2ff;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .chip span { color: var(--accent); }
+
+    button {
+      border: none;
+      background: var(--accent);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    button:hover { filter: brightness(1.05); }
+
+    .instructions {
+      margin-bottom: 16px;
+      color: #4b5563;
+      line-height: 1.5;
+    }
+
+    .game-area {
+      position: relative;
+      height: 480px;
+      border: 3px dashed #cbd5e1;
+      border-radius: 20px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+
+    .sky {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at top, rgba(255,255,255,0.7), transparent 40%);
+      pointer-events: none;
+    }
+
+    .trash-item {
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+      user-select: none;
+      cursor: grab;
+      border: 2px solid #dbeafe;
+    }
+
+    .trash-item:active { cursor: grabbing; }
+
+    .bins {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      padding: 14px;
+      background: rgba(255,255,255,0.9);
+      border-top: 2px solid #e5e7eb;
+    }
+
+    .bin {
+      padding: 12px 10px;
+      border-radius: 16px;
+      text-align: center;
+      font-weight: 700;
+      color: #111827;
+      border: 2px solid #cbd5e1;
+      background: #f9fafb;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .bin.drag-over {
+      transform: translateY(-4px);
+      background: #dbeafe;
+      border-color: var(--accent);
+    }
+
+    .bin .emoji { font-size: 24px; }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(2px);
+      z-index: 10;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+      text-align: center;
+      padding: 24px;
+    }
+
+    .overlay.show { display: flex; }
+
+    @media (max-width: 760px) {
+      .game-area { height: 420px; }
+      .bins { grid-template-columns: repeat(2, 1fr); }
+      .trash-item { width: 56px; height: 56px; font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-wrap">
+    <div class="top-bar">
+      <h1>♻️ 분리수거 미니 게임</h1>
+      <div class="info">
+        <div class="chip">점수: <span id="score">0</span></div>
+        <div class="chip">남은 시간: <span id="timer">60</span>s</div>
+        <button id="restartBtn">다시 시작</button>
+      </div>
+    </div>
+
+    <div class="instructions">
+      쓰레기를 아래 수거함으로 드래그해서 넣으세요. 올바르면 +10점, 틀리면 -5점입니다.
+    </div>
+
+    <div class="game-area" id="gameArea">
+      <div class="sky"></div>
+      <div class="overlay" id="overlay">게임 시작!</div>
+      <div class="bins">
+        <div class="bin" data-target="플라스틱"><div class="emoji">🥤</div><div>플라스틱</div></div>
+        <div class="bin" data-target="종이"><div class="emoji">📄</div><div>종이</div></div>
+        <div class="bin" data-target="비닐"><div class="emoji">🧴</div><div>비닐</div></div>
+        <div class="bin" data-target="음식물"><div class="emoji">🍎</div><div>음식물</div></div>
+        <div class="bin" data-target="일반쓰레기"><div class="emoji">🗑️</div><div>일반쓰레기</div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const gameArea = document.getElementById('gameArea');
+    const scoreEl = document.getElementById('score');
+    const timerEl = document.getElementById('timer');
+    const overlay = document.getElementById('overlay');
+    const restartBtn = document.getElementById('restartBtn');
+    const bins = Array.from(document.querySelectorAll('.bin'));
+
+    const items = [
+      { name: '플라스틱', emoji: '🥤', target: '플라스틱' },
+      { name: '종이', emoji: '📄', target: '종이' },
+      { name: '비닐', emoji: '🧴', target: '비닐' },
+      { name: '음식물', emoji: '🍎', target: '음식물' },
+      { name: '일반쓰레기', emoji: '🗑️', target: '일반쓰레기' }
+    ];
+
+    let score = 0;
+    let timeLeft = 60;
+    let gameActive = false;
+    let spawnTimer = 0;
+    let lastTime = 0;
+    let activeItems = [];
+    let draggedItemId = null;
+
+    function resetGame() {
+      score = 0;
+      timeLeft = 60;
+      gameActive = true;
+      spawnTimer = 0;
+      lastTime = 0;
+      activeItems = [];
+      scoreEl.textContent = score;
+      timerEl.textContent = timeLeft;
+      overlay.classList.remove('show');
+      overlay.textContent = '게임 시작!';
+      document.querySelectorAll('.trash-item').forEach(el => el.remove());
+      requestAnimationFrame(loop);
+    }
+
+    function spawnItem() {
+      if (!gameActive || activeItems.length >= 5) return;
+      const itemData = items[Math.floor(Math.random() * items.length)];
+      const itemEl = document.createElement('div');
+      itemEl.className = 'trash-item';
+      itemEl.textContent = itemData.emoji;
+      itemEl.draggable = true;
+      itemEl.dataset.kind = itemData.name;
+      itemEl.dataset.id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+      const areaWidth = gameArea.clientWidth - 80;
+      const startX = Math.random() * areaWidth;
+      const item = {
+        id: itemEl.dataset.id,
+        element: itemEl,
+        x: startX,
+        y: -80,
+        speed: 120 + Math.random() * 60,
+        kind: itemData.name,
+        target: itemData.target
+      };
+
+      itemEl.style.left = `${item.x}px`;
+      itemEl.style.top = `${item.y}px`;
+      gameArea.insertBefore(itemEl, gameArea.querySelector('.bins'));
+      activeItems.push(item);
+
+      itemEl.addEventListener('dragstart', (e) => {
+        draggedItemId = item.id;
+        e.dataTransfer.setData('text/plain', item.id);
+      });
+
+      itemEl.addEventListener('dragend', () => {
+        draggedItemId = null;
+        bins.forEach(bin => bin.classList.remove('drag-over'));
+      });
+    }
+
+    function applyScore(delta) {
+      score += delta;
+      scoreEl.textContent = score;
+    }
+
+    function removeItem(itemId) {
+      activeItems = activeItems.filter(item => item.id !== itemId);
+      const el = document.querySelector(`.trash-item[data-id="${itemId}"]`);
+      if (el) el.remove();
+    }
+
+    function handleDrop(targetName) {
+      if (!draggedItemId) return;
+      const item = activeItems.find(i => i.id === draggedItemId);
+      if (!item) return;
+
+      if (item.target === targetName) {
+        applyScore(10);
+        overlay.textContent = '정답! +10점';
+        overlay.classList.add('show');
+        setTimeout(() => overlay.classList.remove('show'), 500);
+      } else {
+        applyScore(-5);
+        overlay.textContent = '아쉽네요! -5점';
+        overlay.classList.add('show');
+        setTimeout(() => overlay.classList.remove('show'), 500);
+      }
+
+      removeItem(item.id);
+      draggedItemId = null;
+    }
+
+    bins.forEach(bin => {
+      bin.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        bin.classList.add('drag-over');
+      });
+
+      bin.addEventListener('dragleave', () => {
+        bin.classList.remove('drag-over');
+      });
+
+      bin.addEventListener('drop', (e) => {
+        e.preventDefault();
+        bin.classList.remove('drag-over');
+        handleDrop(bin.dataset.target);
+      });
+    });
+
+    function update(delta) {
+      if (!gameActive) return;
+
+      spawnTimer += delta;
+      if (spawnTimer > 0.9) {
+        spawnItem();
+        spawnTimer = 0;
+      }
+
+      activeItems.forEach(item => {
+        item.y += item.speed * delta;
+        item.element.style.top = `${item.y}px`;
+        if (item.y > gameArea.clientHeight - 140) {
+          removeItem(item.id);
+        }
+      });
+    }
+
+    function tick(timestamp) {
+      if (!lastTime) lastTime = timestamp;
+      const delta = (timestamp - lastTime) / 1000;
+      lastTime = timestamp;
+
+      if (gameActive) {
+        update(delta);
+        timeLeft = Math.max(0, timeLeft - delta);
+        timerEl.textContent = Math.ceil(timeLeft);
+        if (timeLeft <= 0) {
+          gameActive = false;
+          overlay.textContent = '⏰ 시간 종료! 점수: ' + score;
+          overlay.classList.add('show');
+        }
+      }
+
+      if (gameActive) {
+        requestAnimationFrame(tick);
+      }
+    }
+
+    restartBtn.addEventListener('click', resetGame);
+    resetGame();
+  </script>
+
+  <button id="lang-toggle" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 14px;border-radius:20px;border:1px solid rgba(0,0,0,0.15);background:rgba(255,255,255,0.9);color:#233142;font:700 12px system-ui,sans-serif;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1);">한국어</button>
+  <script>
+  (function () {
+    var DICT = [
+      ["♻️ 분리수거 미니 게임", "♻️ Recycling Sorting Mini Game"],
+      ["점수:", "Score:"],
+      ["남은 시간:", "Time Left:"],
+      ["다시 시작", "Restart"],
+      ["쓰레기를 아래 수거함으로 드래그해서 넣으세요. 올바르면 +10점, 틀리면 -5점입니다.", "Drag the trash into the bin below. +10 points if correct, -5 points if wrong."],
+      ["게임 시작!", "Game Start!"],
+      ["플라스틱", "Plastic"],
+      ["종이", "Paper"],
+      ["비닐", "Vinyl"],
+      ["음식물", "Food Waste"],
+      ["일반쓰레기", "General Waste"],
+      ["정답! +10점", "Correct! +10 points"],
+      ["아쉽네요! -5점", "Oops! -5 points"],
+      [/^⏰ 시간 종료! 점수: (\d+)$/, function (m) { return "⏰ Time's up! Score: " + m[1]; }]
+    ];
+
+    function translate(text) {
+      for (var i = 0; i < DICT.length; i++) {
+        var pattern = DICT[i][0], repl = DICT[i][1];
+        if (typeof pattern === "string") {
+          if (text === pattern) return repl;
+        } else {
+          var m = pattern.exec(text);
+          if (m) return repl(m);
+        }
+      }
+      return null;
+    }
+
+    var originalText = new WeakMap();
+    var lang = "en";
+
+    function walk(node) {
+      if (node.nodeType === 3) {
+        if (!originalText.has(node)) originalText.set(node, node.nodeValue);
+        var orig = originalText.get(node);
+        var trimmed = orig.trim();
+        if (!trimmed) return;
+        if (lang === "en") {
+          var t = translate(trimmed);
+          var next = t !== null ? orig.replace(trimmed, t) : orig;
+          if (node.nodeValue !== next) node.nodeValue = next;
+        } else if (node.nodeValue !== orig) {
+          node.nodeValue = orig;
+        }
+      } else if (node.nodeType === 1) {
+        var tag = node.tagName;
+        if (tag === "SCRIPT" || tag === "STYLE" || node.id === "lang-toggle") return;
+        for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+      }
+    }
+
+    function applyLanguage() { walk(document.body); }
+
+    var btn = document.getElementById("lang-toggle");
+    btn.addEventListener("click", function () {
+      lang = lang === "ko" ? "en" : "ko";
+      btn.textContent = lang === "ko" ? "EN" : "한국어";
+      document.documentElement.lang = lang;
+      applyLanguage();
+    });
+
+    var mo = new MutationObserver(function (mutations) {
+      if (lang !== "en") return;
+      mutations.forEach(function (m) {
+        if (m.type === "childList") {
+          m.addedNodes.forEach(function (n) { walk(n); });
+        } else if (m.type === "characterData") {
+          walk(m.target);
+        }
+      });
+    });
+    mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+
+    document.documentElement.lang = lang;
+    applyLanguage();
+  })();
+  </script>
+</body>
+</html>
