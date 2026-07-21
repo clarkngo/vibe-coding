@@ -587,7 +587,7 @@ shuffleBtn.addEventListener('click', ()=>{
 });
 </script>
 
-<button id="lang-toggle" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 14px;border-radius:20px;border:2px dashed #5FAEDD;background:#FFFBF5;color:#33374C;font:700 12px 'Jua',system-ui,sans-serif;cursor:pointer;">EN</button>
+<button id="lang-toggle" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 14px;border-radius:20px;border:2px dashed #5FAEDD;background:#FFFBF5;color:#33374C;font:700 12px 'Jua',system-ui,sans-serif;cursor:pointer;">한국어</button>
 <script>
 (function () {
   var DICT = [
@@ -757,7 +757,7 @@ shuffleBtn.addEventListener('click', ()=>{
   }
 
   var originalText = new WeakMap();
-  var lang = "ko";
+  var lang = "en";
 
   function walk(node) {
     if (node.nodeType === 3) {
@@ -813,6 +813,9 @@ shuffleBtn.addEventListener('click', ()=>{
     });
   });
   mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+
+  document.documentElement.lang = lang;
+  applyLanguage();
 })();
 </script>
 </body>

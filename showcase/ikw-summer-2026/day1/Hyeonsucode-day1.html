@@ -96,7 +96,7 @@
   <!-- 아래 YOUR_API_KEY 부분에 실제 구글 맵스 API 키를 넣어야 작동합니다 -->
   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
 
-  <button id="lang-toggle" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 14px;border-radius:20px;border:1px solid rgba(0,0,0,0.15);background:rgba(255,255,255,0.9);color:#111;font:700 12px system-ui,sans-serif;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1);">EN</button>
+  <button id="lang-toggle" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 14px;border-radius:20px;border:1px solid rgba(0,0,0,0.15);background:rgba(255,255,255,0.9);color:#111;font:700 12px system-ui,sans-serif;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1);">한국어</button>
   <script>
   (function () {
     var DICT = [
@@ -122,7 +122,7 @@
     }
 
     var originalText = new WeakMap();
-    var lang = "ko";
+    var lang = "en";
 
     function walk(node) {
       if (node.nodeType === 3) {
@@ -165,6 +165,9 @@
       });
     });
     mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+
+    document.documentElement.lang = lang;
+    applyLanguage();
   })();
   </script>
 </body>
