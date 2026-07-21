@@ -95,5 +95,77 @@
 
   <!-- 아래 YOUR_API_KEY 부분에 실제 구글 맵스 API 키를 넣어야 작동합니다 -->
   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+
+  <button id="lang-toggle" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 14px;border-radius:20px;border:1px solid rgba(0,0,0,0.15);background:rgba(255,255,255,0.9);color:#111;font:700 12px system-ui,sans-serif;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1);">EN</button>
+  <script>
+  (function () {
+    var DICT = [
+      ["⭐ 평점 4.0 이상 맛집 찾기", "⭐ Find Restaurants Rated 4.0+"],
+      ["주변 맛집 검색", "Search Nearby Restaurants"],
+      ["검색 중...", "Searching..."],
+      ["조건에 맞는 식당이 없습니다.", "No restaurants match the criteria."],
+      ["검색에 실패했습니다.", "Search failed."],
+      [/^평점: (.+)$/, function (m) { return "Rating: " + m[1]; }]
+    ];
+
+    function translate(text) {
+      for (var i = 0; i < DICT.length; i++) {
+        var pattern = DICT[i][0], repl = DICT[i][1];
+        if (typeof pattern === "string") {
+          if (text === pattern) return repl;
+        } else {
+          var m = pattern.exec(text);
+          if (m) return repl(m);
+        }
+      }
+      return null;
+    }
+
+    var originalText = new WeakMap();
+    var lang = "ko";
+
+    function walk(node) {
+      if (node.nodeType === 3) {
+        if (!originalText.has(node)) originalText.set(node, node.nodeValue);
+        var orig = originalText.get(node);
+        var trimmed = orig.trim();
+        if (!trimmed) return;
+        if (lang === "en") {
+          var t = translate(trimmed);
+          var next = t !== null ? orig.replace(trimmed, t) : orig;
+          if (node.nodeValue !== next) node.nodeValue = next;
+        } else if (node.nodeValue !== orig) {
+          node.nodeValue = orig;
+        }
+      } else if (node.nodeType === 1) {
+        var tag = node.tagName;
+        if (tag === "SCRIPT" || tag === "STYLE" || node.id === "lang-toggle") return;
+        for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+      }
+    }
+
+    function applyLanguage() { walk(document.body); }
+
+    var btn = document.getElementById("lang-toggle");
+    btn.addEventListener("click", function () {
+      lang = lang === "ko" ? "en" : "ko";
+      btn.textContent = lang === "ko" ? "EN" : "한국어";
+      document.documentElement.lang = lang;
+      applyLanguage();
+    });
+
+    var mo = new MutationObserver(function (mutations) {
+      if (lang !== "en") return;
+      mutations.forEach(function (m) {
+        if (m.type === "childList") {
+          m.addedNodes.forEach(function (n) { walk(n); });
+        } else if (m.type === "characterData") {
+          walk(m.target);
+        }
+      });
+    });
+    mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+  })();
+  </script>
 </body>
 </html>

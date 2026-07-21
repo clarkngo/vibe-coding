@@ -247,5 +247,75 @@
     }
   </script>
 
+  <button id="lang-toggle" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.55);color:#fff;font:700 12px system-ui,sans-serif;cursor:pointer;backdrop-filter:blur(4px);">EN</button>
+  <script>
+  (function () {
+    var DICT = [
+      ["제한 시간 동안 빨간 원을 클릭하세요!", "Click the red circle before time runs out!"],
+      ["게임 시작", "Start Game"],
+      ["다시 하기", "Play Again"],
+      [/^최종 점수: (\d+)점!$/, function (m) { return "Final Score: " + m[1] + " pts!"; }]
+    ];
+
+    function translate(text) {
+      for (var i = 0; i < DICT.length; i++) {
+        var pattern = DICT[i][0], repl = DICT[i][1];
+        if (typeof pattern === "string") {
+          if (text === pattern) return repl;
+        } else {
+          var m = pattern.exec(text);
+          if (m) return repl(m);
+        }
+      }
+      return null;
+    }
+
+    var originalText = new WeakMap();
+    var lang = "ko";
+
+    function walk(node) {
+      if (node.nodeType === 3) {
+        if (!originalText.has(node)) originalText.set(node, node.nodeValue);
+        var orig = originalText.get(node);
+        var trimmed = orig.trim();
+        if (!trimmed) return;
+        if (lang === "en") {
+          var t = translate(trimmed);
+          var next = t !== null ? orig.replace(trimmed, t) : orig;
+          if (node.nodeValue !== next) node.nodeValue = next;
+        } else if (node.nodeValue !== orig) {
+          node.nodeValue = orig;
+        }
+      } else if (node.nodeType === 1) {
+        var tag = node.tagName;
+        if (tag === "SCRIPT" || tag === "STYLE" || node.id === "lang-toggle") return;
+        for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+      }
+    }
+
+    function applyLanguage() { walk(document.body); }
+
+    var btn = document.getElementById("lang-toggle");
+    btn.addEventListener("click", function () {
+      lang = lang === "ko" ? "en" : "ko";
+      btn.textContent = lang === "ko" ? "EN" : "한국어";
+      document.documentElement.lang = lang;
+      applyLanguage();
+    });
+
+    var mo = new MutationObserver(function (mutations) {
+      if (lang !== "en") return;
+      mutations.forEach(function (m) {
+        if (m.type === "childList") {
+          m.addedNodes.forEach(function (n) { walk(n); });
+        } else if (m.type === "characterData") {
+          walk(m.target);
+        }
+      });
+    });
+    mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+  })();
+  </script>
+
 </body>
 </html>

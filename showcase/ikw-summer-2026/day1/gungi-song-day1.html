@@ -877,9 +877,12 @@
       ctx.fill();
 
       ctx.fillStyle = "#99a6c3";
-      ctx.fillText(`${Math.max(0, currentDay - visibleHistory.length + 1)}일`, padding.left, height - 10);
+      var __enChart = document.documentElement.lang === "en";
+      var __dayPrefix = __enChart ? "Day " : "";
+      var __dayUnit = __enChart ? "" : "일";
+      ctx.fillText(`${__dayPrefix}${Math.max(0, currentDay - visibleHistory.length + 1)}${__dayUnit}`, padding.left, height - 10);
       ctx.textAlign = "right";
-      ctx.fillText(`${currentDay}일`, width - padding.right, height - 10);
+      ctx.fillText(`${__dayPrefix}${currentDay}${__dayUnit}`, width - padding.right, height - 10);
       ctx.textAlign = "left";
     }
 
@@ -914,6 +917,132 @@
     window.addEventListener("resize", drawChart);
 
     resetGame();
+  </script>
+
+  <button id="lang-toggle" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.55);color:#fff;font:700 12px system-ui,sans-serif;cursor:pointer;backdrop-filter:blur(4px);">EN</button>
+  <script>
+  (function () {
+    var STOCK_NAMES = {
+      "삼성전자": "Samsung Electronics",
+      "현대차": "Hyundai Motor",
+      "SK하이닉스": "SK Hynix",
+      "네이버": "Naver",
+      "카카오": "Kakao"
+    };
+    function enName(ko) { return STOCK_NAMES[ko] || ko; }
+
+    var DICT = [
+      ["랜덤 모의투자 미니게임", "Random Mock Investing Mini-Game"],
+      ["가상의 주가로 투자하고 미래 날짜를 진행해 수익률을 확인하세요.", "Invest with virtual stock prices and advance through future days to see your returns."],
+      ["현재", "Day"],
+      ["일", ""],
+      ["게임 초기화", "Reset Game"],
+      ["거래 가능 종목", "Available Stocks"],
+      ["1일 뒤", "+1 Day"],
+      ["5일 뒤", "+5 Days"],
+      ["10일 뒤", "+10 Days"],
+      ["50일 뒤", "+50 Days"],
+      ["매수 / 매도", "Buy / Sell"],
+      ["거래 금액 입력", "Enter trade amount"],
+      ["매수", "Buy"],
+      ["매도", "Sell"],
+      ["금액 단위로 거래합니다. 예: 300을 입력하면 선택한 주식을 300달러어치 매수하거나 매도합니다.", "Trades are made by dollar amount. Example: entering 300 buys or sells $300 worth of the selected stock."],
+      ["나의 자산", "My Assets"],
+      ["보유 현금", "Cash Held"],
+      ["주식 평가금액", "Stock Value"],
+      ["초기 자본", "Initial Capital"],
+      ["보유 종목", "Holdings"],
+      ["올바른 매수 금액을 입력하세요.", "Please enter a valid buy amount."],
+      ["보유 현금이 부족합니다.", "Insufficient cash."],
+      ["올바른 매도 금액을 입력하세요.", "Please enter a valid sell amount."],
+      ["보유한 주식이 없습니다.", "You don't own any shares of this stock."],
+      ["새 게임이 시작되었습니다.", "A new game has started."],
+      ["아직 보유한 주식이 없습니다.", "You don't own any stocks yet."],
+      ["왼쪽에서 종목을 선택한 뒤 매수하세요.", "Select a stock on the left, then buy."],
+      ["삼성전자", "Samsung Electronics"],
+      ["현대차", "Hyundai Motor"],
+      ["SK하이닉스", "SK Hynix"],
+      ["네이버", "Naver"],
+      ["카카오", "Kakao"],
+      [/^([\d.]+)주$/, function (m) { return m[1] + " shares"; }],
+      [/^(\d+)일이 지났습니다\.$/, function (m) { return m[1] + " day(s) have passed."; }],
+      [/^(.+) \((\d{6})\)$/, function (m) { return enName(m[1]) + " (" + m[2] + ")"; }],
+      [/^(.+?)을\(를\) (.+) 매수했습니다\.$/, function (m) { return "Bought " + m[2] + " of " + enName(m[1]) + "."; }],
+      [/^(.+?)을\(를\) (.+) 매도했습니다\.$/, function (m) { return "Sold " + m[2] + " of " + enName(m[1]) + "."; }]
+    ];
+
+    function translate(text) {
+      for (var i = 0; i < DICT.length; i++) {
+        var pattern = DICT[i][0], repl = DICT[i][1];
+        if (typeof pattern === "string") {
+          if (text === pattern) return repl;
+        } else {
+          var m = pattern.exec(text);
+          if (m) return repl(m);
+        }
+      }
+      return null;
+    }
+
+    var originalText = new WeakMap();
+    var lang = "ko";
+
+    function walk(node) {
+      if (node.nodeType === 3) {
+        if (!originalText.has(node)) originalText.set(node, node.nodeValue);
+        var orig = originalText.get(node);
+        var trimmed = orig.trim();
+        if (!trimmed) return;
+        if (lang === "en") {
+          var t = translate(trimmed);
+          var next = t !== null ? orig.replace(trimmed, t) : orig;
+          if (node.nodeValue !== next) node.nodeValue = next;
+        } else if (node.nodeValue !== orig) {
+          node.nodeValue = orig;
+        }
+      } else if (node.nodeType === 1) {
+        var tag = node.tagName;
+        if (tag === "SCRIPT" || tag === "STYLE" || node.id === "lang-toggle") return;
+        for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+        ["placeholder", "title", "aria-label", "alt"].forEach(function (attr) {
+          if (!node.hasAttribute(attr)) return;
+          var store = node.__i18nAttrs || (node.__i18nAttrs = {});
+          if (!(attr in store)) store[attr] = node.getAttribute(attr);
+          var origV = store[attr];
+          if (lang === "en") {
+            var tv = translate(origV.trim());
+            var nextV = tv !== null ? origV.replace(origV.trim(), tv) : origV;
+            if (node.getAttribute(attr) !== nextV) node.setAttribute(attr, nextV);
+          } else if (node.getAttribute(attr) !== origV) {
+            node.setAttribute(attr, origV);
+          }
+        });
+      }
+    }
+
+    function applyLanguage() { walk(document.body); }
+
+    var btn = document.getElementById("lang-toggle");
+    btn.addEventListener("click", function () {
+      lang = lang === "ko" ? "en" : "ko";
+      btn.textContent = lang === "ko" ? "EN" : "한국어";
+      document.documentElement.lang = lang;
+      applyLanguage();
+      if (typeof drawChart === "function") drawChart();
+    });
+
+    var mo = new MutationObserver(function (mutations) {
+      if (lang !== "en") return;
+      mutations.forEach(function (m) {
+        if (m.type === "childList") {
+          m.addedNodes.forEach(function (n) { walk(n); });
+        } else if (m.type === "characterData") {
+          walk(m.target);
+        }
+      });
+    });
+    mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+  })();
   </script>
 </body>
 </html>
