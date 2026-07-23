@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apple Recipes</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#fff8f2;
+    color:#333;
+}
+
+header{
+    background:linear-gradient(90deg,#ff6b6b,#ffb347);
+    color:white;
+    text-align:center;
+    padding:40px 20px;
+}
+
+header h1{
+    font-size:42px;
+}
+
+header p{
+    margin-top:10px;
+    font-size:18px;
+}
+
+.container{
+    width:90%;
+    max-width:1100px;
+    margin:auto;
+    padding:40px 0;
+}
+
+.recipe-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:25px;
+}
+
+.card{
+    background:white;
+    border-radius:15px;
+    overflow:hidden;
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-8px);
+}
+
+.card img{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+}
+
+.card h2{
+    padding:15px;
+    color:#d35400;
+}
+
+.card p{
+    padding:0 15px 20px;
+    line-height:1.6;
+}
+
+footer{
+    margin-top:40px;
+    background:#333;
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+
+button{
+    background:#ff6b6b;
+    color:white;
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    margin-top:15px;
+}
+
+button:hover{
+    background:#e74c3c;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+<h1>🍎 Apple Recipes</h1>
+<p>Delicious recipes you can make with apples!</p>
+</header>
+
+<div class="container">
+
+<div class="recipe-grid">
+
+<div class="card">
+<img src="https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=800&q=80">
+<h2>🍏 Apple Pie</h2>
+<p>
+A classic dessert made with fresh apples,
+cinnamon, butter and a flaky crust.
+Perfect with vanilla ice cream.
+</p>
+</div>
+
+<div class="card">
+<img src="https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=800&q=80">
+<h2>🥗 Apple Salad</h2>
+<p>
+Mix sliced apples with lettuce,
+walnuts and cheese.
+Add honey mustard dressing for a refreshing meal.
+</p>
+</div>
+
+<div class="card">
+<img src="https://images.unsplash.com/photo-1514996937319-344454492b37?auto=format&fit=crop&w=800&q=80">
+<h2>🥤 Apple Smoothie</h2>
+<p>
+Blend apples, banana,
+milk and yogurt.
+A healthy breakfast drink full of vitamins.
+</p>
+</div>
+
+<div class="card">
+<img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80">
+<h2>🍎 Baked Apples</h2>
+<p>
+Bake whole apples with cinnamon,
+honey and nuts.
+Soft, sweet and perfect for autumn.
+</p>
+</div>
+
+</div>
+
+<center>
+<button onclick="showMessage()">🍎 Favorite Recipe</button>
+</center>
+
+</div>
+
+<footer>
+Made with ❤️ using HTML & CSS
+</footer>
+
+<script>
+function showMessage(){
+    alert("🍎 Apples are healthy, delicious, and perfect for desserts!");
+}
+</script>
+
+</body>
+</html>

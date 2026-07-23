@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>달콤한 바나나 레시피 모음</title>
+  <style>
+    /* 기본 스타일 Reset 및 변수 */
+    :root {
+      --primary-color: #ffcc00;
+      --secondary-color: #ffe875;
+      --accent-color: #8B4513;
+      --bg-color: #fffdf2;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    /* 헤더 영역 */
+    header {
+      background-color: var(--primary-color);
+      color: var(--accent-color);
+      text-align: center;
+      padding: 2.5rem 1rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* 메인 컨테이너 */
+    .container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    /* 카테고리 필터 버튼 */
+    .filter-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
+
+    .filter-btn {
+      padding: 8px 18px;
+      border: 2px solid var(--primary-color);
+      background-color: transparent;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      color: var(--accent-color);
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background-color: var(--primary-color);
+    }
+
+    /* 레시피 그리드 Layout */
+    .recipe-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* 레시피 카드 */
+    .recipe-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease;
+    }
+
+    .recipe-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .recipe-image {
+      width: 100%;
+      height: 180px;
+      background-color: #f3f3f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .recipe-content {
+      padding: 1.2rem;
+    }
+
+    .recipe-tag {
+      display: inline-block;
+      background-color: var(--secondary-color);
+      color: var(--accent-color);
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+    }
+
+    .recipe-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      color: #222;
+    }
+
+    .recipe-desc {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 1rem;
+    }
+
+    /* 요리 재료 & 방법 스텝 */
+    .recipe-details h4 {
+      font-size: 0.9rem;
+      margin-top: 0.8rem;
+      margin-bottom: 0.3rem;
+      color: var(--accent-color);
+    }
+
+    .recipe-details ul, .recipe-details ol {
+      padding-left: 1.2rem;
+      font-size: 0.85rem;
+      color: #444;
+    }
+
+    /* 푸터 */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      margin-top: 3rem;
+      background-color: #f7f5e8;
+      font-size: 0.85rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1 class="i18n" data-ko="🍌 바나나 요리 레시피" data-en="🍌 Banana Recipes">🍌 바나나 요리 레시피</h1>
+    <p class="i18n" data-ko="달콤하고 부드러운 바나나로 만드는 다양한 특별 요리" data-en="A variety of special dishes made with sweet, soft bananas">달콤하고 부드러운 바나나로 만드는 다양한 특별 요리</p>
+  </header>
+
+  <div class="container">
+    <!-- 카테고리 필터 -->
+    <div class="filter-buttons">
+      <button class="filter-btn active i18n" data-ko="전체 보기" data-en="View All" onclick="filterRecipe('all')">전체 보기</button>
+      <button class="filter-btn i18n" data-ko="디저트" data-en="Dessert" onclick="filterRecipe('dessert')">디저트</button>
+      <button class="filter-btn i18n" data-ko="브런치/간식" data-en="Brunch/Snack" onclick="filterRecipe('brunch')">브런치/간식</button>
+    </div>
+
+    <!-- 레시피 카드 목록 -->
+    <div class="recipe-grid">
+
+      <!-- 카드 1: 바나나 팬케이크 -->
+      <div class="recipe-card" data-category="brunch">
+        <div class="recipe-image">🥞</div>
+        <div class="recipe-content">
+          <span class="recipe-tag i18n" data-ko="브런치" data-en="Brunch">브런치</span>
+          <h3 class="recipe-title i18n" data-ko="노밀가루 바나나 팬케이크" data-en="Flourless Banana Pancakes">노밀가루 바나나 팬케이크</h3>
+          <p class="recipe-desc i18n" data-ko="바나나와 계란만으로 만드는 건강하고 폭신한 아침 식사용 팬케이크입니다." data-en="Healthy, fluffy breakfast pancakes made with just banana and eggs.">바나나와 계란만으로 만드는 건강하고 폭신한 아침 식사용 팬케이크입니다.</p>
+          <div class="recipe-details">
+            <h4 class="i18n" data-ko="재료" data-en="Ingredients">재료</h4>
+            <ul>
+              <li class="i18n" data-ko="잘 익은 바나나 1개, 계란 2개, 시나몬 가루 약간" data-en="1 ripe banana, 2 eggs, a pinch of cinnamon">잘 익은 바나나 1개, 계란 2개, 시나몬 가루 약간</li>
+            </ul>
+            <h4 class="i18n" data-ko="만드는 법" data-en="Instructions">만드는 법</h4>
+            <ol>
+              <li class="i18n" data-ko="볼에 바나나를 으깨고 계란을 넣어 잘 섞어줍니다." data-en="Mash the banana in a bowl and mix well with the eggs.">볼에 바나나를 으깨고 계란을 넣어 잘 섞어줍니다.</li>
+              <li class="i18n" data-ko="약불로 달군 팬에 식용유를 살짝 두르고 반죽을 올립니다." data-en="Lightly oil a pan heated on low and pour in the batter.">약불로 달군 팬에 식용유를 살짝 두르고 반죽을 올립니다.</li>
+              <li class="i18n" data-ko="노릇하게 앞뒤로 구워 메이플 시럽을 곁들입니다." data-en="Cook golden-brown on both sides and serve with maple syrup.">노릇하게 앞뒤로 구워 메이플 시럽을 곁들입니다.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- 카드 2: 바나나 브륄레 -->
+      <div class="recipe-card" data-category="dessert">
+        <div class="recipe-image">🍌</div>
+        <div class="recipe-content">
+          <span class="recipe-tag i18n" data-ko="디저트" data-en="Dessert">디저트</span>
+          <h3 class="recipe-title i18n" data-ko="초간단 바나나 브륄레" data-en="Super-Easy Banana Brûlée">초간단 바나나 브륄레</h3>
+          <p class="recipe-desc i18n" data-ko="바삭한 설탕 코팅과 부드러운 바나나의 조화가 매력적인 고급 디저트입니다." data-en="An elegant dessert where a crisp sugar shell meets soft banana.">바삭한 설탕 코팅과 부드러운 바나나의 조화가 매력적인 고급 디저트입니다.</p>
+          <div class="recipe-details">
+            <h4 class="i18n" data-ko="재료" data-en="Ingredients">재료</h4>
+            <ul>
+              <li class="i18n" data-ko="바나나 1개, 설탕 1큰술, (선택) 토치 또는 프라이팬" data-en="1 banana, 1 tbsp sugar, (optional) kitchen torch or frying pan">바나나 1개, 설탕 1큰술, (선택) 토치 또는 프라이팬</li>
+            </ul>
+            <h4 class="i18n" data-ko="만드는 법" data-en="Instructions">만드는 법</h4>
+            <ol>
+              <li class="i18n" data-ko="바나나를 껍질째 길게 반으로 잘라줍니다." data-en="Cut the banana lengthwise in half, skin on.">바나나를 껍질째 길게 반으로 잘라줍니다.</li>
+              <li class="i18n" data-ko="단면에 설탕을 고르게 뿌려줍니다." data-en="Sprinkle sugar evenly over the cut side.">단면에 설탕을 고르게 뿌려줍니다.</li>
+              <li class="i18n" data-ko="토치로 설탕을 녹여 갈색빛 코팅을 만들거나, 마른 팬에 단면을 먼저 구워줍니다." data-en="Melt the sugar with a torch for a caramelized coating, or sear the cut side in a dry pan.">토치로 설탕을 녹여 갈색빛 코팅을 만들거나, 마른 팬에 단면을 먼저 구워줍니다.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- 카드 3: 바나나 토스트 -->
+      <div class="recipe-card" data-category="brunch">
+        <div class="recipe-image">🍞</div>
+        <div class="recipe-content">
+          <span class="recipe-tag i18n" data-ko="브런치" data-en="Brunch">브런치</span>
+          <h3 class="recipe-title i18n" data-ko="피넛버터 바나나 토스트" data-en="Peanut Butter Banana Toast">피넛버터 바나나 토스트</h3>
+          <p class="recipe-desc i18n" data-ko="고소한 땅콩버터와 달콤한 바나나가 만나 에너지를 더해주는 완벽한 조합입니다." data-en="Nutty peanut butter meets sweet banana for an energizing combo.">고소한 땅콩버터와 달콤한 바나나가 만나 에너지를 더해주는 완벽한 조합입니다.</p>
+          <div class="recipe-details">
+            <h4 class="i18n" data-ko="재료" data-en="Ingredients">재료</h4>
+            <ul>
+              <li class="i18n" data-ko="식빵 1장, 땅콩버터 1.5큰술, 바나나 1/2개, 견과류 약간" data-en="1 slice of bread, 1.5 tbsp peanut butter, 1/2 banana, a handful of nuts">식빵 1장, 땅콩버터 1.5큰술, 바나나 1/2개, 견과류 약간</li>
+            </ul>
+            <h4 class="i18n" data-ko="만드는 법" data-en="Instructions">만드는 법</h4>
+            <ol>
+              <li class="i18n" data-ko="식빵을 토스터나 팬에 바삭하게 굽습니다." data-en="Toast the bread until crisp in a toaster or pan.">식빵을 토스터나 팬에 바삭하게 굽습니다.</li>
+              <li class="i18n" data-ko="땅콩버터를 따뜻한 토스트 위에 고르게 바릅니다." data-en="Spread peanut butter evenly over the warm toast.">땅콩버터를 따뜻한 토스트 위에 고르게 바릅니다.</li>
+              <li class="i18n" data-ko="동글게 슬라이스한 바나나를 얹고 견과류를 뿌립니다." data-en="Top with sliced banana and sprinkle with nuts.">동글게 슬라이스한 바나나를 얹고 견과류를 뿌립니다.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- 카드 4: 바나나 나이스크림 -->
+      <div class="recipe-card" data-category="dessert">
+        <div class="recipe-image">🍨</div>
+        <div class="recipe-content">
+          <span class="recipe-tag i18n" data-ko="디저트" data-en="Dessert">디저트</span>
+          <h3 class="recipe-title i18n" data-ko="바나나 소프트 아이스크림" data-en="Banana Soft-Serve">바나나 소프트 아이스크림</h3>
+          <p class="recipe-desc i18n" data-ko="설탕이나 첨가물 없이 얼린 바나나만 갈아 만든 100% 천연 아이스크림입니다." data-en="100% natural soft-serve made by blending only frozen bananas — no sugar or additives.">설탕이나 첨가물 없이 얼린 바나나만 갈아 만든 100% 천연 아이스크림입니다.</p>
+          <div class="recipe-details">
+            <h4 class="i18n" data-ko="재료" data-en="Ingredients">재료</h4>
+            <ul>
+              <li class="i18n" data-ko="냉동 바나나 2개, 우유(또는 두유) 2큰술, 코코아 가루(선택)" data-en="2 frozen bananas, 2 tbsp milk (or soy milk), cocoa powder (optional)">냉동 바나나 2개, 우유(또는 두유) 2큰술, 코코아 가루(선택)</li>
+            </ul>
+            <h4 class="i18n" data-ko="만드는 법" data-en="Instructions">만드는 법</h4>
+            <ol>
+              <li class="i18n" data-ko="껍질을 벗겨 적당히 잘라 동결시킨 바나나를 준비합니다." data-en="Peel, cut into chunks, and freeze the bananas.">껍질을 벗겨 적당히 잘라 동결시킨 바나나를 준비합니다.</li>
+              <li class="i18n" data-ko="믹서에 냉동 바나나와 우유 약간을 넣고 부드러워질 때까지 갑니다." data-en="Blend the frozen banana with a little milk until smooth.">믹서에 냉동 바나나와 우유 약간을 넣고 부드러워질 때까지 습니다.</li>
+              <li class="i18n" data-ko="취향에 따라 코코아 가루나 꿀을 첨가해 완성합니다." data-en="Finish by adding cocoa powder or honey to taste.">취향에 따라 코코아 가루나 꿀을 첨가해 완성합니다.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <p class="i18n" data-ko="© 2026 달콤한 바나나 레시피. All rights reserved." data-en="© 2026 Sweet Banana Recipes. All rights reserved.">© 2026 달콤한 바나나 레시피. All rights reserved.</p>
+  </footer>
+
+  <button id="lang-toggle" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 14px;border-radius:20px;border:1px solid rgba(0,0,0,0.15);background:#1e293b;color:#fff;font:700 12px system-ui,sans-serif;cursor:pointer;">EN</button>
+  <script>
+  (function () {
+    var lang = "ko";
+    var btn = document.getElementById("lang-toggle");
+
+    function applyLanguage() {
+      document.querySelectorAll(".i18n").forEach(function (el) {
+        el.innerHTML = el.getAttribute(lang === "ko" ? "data-ko" : "data-en");
+      });
+      document.documentElement.lang = lang;
+    }
+
+    btn.addEventListener("click", function () {
+      lang = lang === "ko" ? "en" : "ko";
+      btn.textContent = lang === "ko" ? "EN" : "한국어";
+      applyLanguage();
+    });
+  })();
+  </script>
+
+  <!-- 필터 동작용 JavaScript -->
+  <script>
+    function filterRecipe(category) {
+      // 모든 카드 선택
+      const cards = document.querySelectorAll('.recipe-card');
+      const buttons = document.querySelectorAll('.filter-btn');
+
+      // 버튼 활성화 상태 변경
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // 필터링 적용
+      cards.forEach(card => {
+        if (category === 'all' || card.getAttribute('data-category') === category) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

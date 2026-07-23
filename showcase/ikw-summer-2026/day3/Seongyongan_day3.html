@@ -112,6 +112,7 @@
             font-size: 0.85rem;
             letter-spacing: 2px;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .btn:hover {
@@ -156,6 +157,9 @@
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .card:hover {
@@ -165,13 +169,17 @@
 
         .card img {
             width: 100%;
-            height: 260px;
+            height: 240px;
             object-fit: cover;
             display: block;
         }
 
         .card-content {
             padding: 2rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .card-content h3 {
@@ -195,6 +203,101 @@
             color: var(--text-muted);
             font-size: 0.95rem;
             line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-btn {
+            background: transparent;
+            border: 1px solid var(--accent-gold);
+            color: var(--primary-color);
+            padding: 0.6rem 1.2rem;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: start;
+        }
+
+        .card-btn:hover {
+            background: var(--accent-gold);
+            color: #ffffff;
+        }
+
+        /* Modal Popup Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            max-width: 650px;
+            width: 100%;
+            border-radius: 6px;
+            padding: 2.5rem;
+            position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.5rem;
+            font-size: 1.8rem;
+            color: #888888;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .close-btn:hover { color: var(--primary-color); }
+
+        .modal h3 {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal .modal-tag {
+            color: var(--accent-gold);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .modal-info {
+            background-color: #f9f8f6;
+            padding: 1rem;
+            border-left: 3px solid var(--accent-gold);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .modal p {
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            line-height: 1.8;
         }
 
         /* Footer */
@@ -212,12 +315,11 @@
             letter-spacing: 1px;
         }
 
-        /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .hero h1 { font-size: 2.5rem; }
-            .hero p { font-size: 1rem; }
             nav { display: none; }
             section { padding: 4rem 5%; }
+            .modal-content { padding: 1.5rem; }
         }
     </style>
 </head>
@@ -263,9 +365,12 @@
             <div class="card">
                 <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='500' viewBox='0 0 800 500'><rect width='800' height='500' fill='%2364748b'/><path d='M0,350 Q200,300 400,380 T800,320 L800,500 L0,500 Z' fill='%230f172a'/><g fill='%2338bdf8' opacity='0.8'><path d='M380 400 L420 400 L410 220 L390 220 Z'/><circle cx='400' cy='200' r='18'/><path d='M390 180 L410 180 L400 130 Z'/><polygon points='400,120 415,100 405,125 425,120 408,132 420,145 402,137'/></g></svg>" alt="Statue of Liberty">
                 <div class="card-content">
-                    <span class="tag">Symbol of Freedom</span>
-                    <h3>Statue of Liberty</h3>
-                    <p>A global beacon of hope and freedom. Take a scenic ferry across the harbor to view this world-renowned monument up close.</p>
+                    <div>
+                        <span class="tag">Symbol of Freedom</span>
+                        <h3>Statue of Liberty</h3>
+                        <p>A global beacon of hope and freedom. Take a scenic ferry across the harbor to view this world-renowned monument up close.</p>
+                    </div>
+                    <button class="card-btn" onclick="openModal('libertyModal')">More Details &rarr;</button>
                 </div>
             </div>
 
@@ -273,9 +378,12 @@
             <div class="card">
                 <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='500' viewBox='0 0 800 500'><rect width='800' height='500' fill='%23a7f3d0'/><rect y='250' width='800' height='250' fill='%23059669'/><g fill='%23047857'><circle cx='150' cy='280' r='80'/><circle cx='300' cy='260' r='100'/><circle cx='500' cy='270' r='90'/><circle cx='680' cy='290' r='75'/></g><path d='M0,380 Q400,300 800,420' stroke='%230284c7' stroke-width='40' fill='none'/></svg>" alt="Central Park">
                 <div class="card-content">
-                    <span class="tag">Urban Oasis</span>
-                    <h3>Central Park</h3>
-                    <p>An expansive green retreat in the heart of Manhattan. Enjoy serene strolls, charming bridges, and world-class artistic design.</p>
+                    <div>
+                        <span class="tag">Urban Oasis</span>
+                        <h3>Central Park</h3>
+                        <p>An expansive green retreat in the heart of Manhattan. Enjoy serene strolls, charming bridges, and world-class artistic design.</p>
+                    </div>
+                    <button class="card-btn" onclick="openModal('parkModal')">More Details &rarr;</button>
                 </div>
             </div>
 
@@ -283,13 +391,73 @@
             <div class="card">
                 <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='500' viewBox='0 0 800 500'><rect width='800' height='500' fill='%231e1b4b'/><g fill='%23312e81'><rect x='100' y='200' width='120' height='300'/><rect x='580' y='180' width='140' height='320'/></g><g fill='%23e0e7ff'><rect x='340' y='150' width='120' height='350'/><rect x='360' y='90' width='80' height='60'/><rect x='380' y='50' width='40' height='40'/><line x1='400' y1='50' x2='400' y2='10' stroke='%23e0e7ff' stroke-width='4'/></g></svg>" alt="Empire State Building">
                 <div class="card-content">
-                    <span class="tag">Architectural Marvel</span>
-                    <h3>Empire State Building</h3>
-                    <p>Soar above the city streets for breathtaking 360-degree views from the observatory of this celebrated Art Deco skyscraper.</p>
+                    <div>
+                        <span class="tag">Architectural Marvel</span>
+                        <h3>Empire State Building</h3>
+                        <p>Soar above the city streets for breathtaking 360-degree views from the observatory of this celebrated Art Deco skyscraper.</p>
+                    </div>
+                    <button class="card-btn" onclick="openModal('empireModal')">More Details &rarr;</button>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Modal 1: Statue of Liberty Details -->
+    <div id="libertyModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('libertyModal')">&times;</button>
+            <h3>Statue of Liberty</h3>
+            <span class="modal-tag">Liberty Island, New York Harbor</span>
+            
+            <div class="modal-info">
+                <strong>Location:</strong> Liberty Island | <strong>Gifted By:</strong> France (1886) | <strong>Height:</strong> 93 Meters (305 Feet)
+            </div>
+
+            <p><strong>A Gift of Friendship:</strong> Dedicated in 1886, the Statue of Liberty was a gift from the people of France to the United States to commemorate the alliance between the two nations during the American Revolution.</p>
+            
+            <p><strong>Iconic Highlights:</strong> The statue represents Libertas, the Roman goddess of freedom. She holds a torch in her right hand above her head and carries a tablet inscribed with the date of the American Declaration of Independence (July 4, 1776).</p>
+            
+            <p><strong>Visitor Experience:</strong> Accessible via Statue City Cruises ferries, visitors can explore the Museum on Liberty Island and reserve tickets to climb up into the pedestal or the Crown for panoramic harbor views.</p>
+        </div>
+    </div>
+
+    <!-- Modal 2: Central Park Details -->
+    <div id="parkModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('parkModal')">&times;</button>
+            <h3>Central Park</h3>
+            <span class="modal-tag">Manhattan, New York City</span>
+            
+            <div class="modal-info">
+                <strong>Size:</strong> 843 Acres | <strong>Established:</strong> 1858 | <strong>Annual Visitors:</strong> ~42 Million
+            </div>
+
+            <p><strong>The Heart of Manhattan:</strong> Designed by Frederick Law Olmsted and Calvert Vaux, Central Park was America's first major public landscaped park. It serves as an essential natural sanctuary amidst the bustling skyscraper city.</p>
+            
+            <p><strong>Must-See Highlights:</strong> Explore the romantic Bethesda Terrace and Fountain, stroll across Bow Bridge, visit Strawberry Fields (John Lennon Memorial), and enjoy ice skating at Wollman Rink during winter months.</p>
+            
+            <p><strong>Activities:</strong> Visitors can rent rowboats at the Loeb Boathouse, picnic on the Great Lawn, attend free summer concerts, or tour the Central Park Zoo.</p>
+        </div>
+    </div>
+
+    <!-- Modal 3: Empire State Building Details -->
+    <div id="empireModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('empireModal')">&times;</button>
+            <h3>Empire State Building</h3>
+            <span class="modal-tag">350 5th Ave, Midtown Manhattan</span>
+            
+            <div class="modal-info">
+                <strong>Height:</strong> 381 Meters (1,250 Feet) | <strong>Style:</strong> Art Deco | <strong>Opened:</strong> 1931
+            </div>
+
+            <p><strong>The World's Most Famous Building:</strong> Standing proudly in Midtown Manhattan, this 102-story landmark was completed in 1931 and stood as the world's tallest building for nearly 40 years.</p>
+            
+            <p><strong>Observatory Views:</strong> The main 86th Floor Open-Air Observatory and 102nd Floor Top Deck offer unmatched 360-degree views stretching across six states on clear days.</p>
+            
+            <p><strong>Night Lights:</strong> The building's iconic tower lighting system changes colors to celebrate major world holidays, events, and cultural milestones throughout the year.</p>
+        </div>
+    </div>
 
     <!-- Travel Tips Section -->
     <section id="tips">
@@ -319,5 +487,25 @@
         <p>&copy; 2026 NYC Travel Guide. Crafted for global travelers.</p>
     </footer>
 
+    <!-- JavaScript for Modal Popup Interactivity -->
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Lock background scrolling
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        // Close modal when clicking outside of modal content
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+    </script>
 </body>
 </html>
