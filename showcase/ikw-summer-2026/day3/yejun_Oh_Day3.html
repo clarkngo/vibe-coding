@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Grotesque Face Smash Game - Time Attack Mode</title>
+  
+  <!-- Google MediaPipe AI -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --primary-color: #ff3e3e;
+      --bg-color: #0f1118; 
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, sans-serif;
+      background-color: var(--bg-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      margin: 0;
+      color: #333;
+    }
+
+    /* 상단 컨트롤 패널 */
+    .game-header {
+      width: 100%;
+      max-width: 800px;
+      background: #ffffff;
+      padding: 15px 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+
+    .file-upload-btn {
+      background: #1e293b;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .file-upload-btn:hover { background: #0f172a; }
+    #upload-face { display: none; }
+
+    .score-container {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #1e293b;
+      display: flex;
+      gap: 20px;
+    }
+    .score-val { color: var(--primary-color); font-size: 1.5rem; }
+    .time-val { color: #3b82f6; font-size: 1.5rem; }
+
+    /* 게임 스테이지 */
+    #game-stage {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      height: 550px;
+      background: url('https://www.transparenttextures.com/patterns/cubes.png'), linear-gradient(135deg, #2a3348 0%, #1a202c 100%);
+      border: 5px solid #475569;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+      cursor: url('https://cdn-icons-png.flaticon.com/32/3076/3076813.png') 16 16, pointer;
+      user-select: none;
+    }
+
+    /* 화면 UI 요소들 (로딩, 게임오버) */
+    .overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      font-weight: bold;
+    }
+    #loading { display: none; font-size: 1.1rem; }
+    #game-over { display: none; background: rgba(15, 17, 24, 0.95); color: white; }
+    
+    .final-score-text { font-size: 2.5rem; margin-bottom: 20px; color: #ff3e3e; }
+    .restart-btn {
+      background: #3b82f6; color: white; border: none;
+      padding: 12px 24px; font-size: 1.2rem; border-radius: 8px;
+      cursor: pointer; font-weight: bold;
+    }
+    .restart-btn:hover { background: #2563eb; }
+
+    .spinner {
+      border: 5px solid #e2e8f0; border-top: 5px solid #3b82f6;
+      border-radius: 50%; width: 45px; height: 45px;
+      animation: spin 1s linear infinite; margin-bottom: 15px;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* 피격 시 화면 지진 */
+    .shake-stage { animation: shake-violent 0.15s ease-in-out; }
+    @keyframes shake-violent {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      15% { transform: translate(-10px, 8px) rotate(-1.5deg); }
+      30% { transform: translate(10px, -8px) rotate(1.5deg); }
+      45% { transform: translate(-8px, -8px) rotate(-0.5deg); }
+      60% { transform: translate(8px, 8px) rotate(0.5deg); }
+      75% { transform: translate(-5px, 5px) rotate(0deg); }
+      100% { transform: translate(0, 0); }
+    }
+
+    /* 생명체 */
+    #creature {
+      position: absolute; display: flex; justify-content: center; align-items: center;
+      transition: transform 0.05s ease-out; left: -500px; 
+    }
+
+    /* 기괴한 날개 */
+    .wing { position: absolute; width: 150px; height: 150px; top: 20px; z-index: 1; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6)); }
+    .wing-left { left: -90px; animation: flap-left-tattered 0.1s infinite alternate ease-in-out; }
+    .wing-right { right: -90px; transform: scaleX(-1); animation: flap-right-tattered 0.1s infinite alternate ease-in-out; }
+    @keyframes flap-left-tattered { 0% { transform: rotate(-35deg) scaleY(0.85); } 100% { transform: rotate(30deg) scaleY(1.1); } }
+    @keyframes flap-right-tattered { 0% { transform: scaleX(-1) rotate(-35deg) scaleY(0.85); } 100% { transform: scaleX(-1) rotate(30deg) scaleY(1.1); } }
+
+    /* 얼굴 */
+    #face-img {
+      position: relative; z-index: 2; max-width: 200px; max-height: 200px; object-fit: contain;
+      filter: drop-shadow(0 15px 30px rgba(0,0,0,0.7)); pointer-events: none; transition: filter 0.1s;
+    }
+    .face-pain { filter: drop-shadow(0 0 10px rgba(139,0,0,0.8)) grayscale(0.6) saturate(2) contrast(1.5) sepia(0.2) blur(1px) scale(0.95); animation: pain-distortion 0.2s forwards; }
+    @keyframes pain-distortion {
+      0% { object-fit: contain; }
+      50% { object-fit: fill; transform: scaleY(0.8) scaleX(1.1); clip-path: polygon(1% 1%, 99% 20%, 95% 95%, 10% 99%); }
+      100% { object-fit: contain; }
+    }
+
+    /* 타격 이펙트 */
+    .hit-effect { position: absolute; font-size: 70px; pointer-events: none; z-index: 5; transform-origin: center; animation: pow-violent 0.4s ease-out forwards; }
+    @keyframes pow-violent { 0% { transform: scale(0.3) rotate(0deg); opacity: 1; text-shadow: 0 0 15px #ff0000; } 50% { transform: scale(1.6) rotate(15deg); opacity: 1; } 100% { transform: scale(2.2) rotate(30deg); opacity: 0; text-shadow: 0 0 40px #ff0000; } }
+  </style>
+</head>
+<body>
+
+  <div class="game-header">
+    <label class="file-upload-btn i18n" for="upload-face" data-ko="📷 타겟 사진 업로드 (게임 시작)" data-en="📷 Upload Target Photo (Start Game)">📷 타겟 사진 업로드 (게임 시작)</label>
+    <input type="file" id="upload-face" accept="image/*">
+    <div class="score-container">
+      <div>⏳ <span id="time" class="time-val">30</span><span class="i18n" data-ko="초" data-en=" sec">초</span></div>
+      <div>💥 <span class="i18n" data-ko="타격 수:" data-en="Hits:">타격 수:</span> <span id="score" class="score-val">0</span></div>
+    </div>
+  </div>
+
+  <div id="game-stage">
+    <!-- 로딩 화면 -->
+    <div id="loading" class="overlay">
+      <div class="spinner"></div>
+      <div class="i18n" data-ko="AI 모델이 완벽한 누끼를 따는 중입니다..." data-en="AI model is perfecting the cutout...">AI 모델이 완벽한 누끼를 따는 중입니다...</div>
+    </div>
+
+    <!-- 💡 게임 오버 화면 -->
+    <div id="game-over" class="overlay">
+      <div style="font-size: 2rem; margin-bottom: 10px;" class="i18n" data-ko="⏰ 시간 초과!" data-en="⏰ Time's up!">⏰ 시간 초과!</div>
+      <div class="final-score-text"><span class="i18n" data-ko="총" data-en="You hit">총</span> <span id="final-score">0</span><span class="i18n" data-ko="대 때렸습니다!" data-en=" times!">대 때렸습니다!</span></div>
+      <button class="restart-btn i18n" onclick="restartGame()" data-ko="다시 패러 가기 🔨" data-en="Play Again 🔨">다시 패러 가기 🔨</button>
+    </div>
+
+    <!-- 괴물 생명체 -->
+    <div id="creature" style="display: none;">
+      <svg class="wing wing-left" viewBox="0 0 100 100">
+        <path d="M90,75 C60,10 20,10 5,35 C-5,50 15,65 30,55 C20,75 40,80 55,70 C50,85 70,90 90,75 Z M60,40 C50,30 40,35 35,45 M35,45 C30,55 35,65 45,65 M45,65 C55,65 60,55 60,40 Z" fill="#2b0d0d" stroke="#000" stroke-width="2"/>
+        <path d="M10,35 C5,30 10,25 20,25 C30,25 35,30 35,35 M35,35 C35,40 30,45 20,45 C10,45 5,40 10,35 Z" fill="#2b0d0d" stroke="#000" stroke-width="1.5"/>
+        <path d="M40,75 C30,70 20,70 15,75 C10,80 15,85 25,85 C35,85 40,80 40,75 Z" fill="#2b0d0d" stroke="#000" stroke-width="1.5"/>
+      </svg>
+      <svg class="wing wing-right" viewBox="0 0 100 100">
+        <path d="M90,75 C60,10 20,10 5,35 C-5,50 15,65 30,55 C20,75 40,80 55,70 C50,85 70,90 90,75 Z M60,40 C50,30 40,35 35,45 M35,45 C30,55 35,65 45,65 M45,65 C55,65 60,55 60,40 Z" fill="#2b0d0d" stroke="#000" stroke-width="2"/>
+        <path d="M10,35 C5,30 10,25 20,25 C30,25 35,30 35,35 M35,35 C35,40 30,45 20,45 C10,45 5,40 10,35 Z" fill="#2b0d0d" stroke="#000" stroke-width="1.5"/>
+        <path d="M40,75 C30,70 20,70 15,75 C10,80 15,85 25,85 C35,85 40,80 40,75 Z" fill="#2b0d0d" stroke="#000" stroke-width="1.5"/>
+      </svg>
+      <img id="face-img" src="" alt="">
+    </div>
+  </div>
+
+  <script>
+    const stage = document.getElementById('game-stage');
+    const creature = document.getElementById('creature');
+    const uploadInput = document.getElementById('upload-face');
+    const scoreEl = document.getElementById('score');
+    const timeEl = document.getElementById('time');
+    const faceImg = document.getElementById('face-img');
+    const loading = document.getElementById('loading');
+    const gameOverScreen = document.getElementById('game-over');
+    const finalScoreEl = document.getElementById('final-score');
+
+    // 💡 찰진 싸대기/펀치 효과음 세팅 (무료 오픈소스 사운드)
+    const hitSoundURL = 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3';
+
+    let hits = 0;
+    let timeLeft = 30;
+    let timerInterval;
+    let animationId;
+    
+    let posX = 300, posY = 200;
+    let velX = 3, velY = 2.5;
+    let isGameRunning = false;
+    let angle = 0;
+
+    // AI 누끼 모델
+    const selfieSegmentation = new SelfieSegmentation({locateFile: (file) => {
+      return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
+    }});
+    selfieSegmentation.setOptions({ modelSelection: 0 });
+    
+    selfieSegmentation.onResults((results) => {
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = results.image.width; offCanvas.height = results.image.height;
+      const offCtx = offCanvas.getContext('2d');
+
+      offCtx.drawImage(results.segmentationMask, 0, 0, offCanvas.width, offCanvas.height);
+      offCtx.globalCompositeOperation = 'source-in';
+      offCtx.drawImage(results.image, 0, 0, offCanvas.width, offCanvas.height);
+
+      faceImg.src = offCanvas.toDataURL('image/png');
+      loading.style.display = 'none';
+      creature.style.display = 'flex';
+
+      startGame();
+    });
+
+    uploadInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        loading.style.display = 'flex';
+        gameOverScreen.style.display = 'none';
+        creature.style.display = 'none';
+        
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          const img = new Image();
+          img.onload = async () => { await selfieSegmentation.send({image: img}); };
+          img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // 💡 게임 시작 및 타이머 로직
+    function startGame() {
+      if (isGameRunning) return;
+      isGameRunning = true;
+      
+      hits = 0;
+      timeLeft = 30;
+      scoreEl.textContent = hits;
+      timeEl.textContent = timeLeft;
+      gameOverScreen.style.display = 'none';
+      
+      // 기존 잔여 이펙트 제거
+      document.querySelectorAll('.hit-effect').forEach(el => el.remove());
+
+      // 1초마다 타이머 감소
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timeEl.textContent = timeLeft;
+        if (timeLeft <= 0) endGame();
+      }, 1000);
+
+      animate();
+    }
+
+    // 💡 게임 오버 로직
+    function endGame() {
+      isGameRunning = false;
+      clearInterval(timerInterval);
+      cancelAnimationFrame(animationId);
+      
+      finalScoreEl.textContent = hits;
+      gameOverScreen.style.display = 'flex';
+    }
+
+    // 💡 재시작 로직
+    window.restartGame = function() {
+      posX = 300; posY = 200;
+      velX = 3; velY = 2.5;
+      startGame();
+    };
+
+    function animate() {
+      if (!isGameRunning) return;
+
+      const rect = creature.getBoundingClientRect();
+      const stageWidth = stage.clientWidth - rect.width;
+      const stageHeight = stage.clientHeight - rect.height;
+
+      posX += velX;
+      posY += velY + Math.sin(angle) * 2;
+      angle += 0.08;
+
+      if (posX <= 0 || posX >= stageWidth) velX *= -1;
+      if (posY <= 0 || posY >= stageHeight) velY *= -1;
+
+      posX = Math.max(0, Math.min(posX, stageWidth));
+      posY = Math.max(0, Math.min(posY, stageHeight));
+
+      creature.style.left = posX + 'px';
+      creature.style.top = posY + 'px';
+
+      animationId = requestAnimationFrame(animate);
+    }
+
+    // 💡 클릭(타격) 시 이벤트
+    creature.addEventListener('mousedown', (e) => {
+      if (!isGameRunning) return;
+
+      hits += 1;
+      scoreEl.textContent = hits;
+
+      // 🔊 타격음 재생 (빠르게 연타해도 소리가 겹치도록 cloneNode 사용)
+      const sound = new Audio(hitSoundURL);
+      sound.volume = 0.6;
+      sound.play().catch(e => console.log('브라우저 정책상 첫 클릭 전 오디오 재생이 제한될 수 있습니다.'));
+
+      const rect = creature.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      const hitEffect = document.createElement('div');
+      hitEffect.className = 'hit-effect';
+      hitEffect.textContent = Math.random() > 0.5 ? '💥' : '💢';
+      hitEffect.style.left = (clickX - 35) + 'px';
+      hitEffect.style.top = (clickY - 35) + 'px';
+      creature.appendChild(hitEffect);
+
+      faceImg.classList.add('face-pain');
+      setTimeout(() => faceImg.classList.remove('face-pain'), 150);
+
+      stage.classList.add('shake-stage');
+      setTimeout(() => stage.classList.remove('shake-stage'), 150);
+
+      creature.style.transform = 'scale(0.6) rotate(-25deg)';
+      setTimeout(() => creature.style.transform = 'scale(1) rotate(0deg)', 120);
+
+      velX = (Math.random() - 0.5) * 14;
+      velY = (Math.random() - 0.5) * 14;
+      
+      setTimeout(() => hitEffect.remove(), 1000);
+    });
+  </script>
+
+  <button id="lang-toggle" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.55);color:#fff;font:700 12px system-ui,sans-serif;cursor:pointer;">EN</button>
+  <script>
+  (function () {
+    var lang = "ko";
+    var btn = document.getElementById("lang-toggle");
+
+    function applyLanguage() {
+      document.querySelectorAll(".i18n").forEach(function (el) {
+        el.innerHTML = el.getAttribute(lang === "ko" ? "data-ko" : "data-en");
+      });
+      document.documentElement.lang = lang;
+    }
+
+    btn.addEventListener("click", function () {
+      lang = lang === "ko" ? "en" : "ko";
+      btn.textContent = lang === "ko" ? "EN" : "한국어";
+      applyLanguage();
+    });
+  })();
+  </script>
+</body>
+</html>
