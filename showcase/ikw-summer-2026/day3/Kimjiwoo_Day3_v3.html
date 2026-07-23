@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seattle Food Guide</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background: linear-gradient(135deg, #002B49, #005A9C);
+            color: white;
+            padding: 2.5rem 1rem 2rem 1rem;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+        header p {
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Category Navigation Buttons */
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid white;
+            color: white;
+            padding: 0.6rem 1.4rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .tab-btn.active {
+            background: white;
+            color: #002B49;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Section Display */
+        .food-section {
+            display: none;
+        }
+        .food-section.active {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .tag {
+            display: inline-block;
+            background: #e0f2fe;
+            color: #0369a1;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            margin-bottom: 0.8rem;
+        }
+        .tag.jiwoo {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #111;
+        }
+        .card p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🌲 Seattle Food Guide</h1>
+        <p>Must-visit local restaurants & personal recommendations</p>
+        
+        <!-- Toggle Buttons -->
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="switchTab('local')">📍 Local Picks</button>
+            <button class="tab-btn" onclick="switchTab('jiwoo')">⭐ Jiwoo's Picks</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 1. Local Picks Section -->
+        <div id="local" class="food-section active">
+            <div class="card">
+                <span class="tag">Pike Place Market</span>
+                <h3>Pike Place Chowder</h3>
+                <p>Famous for legendary, award-winning creamy New England clam chowder in Pike Place Market.</p>
+            </div>
+
+            <div class="card">
+                <span class="tag">Capitol Hill</span>
+                <h3>Monorail Espresso</h3>
+                <p>A historic espresso walk-up bar serving rich, authentic handcrafted coffee.</p>
+            </div>
+
+            <div class="card">
+                <span class="tag">Street Food</span>
+                <h3>Seattle Hot Dog</h3>
+                <p>Iconic local street food topped with grilled onions and rich cream cheese.</p>
+            </div>
+        </div>
+
+        <!-- 2. Jiwoo's Picks Section -->
+        <div id="jiwoo" class="food-section">
+            <div class="card">
+                <span class="tag jiwoo">Jiwoo's Favorite</span>
+                <h3>Your Favorite Restaurant 1</h3>
+                <p>Add your personal favorite spot and a short review or recommended menu here!</p>
+            </div>
+
+            <div class="card">
+                <span class="tag jiwoo">Must Try</span>
+                <h3>Your Favorite Cafe 2</h3>
+                <p>Share a hidden gem, cozy atmosphere, or unique drink you loved in Seattle.</p>
+            </div>
+
+            <div class="card">
+                <span class="tag jiwoo">Special Treat</span>
+                <h3>Your Favorite Dessert 3</h3>
+                <p>Introduce a dessert or special meal that made your Seattle trip memorable.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 Seattle Food Guide · Powered by GitHub Actions & Pages</p>
+    </footer>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all sections
+            document.querySelectorAll('.food-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+
+            // Remove active class from buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Activate current tab
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>

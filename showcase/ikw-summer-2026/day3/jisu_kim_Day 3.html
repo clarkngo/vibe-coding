@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📸 Seattle's Most Instagrammable Spots</title>
+  <style>
+    /* basic setup */
+    :root {
+      --primary: #1e3a8a; /* Deep blue, inspired by Seattle ocean/rain */
+      --secondary: #e2e8f0;
+      --accent: #f59e0b; /* Yellow/Gold for tips */
+      --bg: #fdfdfd;
+      --card-bg: #ffffff;
+      --text: #1f2937;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.7;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      padding: 40px 0;
+      background: var(--primary);
+      color: white;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+    
+    h1 { margin: 0; font-size: 2.2rem; }
+    header p { margin: 10px 0 0 0; opacity: 0.9; font-size: 1rem; }
+
+    /* Card Style */
+    .spot-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+      border: 1px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+    
+    .spot-card:hover {
+      border-color: var(--secondary);
+    }
+
+    .spot-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      border-bottom: 2px solid var(--secondary);
+      padding-bottom: 10px;
+    }
+
+    .spot-title {
+      margin: 0;
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+    
+    .check-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+
+    /* Details List */
+    .details {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px 0;
+      font-size: 0.95rem;
+    }
+
+    .details li {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .details li::before {
+      content: "📍"; /* Location Icon */
+      margin-right: 10px;
+      font-size: 1rem;
+    }
+    
+    .details li.time::before { content: "⏰"; }
+    .details li.mood::before { content: "🎨"; }
+
+    /* Tip Box */
+    .tip-box {
+      background-color: #fffbeb;
+      border-left: 5px solid var(--accent);
+      padding: 15px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #92400e;
+    }
+    
+    .tip-box b { color: #b45309; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      body { padding: 15px; }
+      h1 { font-size: 1.8rem; }
+      .spot-header { flex-direction: column; align-items: flex-start; gap: 5px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Seattle Photo Spot Guide</h1>
+    <p>Capture the magic of the Emerald City. Check off your favorites!</p>
+  </header>
+
+  <!-- Spot 1: Pike Place Market -->
+  <div class="spot-card">
+    <div class="spot-header">
+      <h2 class="spot-title">Pike Place Market</h2>
+      <div class="check-container">
+        <input type="checkbox" id="spot1">
+        <label for="spot1">Visited</label>
+      </div>
+    </div>
+    
+    <ul class="details">
+      <li><b>Location:</b> Downtown Waterfront</li>
+      <li class="time"><b>Best Time:</b> Early morning (to avoid crowds) or late afternoon</li>
+      <li class="mood"><b>Mood:</b> Bustling, Historic, Colorful, Local</li>
+    </ul>
+
+    <div class="tip-box">
+      💡 <b>Photo Tips:</b> Get a classic shot of the "Pike Place Market" neon sign. Inside, photograph the colorful flower stalls, the famous fish toss, or the quirky Gum Wall just downstairs in Post Alley.
+    </div>
+  </div>
+
+  <!-- Spot 2: Space Needle -->
+  <div class="spot-card">
+    <div class="spot-header">
+      <h2 class="spot-title">The Space Needle</h2>
+      <div class="check-container">
+        <input type="checkbox" id="spot2">
+        <label for="spot2">Visited</label>
+      </div>
+    </div>
+    
+    <ul class="details">
+      <li><b>Location:</b> Seattle Center</li>
+      <li class="time"><b>Best Time:</b> Sunset or "Golden Hour"</li>
+      <li class="mood"><b>Mood:</b> Iconic, Futuristic, Panoramic, Urban</li>
+    </ul>
+
+    <div class="tip-box">
+      💡 <b>Photo Tips:</b> For the full structure, take photos from Seattle Center loop. If you go up, use the glass floors ("The Loupe") for dramatic top-down shots of the city below.
+    </div>
+  </div>
+
+  <!-- Spot 3: Kerry Park -->
+  <div class="spot-card">
+    <div class="spot-header">
+      <h2 class="spot-title">Kerry Park Viewpoint</h2>
+      <div class="check-container">
+        <input type="checkbox" id="spot3">
+        <label for="spot3">Visited</label>
+      </div>
+    </div>
+    
+    <ul class="details">
+      <li><b>Location:</b> Queen Anne Hill</li>
+      <li class="time"><b>Best Time:</b> Evening (for city lights) or clear days (for Mt. Rainier)</li>
+      <li class="mood"><b>Mood:</b> Romantic, Scenic, Classic, Skyline</li>
+    </ul>
+
+    <div class="tip-box">
+      💡 <b>Photo Tips:</b> This is the *most famous* view of Seattle. On a clear day, capture the skyline with the Space Needle perfectly placed in front of Mount Rainier. Great for night photography.
+    </div>
+  </div>
+
+</body>
+</html>

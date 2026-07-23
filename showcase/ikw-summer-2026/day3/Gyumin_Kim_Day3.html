@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>One Runway - Air Traffic Control Simulator</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: rgba(6, 18, 34, 0.92);
+      --panel-2: rgba(13, 32, 58, 0.94);
+      --accent: #64d6ff;
+      --accent2: #6afb97;
+      --danger: #ff6e6e;
+      --warning: #ffb86c;
+      --text: #f3f6ff;
+      --muted: #a7bccf;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top, rgba(60, 126, 225, 0.35), transparent 25%),
+        linear-gradient(180deg, #13203b 0%, #07111f 100%);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 24px 32px 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .help-button,
+    .modal-close {
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
+      background: rgba(8, 18, 35, 0.92);
+      color: var(--text);
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .help-button:hover,
+    .modal-close:hover {
+      border-color: rgba(100,214,255,.5);
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .lang-switch select {
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      background: rgba(8, 18, 35, 0.92);
+      color: var(--text);
+      padding: 8px 10px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(2rem, 3vw, 3rem);
+      letter-spacing: -0.04em;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 60ch;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+      padding: 0 32px 40px;
+    }
+
+    .sidebar,
+    .board {
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.22);
+    }
+
+    .stat-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .stat-card {
+      background: var(--panel-2);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .stat-card strong {
+      display: block;
+      font-size: 1.25rem;
+      margin-bottom: 8px;
+    }
+
+    .status-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-clear { background: rgba(100,214,255,.16); color: #8fe8ff; }
+    .status-rain { background: rgba(102,138,255,.16); color: #aac7ff; }
+    .status-storm { background: rgba(255,116,116,.16); color: #ff9aa1; }
+    .status-snow { background: rgba(175,233,255,.16); color: #c4f0ff; }
+
+    .queue-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .queue-panel {
+      background: var(--panel-2);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 280px;
+    }
+
+    .queue-panel h2 {
+      margin: 0;
+      padding: 18px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      font-size: 1rem;
+      letter-spacing: .01em;
+    }
+
+    .queue-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .plane-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      cursor: pointer;
+      transition: background .16s ease;
+    }
+
+    .plane-card:last-child { border-bottom: none; }
+    .plane-card:hover,
+    .plane-card.selected {
+      background: rgba(255,255,255,.05);
+    }
+
+    .plane-info {
+      display: grid;
+      gap: 6px;
+    }
+
+    .plane-info strong {
+      font-size: 0.98rem;
+    }
+
+    .plane-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .tag {
+      background: rgba(255,255,255,.05);
+      border-radius: 999px;
+      padding: 4px 9px;
+    }
+
+    .tag.emergency { color: #ff8f8f; }
+    .tag.lowfuel { color: #ffd56b; }
+    .tag.vip { color: #d8bfff; }
+    .tag.medical { color: #80ffd6; }
+    .tag.normal { color: #9cc0ff; }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .controls button {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: white;
+      min-height: 48px;
+      transition: transform .1s ease, opacity .2s ease;
+      background: linear-gradient(135deg, #4f94ff 0%, #6fd6ff 100%);
+    }
+
+    .controls button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .controls button:hover:not(:disabled) { transform: translateY(-1px); }
+    .controls button.danger { background: linear-gradient(135deg, #ff6978 0%, #ff9778 100%); }
+    .controls button.warning { background: linear-gradient(135deg, #ffb86c 0%, #ffd86c 100%); }
+    .controls button.success { background: linear-gradient(135deg, #6afb97 0%, #7ee9b7 100%); color: #062531; }
+
+    .log-panel,
+    .summary-panel,
+    .radar-panel {
+      background: var(--panel-2);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 20px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+
+    .help-modal {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(2, 8, 18, 0.72);
+      z-index: 10;
+    }
+
+    .help-modal.hidden {
+      display: none;
+    }
+
+    .help-content {
+      width: min(700px, 100%);
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.35);
+    }
+
+    .help-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .help-content h2 {
+      margin: 0;
+    }
+
+    .help-content ol {
+      margin: 0;
+      padding-left: 20px;
+      display: grid;
+      gap: 10px;
+      color: var(--text);
+    }
+
+    .log-panel h2,
+    .summary-panel h2,
+    .radar-panel h2 {
+      margin-top: 0;
+      margin-bottom: 14px;
+      font-size: 1rem;
+    }
+
+    .radar-screen {
+      background: rgba(10, 26, 45, 0.95);
+      border: 1px solid rgba(100,214,255,.2);
+      border-radius: 18px;
+      min-height: 160px;
+      display: grid;
+      place-items: center;
+      color: #8fdfff;
+      font-size: 0.92rem;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .radar-screen::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(100,214,255,.12), transparent 40%),
+        repeating-radial-gradient(circle at center, transparent 0 45%, rgba(100,214,255,.08) 46% 50%, transparent 51% 58%);
+      pointer-events: none;
+    }
+
+    .radar-cell {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      display: grid;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .radar-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 8px;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    .radar-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      font-size: 0.92rem;
+    }
+
+    .radar-label {
+      font-weight: 700;
+      color: #a2eaff;
+    }
+
+    .radar-type-landing { color: #80ffb3; }
+    .radar-type-takeoff { color: #ffd87f; }
+
+    .log-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-height: 260px;
+      overflow-y: auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .log-list li {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .summary-item {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .summary-item span {
+      display: block;
+      color: var(--muted);
+    }
+
+    .summary-item strong {
+      display: block;
+      font-size: 1.1rem;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 1080px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 770px) {
+      header { grid-template-columns: 1fr; }
+      .queue-grid { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1 id="pageTitle">One Runway</h1>
+      <p id="pageSubtitle">Air traffic control simulator. Manage a single runway, prioritize landings and departures, handle emergencies, and keep the airport safe.</p>
+    </div>
+    <div class="header-actions">
+      <button class="help-button" id="helpButton" type="button">How to Play</button>
+      <div class="status-label status-clear" id="weatherLabel">Weather: Clear Sky</div>
+      <label class="lang-switch">
+        <span id="languageLabel">Language</span>
+        <select id="languageSelect">
+          <option value="en">English</option>
+          <option value="ko">한국어</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <div class="help-modal hidden" id="helpModal" aria-hidden="true">
+    <div class="help-content" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <div class="help-header">
+        <h2 id="helpTitle">How to Play</h2>
+        <button class="modal-close" id="closeHelpButton" type="button">Close</button>
+      </div>
+      <ol id="helpSteps">
+        <li>Select an aircraft from an incoming, departure, or holding queue.</li>
+        <li>Use LAND, TAKE OFF, HOLD, or GO AROUND to control the runway.</li>
+        <li>Prioritize medical, emergency, and low-fuel flights to avoid penalties.</li>
+        <li>Watch weather, radar activity, and delays to keep the airport safe.</li>
+      </ol>
+    </div>
+  </div>
+
+  <main>
+    <section class="sidebar">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <strong id="runwayTitle">Runway</strong>
+          <div id="runwayStatus">Idle</div>
+        </div>
+        <div class="stat-card">
+          <strong id="scoreTitle">Score</strong>
+          <div id="scoreValue">0</div>
+        </div>
+        <div class="stat-card">
+          <strong id="timeTitle">Elapsed Time</strong>
+          <div id="timeValue">00:00</div>
+        </div>
+        <div class="stat-card">
+          <strong id="eventTitle">Active Events</strong>
+          <div id="eventValue">None</div>
+        </div>
+      </div>
+      <div class="controls" style="margin-top: 20px;">
+        <button id="landButton" class="success">LAND</button>
+        <button id="takeoffButton" class="warning">TAKE OFF</button>
+        <button id="holdButton">HOLD</button>
+        <button id="goAroundButton" class="danger">GO AROUND</button>
+        <button id="restartButton" class="danger">RESTART</button>
+      </div>
+      <div class="summary-panel">
+        <h2 id="summaryTitle">Game Summary</h2>
+        <div class="summary-item"><span id="landSummary">Completed landings</span><strong id="landCount">0</strong></div>
+        <div class="summary-item"><span id="departSummary">Completed departures</span><strong id="departCount">0</strong></div>
+        <div class="summary-item"><span id="emergencySummary">Emergency handled</span><strong id="emergencyCount">0</strong></div>
+        <div class="summary-item"><span id="nearMissSummary">Near misses</span><strong id="nearMissCount">0</strong></div>
+      </div>
+    </section>
+
+    <section class="board">
+      <div class="queue-grid">
+        <div class="queue-panel">
+          <h2 id="incomingTitle">Incoming Flights</h2>
+          <ul class="queue-list" id="incomingQueue"></ul>
+        </div>
+        <div class="queue-panel">
+          <h2 id="departuresTitle">Departures</h2>
+          <ul class="queue-list" id="departureQueue"></ul>
+        </div>
+        <div class="queue-panel">
+          <h2 id="holdingTitle">Holding Pattern</h2>
+          <ul class="queue-list" id="holdingQueue"></ul>
+        </div>
+        <div class="queue-panel">
+          <h2 id="logTitle">Runway Log</h2>
+          <ul class="log-list" id="runwayLog"></ul>
+        </div>
+      </div>
+      <div class="radar-panel">
+        <h2 id="radarTitle">Radar</h2>
+        <div class="radar-screen" id="radarScreen">
+          <div class="radar-cell">
+            <strong id="radarStatus">No active runway operations</strong>
+            <small id="radarHint">Landing and departing aircraft appear here.</small>
+          </div>
+        </div>
+        <ul class="radar-list" id="radarList"></ul>
+      </div>
+      <div class="log-panel">
+        <h2 id="instructionsTitle">Instructions</h2>
+        <ul class="log-list" id="instructionList">
+          <li>Select an aircraft from any queue, then choose an action.</li>
+          <li>Emergencies and low-fuel flights need priority.</li>
+          <li>Weather and random incidents affect runway availability.</li>
+          <li>A void runway operation or collision ends the game.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const translations = {
+      en: {
+        pageTitle: 'One Runway',
+        pageSubtitle: 'Air traffic control simulator. Manage a single runway, prioritize landings and departures, handle emergencies, and keep the airport safe.',
+        language: 'Language',
+        weather: 'Weather',
+        runway: 'Runway',
+        score: 'Score',
+        elapsedTime: 'Elapsed Time',
+        activeEvents: 'Active Events',
+        idle: 'Idle',
+        runwayBusy: 'Runway busy',
+        closed: 'Closed',
+        none: 'None',
+        gameSummary: 'Game Summary',
+        completedLandings: 'Completed landings',
+        completedDepartures: 'Completed departures',
+        emergencyHandled: 'Emergency handled',
+        nearMisses: 'Near misses',
+        incomingFlights: 'Incoming Flights',
+        departures: 'Departures',
+        holdingPattern: 'Holding Pattern',
+        runwayLog: 'Runway Log',
+        radar: 'Radar',
+        noOperations: 'No active runway operations',
+        radarHint: 'Landing and departing aircraft appear here.',
+        instructions: 'Instructions',
+        instruction1: 'Select an aircraft from any queue, then choose an action.',
+        instruction2: 'Emergencies and low-fuel flights need priority.',
+        instruction3: 'Weather and random incidents affect runway availability.',
+        instruction4: 'A void runway operation or collision ends the game.',
+        howToPlay: 'How to Play',
+        close: 'Close',
+        helpIntro: 'Learn the basics of the simulator before you start.',
+        helpStep1: 'Select an aircraft from an incoming, departure, or holding queue.',
+        helpStep2: 'Use LAND, TAKE OFF, HOLD, or GO AROUND to control the runway.',
+        helpStep3: 'Prioritize medical, emergency, and low-fuel flights to avoid penalties.',
+        helpStep4: 'Watch weather, radar activity, and delays to keep the airport safe.',
+        weatherStates: {
+          clear: 'Clear Sky',
+          rain: 'Heavy Rain',
+          storm: 'Thunderstorm',
+          snow: 'Snow'
+        },
+        statuses: {
+          approach: 'Approach',
+          departure: 'Ready',
+          holding: 'Holding',
+          radarBlind: 'Radar Blind',
+          landing: 'Landing',
+          takeoff: 'Takeoff'
+        },
+        types: {
+          normal: 'Normal Flight',
+          lowfuel: 'Low Fuel',
+          vip: 'VIP Flight',
+          medical: 'Medical Flight',
+          emergency: 'Emergency Flight'
+        }
+      },
+      ko: {
+        pageTitle: '원 런웨이',
+        pageSubtitle: '항공 교통 관제 시뮬레이터입니다. 단일 활주로를 관리하고, 착륙과 이륙 우선순위를 정하며, 비상 상황을 처리하고 공항을 안전하게 유지하세요.',
+        language: '언어',
+        weather: '날씨',
+        runway: '활주로',
+        score: '점수',
+        elapsedTime: '경과 시간',
+        activeEvents: '활성 이벤트',
+        idle: '대기',
+        runwayBusy: '활주로 사용 중',
+        closed: '폐쇄',
+        none: '없음',
+        gameSummary: '게임 요약',
+        completedLandings: '완료된 착륙',
+        completedDepartures: '완료된 이륙',
+        emergencyHandled: '처리된 비상',
+        nearMisses: '위험한 근접',
+        incomingFlights: '도착 비행기',
+        departures: '이륙 비행기',
+        holdingPattern: '대기 패턴',
+        runwayLog: '활주로 로그',
+        radar: '레이더',
+        noOperations: '활성화된 활주로 작업이 없습니다',
+        radarHint: '착륙 및 이륙 비행기가 여기에 표시됩니다.',
+        instructions: '지시사항',
+        instruction1: '대기열에서 항공기를 선택한 뒤 원하는 동작을 선택하세요.',
+        instruction2: '비상 상황과 연료 부족 항공기는 우선순위가 높습니다.',
+        instruction3: '날씨와 무작위 사건이 활주로 가용성에 영향을 줍니다.',
+        instruction4: '잘못된 활주로 작업이나 충돌은 게임을 종료합니다.',
+        howToPlay: '게임 방법',
+        close: '닫기',
+        helpIntro: '시작하기 전에 시뮬레이터 기본 규칙을 확인하세요.',
+        helpStep1: '도착, 이륙, 대기열 중에서 항공기를 선택하세요.',
+        helpStep2: '착륙, 이륙, 대기, 회피 버튼으로 활주로를 제어하세요.',
+        helpStep3: '의료, 비상, 연료 부족 항공기를 우선 처리해 패널티를 줄이세요.',
+        helpStep4: '날씨, 레이더 상태, 지연을 확인하며 공항을 안전하게 유지하세요.',
+        weatherStates: {
+          clear: '맑은 하늘',
+          rain: '강한 비',
+          storm: '뇌우',
+          snow: '눈'
+        },
+        statuses: {
+          approach: '접근 중',
+          departure: '준비 완료',
+          holding: '대기 중',
+          radarBlind: '레이더 장애',
+          landing: '착륙',
+          takeoff: '이륙'
+        },
+        types: {
+          normal: '일반 항공기',
+          lowfuel: '연료 부족',
+          vip: 'VIP 항공기',
+          medical: '의료 항공기',
+          emergency: '비상 항공기'
+        }
+      }
+    };
+
+    const types = [
+      { name: { en: 'Normal Flight', ko: '일반 항공기' }, tag: 'normal', priority: 1, description: 'Standard operations.' },
+      { name: { en: 'Low Fuel', ko: '연료 부족' }, tag: 'lowfuel', priority: 2, description: 'Fuel decreases. May become emergency.' },
+      { name: { en: 'VIP Flight', ko: 'VIP 항공기' }, tag: 'vip', priority: 3, description: 'Special guest. Delay hurts reputation.' },
+      { name: { en: 'Medical Flight', ko: '의료 항공기' }, tag: 'medical', priority: 4, description: 'Very high priority. Save lives.' },
+      { name: { en: 'Emergency Flight', ko: '비상 항공기' }, tag: 'emergency', priority: 5, description: 'Requires immediate handling.' },
+    ];
+
+    const weatherStates = [
+      { name: { en: 'Clear Sky', ko: '맑은 하늘' }, label: 'status-clear', landingDelay: 0 },
+      { name: { en: 'Heavy Rain', ko: '강한 비' }, label: 'status-rain', landingDelay: 1 },
+      { name: { en: 'Thunderstorm', ko: '뇌우' }, label: 'status-storm', landingDelay: 2 },
+      { name: { en: 'Snow', ko: '눈' }, label: 'status-snow', landingDelay: 1.5 },
+    ];
+
+    const tagLabels = {
+      normal: { en: 'NORMAL', ko: '일반' },
+      lowfuel: { en: 'LOW FUEL', ko: '연료 부족' },
+      vip: { en: 'VIP', ko: 'VIP' },
+      medical: { en: 'MEDICAL', ko: '의료' },
+      emergency: { en: 'EMERGENCY', ko: '비상' },
+    };
+
+    const events = [
+      { name: { en: 'Bird Strike', ko: '조류 충돌' }, description: { en: 'A plane becomes emergency.', ko: '비행기가 비상 상태가 됩니다.' }, duration: 12 },
+      { name: { en: 'Drone Near Runway', ko: '활주로 근처 드론' }, description: { en: 'Runway temporarily closed.', ko: '활주로가 일시적으로 폐쇄됩니다.' }, duration: 10 },
+      { name: { en: 'Radar Failure', ko: '레이더 고장' }, description: { en: 'Plane details hidden briefly.', ko: '비행기 정보가 잠시 숨겨집니다.' }, duration: 10 },
+      { name: { en: 'Vehicle on Runway', ko: '활주로 위 차량' }, description: { en: 'Runway unavailable until cleared.', ko: '정리될 때까지 활주로를 사용할 수 없습니다.' }, duration: 12 },
+    ];
+
+    let currentLanguage = 'en';
+    let incomingFlights = [];
+    let departingFlights = [];
+    let holdingFlights = [];
+    let selectedFlightId = null;
+    let runwayLocked = false;
+    let runwayBusy = false;
+    let currentWeather = 0;
+    let timeSeconds = 0;
+    let score = 0;
+    let landings = 0;
+    let departures = 0;
+    let emergenciesHandled = 0;
+    let nearMisses = 0;
+    let gameOver = false;
+    let activeEvent = null;
+    let eventTimer = 0;
+    let weatherTimer = 0;
+    let nextSpawn = 0;
+
+    const incomingQueue = document.getElementById('incomingQueue');
+    const departureQueue = document.getElementById('departureQueue');
+    const holdingQueue = document.getElementById('holdingQueue');
+    const runwayLog = document.getElementById('runwayLog');
+    const weatherLabel = document.getElementById('weatherLabel');
+    const runwayStatus = document.getElementById('runwayStatus');
+    const scoreValue = document.getElementById('scoreValue');
+    const timeValue = document.getElementById('timeValue');
+    const eventValue = document.getElementById('eventValue');
+    const landButton = document.getElementById('landButton');
+    const takeoffButton = document.getElementById('takeoffButton');
+    const holdButton = document.getElementById('holdButton');
+    const goAroundButton = document.getElementById('goAroundButton');
+    const restartButton = document.getElementById('restartButton');
+    const landCount = document.getElementById('landCount');
+    const departCount = document.getElementById('departCount');
+    const emergencyCount = document.getElementById('emergencyCount');
+    const nearMissCount = document.getElementById('nearMissCount');
+    const radarScreen = document.getElementById('radarScreen');
+    const radarStatus = document.getElementById('radarStatus');
+    const radarList = document.getElementById('radarList');
+    const languageSelect = document.getElementById('languageSelect');
+    const pageTitle = document.getElementById('pageTitle');
+    const pageSubtitle = document.getElementById('pageSubtitle');
+    const runwayTitle = document.getElementById('runwayTitle');
+    const scoreTitle = document.getElementById('scoreTitle');
+    const timeTitle = document.getElementById('timeTitle');
+    const eventTitle = document.getElementById('eventTitle');
+    const summaryTitle = document.getElementById('summaryTitle');
+    const landSummary = document.getElementById('landSummary');
+    const departSummary = document.getElementById('departSummary');
+    const emergencySummary = document.getElementById('emergencySummary');
+    const nearMissSummary = document.getElementById('nearMissSummary');
+    const incomingTitle = document.getElementById('incomingTitle');
+    const departuresTitle = document.getElementById('departuresTitle');
+    const holdingTitle = document.getElementById('holdingTitle');
+    const logTitle = document.getElementById('logTitle');
+    const radarTitle = document.getElementById('radarTitle');
+    const radarHint = document.getElementById('radarHint');
+    const instructionsTitle = document.getElementById('instructionsTitle');
+    const instructionList = document.getElementById('instructionList');
+    const languageLabel = document.getElementById('languageLabel');
+    const helpButton = document.getElementById('helpButton');
+    const helpModal = document.getElementById('helpModal');
+    const closeHelpButton = document.getElementById('closeHelpButton');
+    const helpTitle = document.getElementById('helpTitle');
+    const helpSteps = document.getElementById('helpSteps');
+
+    let radarOperations = [];
+
+    function t(key) {
+      const locale = translations[currentLanguage] || translations.en;
+      return locale[key] || key;
+    }
+
+    function getEventName(event) {
+      return event?.name?.[currentLanguage] || event?.name?.en || event?.name || '';
+    }
+
+    function getEventDescription(event) {
+      return event?.description?.[currentLanguage] || event?.description?.en || event?.description || '';
+    }
+
+    function randomChoice(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function formatTime(sec) {
+      const minutes = String(Math.floor(sec / 60)).padStart(2, '0');
+      const seconds = String(sec % 60).padStart(2, '0');
+      return `${minutes}:${seconds}`;
+    }
+
+    function createFlight(role = 'incoming') {
+      const type = randomChoice(types);
+      const id = `${type.tag.slice(0,2).toUpperCase()}-${Math.floor(Math.random() * 900 + 100)}`;
+      const fuel = type.tag === 'lowfuel' ? Math.floor(Math.random() * 35 + 30) : Math.floor(Math.random() * 90 + 40);
+      const delay = 0;
+      const flight = {
+        id,
+        typeKey: type.tag,
+        tag: type.tag,
+        priority: type.priority,
+        fuel,
+        delay,
+        status: role === 'incoming' ? 'approach' : 'departure',
+        turns: 0,
+        hidden: false,
+      };
+      return flight;
+    }
+
+    function addFlight(list, role) {
+      list.push(createFlight(role));
+    }
+
+    function setActiveEvent(event) {
+      activeEvent = event;
+      eventTimer = event.duration;
+      const eventName = getEventName(event);
+      const eventDescription = getEventDescription(event);
+      runwayLocked = eventName === 'Drone Near Runway' || eventName === '활주로 근처 드론' || eventName === 'Vehicle on Runway' || eventName === '활주로 위 차량';
+      eventValue.textContent = `${eventName} — ${eventDescription}`;
+      logRunway(`${eventName} started: ${eventDescription}`);
+    }
+
+    function clearActiveEvent() {
+      if (!activeEvent) return;
+      const eventName = getEventName(activeEvent);
+      logRunway(`${eventName} cleared.`);
+      activeEvent = null;
+      eventTimer = 0;
+      runwayLocked = false;
+      eventValue.textContent = 'None';
+      incomingFlights.forEach((flight) => (flight.hidden = false));
+      departingFlights.forEach((flight) => (flight.hidden = false));
+      holdingFlights.forEach((flight) => (flight.hidden = false));
+    }
+
+    function changeWeather() {
+      currentWeather = (currentWeather + 1) % weatherStates.length;
+      const weather = weatherStates[currentWeather];
+      weatherLabel.textContent = `${t('weather')}: ${weather.name[currentLanguage]}`;
+      weatherLabel.className = `status-label ${weather.label}`;
+      logRunway(`Weather changed to ${weather.name[currentLanguage]}.`);
+    }
+
+    function logRunway(text) {
+      const item = document.createElement('li');
+      item.textContent = `${formatTime(timeSeconds)} — ${text}`;
+      runwayLog.prepend(item);
+      if (runwayLog.children.length > 20) runwayLog.removeChild(runwayLog.lastChild);
+    }
+
+    function openHelpModal() {
+      helpModal.classList.remove('hidden');
+      helpModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeHelpModal() {
+      helpModal.classList.add('hidden');
+      helpModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function refreshUI() {
+      function renderQueue(list, container) {
+        container.innerHTML = '';
+        list.forEach((flight) => {
+          const item = document.createElement('li');
+          item.className = 'plane-card';
+          if (flight.id === selectedFlightId) item.classList.add('selected');
+
+          const info = document.createElement('div');
+          info.className = 'plane-info';
+          const typeLabel = translations[currentLanguage].types[flight.typeKey] || flight.typeKey;
+
+          const strong = document.createElement('strong');
+          strong.textContent = `${flight.id} · ${typeLabel}`;
+          info.appendChild(strong);
+
+          const details = document.createElement('div');
+          details.className = 'plane-details';
+
+          const tag = document.createElement('span');
+          tag.className = `tag ${flight.tag}`;
+          tag.textContent = tagLabels[flight.tag][currentLanguage] || flight.tag.toUpperCase();
+          details.appendChild(tag);
+
+          details.appendChild(Object.assign(document.createElement('span'), { textContent: `Fuel: ${flight.fuel}m` }));
+          details.appendChild(Object.assign(document.createElement('span'), { textContent: `Delay: ${flight.delay}s` }));
+          if (flight.status === 'approach') details.appendChild(Object.assign(document.createElement('span'), { textContent: t('statuses').approach }));
+          if (flight.status === 'departure') details.appendChild(Object.assign(document.createElement('span'), { textContent: t('statuses').departure }));
+          if (flight.status === 'holding') details.appendChild(Object.assign(document.createElement('span'), { textContent: t('statuses').holding }));
+
+          if (flight.hidden) { details.appendChild(Object.assign(document.createElement('span'), { textContent: t('statuses').radarBlind, style: 'color: #ff9e79;' })); }
+
+          info.appendChild(details);
+
+          const actions = document.createElement('div');
+          actions.style.textAlign = 'right';
+          actions.textContent = flight.priority > 4 ? '!' : '';
+
+          item.appendChild(info);
+          item.appendChild(actions);
+          item.addEventListener('click', () => {
+            if (gameOver) return;
+            selectedFlightId = flight.id;
+            refreshUI();
+          });
+          container.appendChild(item);
+        });
+      }
+
+      renderQueue(incomingFlights, incomingQueue);
+      renderQueue(departingFlights, departureQueue);
+      renderQueue(holdingFlights, holdingQueue);
+
+      runwayStatus.textContent = runwayBusy ? t('runwayBusy') : runwayLocked ? t('closed') : t('idle');
+      scoreValue.textContent = score;
+      timeValue.textContent = formatTime(timeSeconds);
+      landCount.textContent = landings;
+      departCount.textContent = departures;
+      emergencyCount.textContent = emergenciesHandled;
+      nearMissCount.textContent = nearMisses;
+      renderRadar();
+    }
+
+    function renderRadar() {
+      if (radarOperations.length === 0) {
+        radarStatus.textContent = t('noOperations');
+        radarList.innerHTML = '';
+        return;
+      }
+
+      radarStatus.textContent = `${radarOperations.length} active runway operation${radarOperations.length > 1 ? 's' : ''}`;
+      radarList.innerHTML = radarOperations.map((operation) => {
+        const remaining = Math.max(0, operation.remaining);
+        const label = operation.type === 'landing'
+          ? t('statuses').landing
+          : operation.type === 'takeoff'
+            ? t('statuses').takeoff
+            : operation.type === 'hold'
+              ? t('statuses').holding
+              : 'Go Around';
+        return `<li><span class="radar-label">${operation.flightId}</span><span class="radar-type-${operation.type}">${label}</span><span>${remaining}s</span></li>`;
+      }).join('');
+    }
+
+    function getFlightById(id) {
+      return incomingFlights.concat(departingFlights, holdingFlights).find(f => f.id === id);
+    }
+
+    function removeFlight(id) {
+      [incomingFlights, departingFlights, holdingFlights].forEach(list => {
+        const idx = list.findIndex((flight) => flight.id === id);
+        if (idx !== -1) list.splice(idx, 1);
+      });
+    }
+
+    function addRadarOperation(flightId, type, remaining) {
+      radarOperations.push({ flightId, type, remaining });
+      if (radarOperations.length > 8) radarOperations = radarOperations.slice(-8);
+    }
+
+    function updateRadarOperations() {
+      radarOperations = radarOperations
+        .map((operation) => ({ ...operation, remaining: Math.max(0, operation.remaining - 1) }))
+        .filter((operation) => operation.remaining > 0);
+    }
+
+    function resolveFlightAction(action) {
+      const flight = getFlightById(selectedFlightId);
+      if (!flight || gameOver) return;
+      if (action === 'land') {
+        if (flight.status !== 'approach' && flight.status !== 'holding') {
+          logRunway(`Cannot land ${flight.id} from its current queue.`);
+          return;
+        }
+        if (runwayBusy || runwayLocked) {
+          logRunway(`Runway unavailable. ${flight.id} continues waiting.`);
+          return;
+        }
+        runwayBusy = true;
+        const weather = weatherStates[currentWeather];
+        const delayPenalty = Math.max(0, flight.delay - 10);
+        const baseScore = 120 + flight.priority * 30 - delayPenalty * 3 - weather.landingDelay * 10;
+        score += Math.max(20, Math.round(baseScore));
+        landings += 1;
+        logRunway(`Cleared ${flight.id} to land. +${Math.max(20, Math.round(baseScore))} points.`);
+        addRadarOperation(flight.id, 'landing', 4 + Math.round(weather.landingDelay * 0.6));
+        if (flight.tag === 'emergency' || flight.tag === 'medical') emergenciesHandled += 1;
+        removeFlight(flight.id);
+        selectedFlightId = null;
+        setTimeout(() => {
+          runwayBusy = false;
+          refreshUI();
+        }, 3000 + weather.landingDelay * 600);
+      }
+      if (action === 'takeoff') {
+        if (flight.status !== 'departure') {
+          logRunway(`${flight.id} is not ready for takeoff yet.`);
+          return;
+        }
+        if (runwayBusy || runwayLocked) {
+          logRunway(`Runway unavailable. ${flight.id} waits.`);
+          return;
+        }
+        runwayBusy = true;
+        const baseScore = 100 + flight.priority * 20 - flight.delay * 2;
+        score += Math.max(15, Math.round(baseScore));
+        departures += 1;
+        logRunway(`${flight.id} departed safely. +${Math.max(15, Math.round(baseScore))} points.`);
+        addRadarOperation(flight.id, 'takeoff', 4);
+        removeFlight(flight.id);
+        selectedFlightId = null;
+        setTimeout(() => {
+          runwayBusy = false;
+          refreshUI();
+        }, 2900);
+      }
+      if (action === 'hold') {
+        if (flight.status !== 'approach') {
+          logRunway(`${flight.id} cannot hold in its current state.`);
+          return;
+        }
+        flight.status = 'holding';
+        if (!holdingFlights.includes(flight)) {
+          removeFlight(flight.id);
+          holdingFlights.push(flight);
+        }
+        addRadarOperation(flight.id, 'hold', 4);
+        logRunway(`${flight.id} assigned to holding pattern.`);
+        selectedFlightId = null;
+      }
+      if (action === 'goaround') {
+        if (flight.status !== 'approach' && flight.status !== 'holding') {
+          logRunway(`${flight.id} cannot go-around from here.`);
+          return;
+        }
+        const penalty = 20 + flight.delay;
+        score -= penalty;
+        flight.delay += 8;
+        addRadarOperation(flight.id, 'goaround', 4);
+        logRunway(`${flight.id} executed a go-around. -${penalty} points.`);
+        if (flight.status !== 'holding') {
+          flight.status = 'holding';
+          removeFlight(flight.id);
+          holdingFlights.push(flight);
+        }
+        selectedFlightId = null;
+      }
+      refreshUI();
+    }
+
+    function spawnInbound() {
+      if (incomingFlights.length < 6 && !gameOver) {
+        addFlight(incomingFlights, 'incoming');
+      }
+      if (departingFlights.length < 4 && !gameOver) {
+        addFlight(departingFlights, 'departure');
+      }
+    }
+
+    function triggerRandomEvent() {
+      if (activeEvent || gameOver) return;
+      const event = randomChoice(events);
+      const eventName = getEventName(event);
+      setActiveEvent(event);
+      if (eventName === 'Bird Strike' || eventName === '조류 충돌') {
+        const target = randomChoice(incomingFlights.concat(holdingFlights));
+        if (target) {
+          target.typeKey = 'emergency';
+          target.tag = 'emergency';
+          target.priority = 5;
+          target.fuel = Math.max(target.fuel, 15);
+          logRunway(`${target.id} reports a bird strike and becomes emergency.`);
+        }
+      }
+      if (eventName === 'Radar Failure' || eventName === '레이더 고장') {
+        incomingFlights.concat(departingFlights).forEach(f => f.hidden = true);
+      }
+    }
+
+    function updateFlightTimers() {
+      [incomingFlights, holdingFlights].forEach(list => {
+        list.forEach((flight) => {
+          flight.delay += 1;
+          flight.turns += 1;
+          if (flight.tag === 'lowfuel') {
+            flight.fuel -= 1;
+            if (flight.fuel <= 12) {
+              flight.typeKey = 'emergency';
+              flight.tag = 'emergency';
+              flight.priority = 5;
+              flight.fuel = Math.max(flight.fuel, 9);
+              if (flight.priority !== 5) {
+                logRunway(`${flight.id} declares emergency due to low fuel.`);
+              }
+            }
+            if (flight.fuel <= 5 && !gameOver) {
+              logRunway(`${flight.id} ran out of fuel. Game over.`);
+              endGame('A low fuel aircraft could not be saved.');
+            }
+          }
+          if (flight.delay > 45 && !gameOver && flight.tag === 'emergency') {
+            logRunway(`${flight.id} emergency has been delayed too long. Game over.`);
+            endGame('Emergency aircraft were not prioritized.');
+          }
+          if (flight.delay > 60 && !gameOver) {
+            nearMisses += 1;
+            score -= 25;
+            logRunway(`${flight.id} experienced a dangerous delay. -25 points.`);
+            flight.delay = 30;
+          }
+        });
+      });
+    }
+
+    function endGame(reason) {
+      if (gameOver) return;
+      gameOver = true;
+      logRunway(`GAME OVER: ${reason}`);
+      selectedFlightId = null;
+      landButton.disabled = true;
+      takeoffButton.disabled = true;
+      holdButton.disabled = true;
+      goAroundButton.disabled = true;
+      eventValue.textContent = reason;
+    }
+
+    function gameTick() {
+      if (gameOver) return;
+      timeSeconds += 1;
+      weatherTimer += 1;
+      nextSpawn -= 1;
+      updateRadarOperations();
+
+      if (nextSpawn <= 0) {
+        spawnInbound();
+        nextSpawn = Math.floor(Math.random() * 10 + 8);
+      }
+
+      if (weatherTimer >= 25) {
+        changeWeather();
+        weatherTimer = 0;
+      }
+
+      if (Math.random() < 0.08) {
+        triggerRandomEvent();
+      }
+
+      if (activeEvent) {
+        eventTimer -= 1;
+        if (eventTimer <= 0) clearActiveEvent();
+      }
+
+      updateFlightTimers();
+      if (incomingFlights.length === 0 && departingFlights.length === 0 && holdingFlights.length === 0) {
+        spawnInbound();
+      }
+      if (incomingFlights.length > 10) {
+        score -= 10;
+      }
+      refreshUI();
+    }
+
+    helpButton.addEventListener('click', openHelpModal);
+    closeHelpButton.addEventListener('click', closeHelpModal);
+    helpModal.addEventListener('click', (event) => {
+      if (event.target === helpModal) closeHelpModal();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !helpModal.classList.contains('hidden')) {
+        closeHelpModal();
+      }
+    });
+    landButton.addEventListener('click', () => resolveFlightAction('land'));
+    takeoffButton.addEventListener('click', () => resolveFlightAction('takeoff'));
+    holdButton.addEventListener('click', () => resolveFlightAction('hold'));
+    goAroundButton.addEventListener('click', () => resolveFlightAction('goaround'));
+    restartButton.addEventListener('click', initializeGame);
+    languageSelect.addEventListener('change', (event) => {
+      currentLanguage = event.target.value;
+      document.documentElement.lang = currentLanguage;
+      translateUI();
+      refreshUI();
+    });
+
+    function translateUI() {
+      const locale = translations[currentLanguage];
+      pageTitle.textContent = locale.pageTitle;
+      pageSubtitle.textContent = locale.pageSubtitle;
+      languageLabel.textContent = locale.language;
+      weatherLabel.textContent = `${locale.weather}: ${weatherStates[currentWeather].name[currentLanguage]}`;
+      runwayTitle.textContent = locale.runway;
+      scoreTitle.textContent = locale.score;
+      timeTitle.textContent = locale.elapsedTime;
+      eventTitle.textContent = locale.activeEvents;
+      if (activeEvent) {
+        eventValue.textContent = `${getEventName(activeEvent)} — ${getEventDescription(activeEvent)}`;
+      } else {
+        eventValue.textContent = locale.none;
+      }
+      summaryTitle.textContent = locale.gameSummary;
+      landSummary.textContent = locale.completedLandings;
+      departSummary.textContent = locale.completedDepartures;
+      emergencySummary.textContent = locale.emergencyHandled;
+      nearMissSummary.textContent = locale.nearMisses;
+      incomingTitle.textContent = locale.incomingFlights;
+      departuresTitle.textContent = locale.departures;
+      holdingTitle.textContent = locale.holdingPattern;
+      logTitle.textContent = locale.runwayLog;
+      radarTitle.textContent = locale.radar;
+      radarStatus.textContent = radarOperations.length === 0 ? locale.noOperations : radarStatus.textContent;
+      radarHint.textContent = locale.radarHint;
+      instructionsTitle.textContent = locale.instructions;
+      instructionList.innerHTML = '';
+      [locale.instruction1, locale.instruction2, locale.instruction3, locale.instruction4].forEach((item) => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        instructionList.appendChild(li);
+      });
+      helpButton.textContent = locale.howToPlay;
+      helpTitle.textContent = locale.howToPlay;
+      closeHelpButton.textContent = locale.close;
+      helpSteps.innerHTML = '';
+      [locale.helpStep1, locale.helpStep2, locale.helpStep3, locale.helpStep4].forEach((item) => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        helpSteps.appendChild(li);
+      });
+      landButton.textContent = currentLanguage === 'ko' ? '착륙' : 'LAND';
+      takeoffButton.textContent = currentLanguage === 'ko' ? '이륙' : 'TAKE OFF';
+      holdButton.textContent = currentLanguage === 'ko' ? '대기' : 'HOLD';
+      goAroundButton.textContent = currentLanguage === 'ko' ? '회피' : 'GO AROUND';
+      restartButton.textContent = currentLanguage === 'ko' ? '재시작' : 'RESTART';
+    }
+
+    function initializeGame() {
+      incomingFlights = [];
+      departingFlights = [];
+      holdingFlights = [];
+      selectedFlightId = null;
+      runwayLocked = false;
+      runwayBusy = false;
+      currentWeather = 0;
+      timeSeconds = 0;
+      score = 0;
+      landings = 0;
+      departures = 0;
+      emergenciesHandled = 0;
+      nearMisses = 0;
+      gameOver = false;
+      activeEvent = null;
+      eventTimer = 0;
+      weatherTimer = 0;
+      nextSpawn = 1;
+      weatherLabel.textContent = `${t('weather')}: ${weatherStates[0].name[currentLanguage]}`;
+      weatherLabel.className = `status-label ${weatherStates[0].label}`;
+      eventValue.textContent = t('none');
+      runwayLog.innerHTML = '';
+      for (let i = 0; i < 3; i++) addFlight(incomingFlights, 'incoming');
+      for (let i = 0; i < 2; i++) addFlight(departingFlights, 'departure');
+      refreshUI();
+    }
+
+    initializeGame();
+    setInterval(gameTick, 1500);
+  </script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover Forks, Washington</title>
+    <!-- Google Fonts for Modern PNW Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- PNW COLOR PALETTE & VARIABLES --- */
+        :root {
+            --bg-canvas: #0f1412;        /* Dark forest charcoal */
+            --bg-card: #161e1b;          /* Slightly lighter evergreen slate */
+            --bg-accent: #1e2924;        /* Deep moss container */
+            --text-primary: #e6eded;     /* Misty light fog */
+            --text-muted: #9ab0a6;       /* Sage muted gray */
+            --accent-green: #2d5a43;     /* Deep forest pine */
+            --accent-emerald: #408561;   /* Vibrant evergreen highlight */
+            --accent-bark: #d4a373;      /* Warm cedarn / sand accent */
+            --border-color: #23332b;     /* Muted evergreen border */
+            --radius-lg: 16px;
+            --radius-sm: 8px;
+        }
+
+        /* --- BASE STYLES --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+            line-height: 1.7;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- MAIN CONTAINER --- */
+        article {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- HEADER SECTION --- */
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.15rem;
+            color: var(--accent-bark);
+            font-weight: 400;
+        }
+
+        /* --- CONTENT SECTIONS --- */
+        section {
+            margin-bottom: 2.5rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 1.2rem;
+            background-color: var(--accent-emerald);
+            border-radius: 2px;
+        }
+
+        p {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        em {
+            color: var(--accent-bark);
+            font-style: normal;
+        }
+
+        /* --- LISTS --- */
+        ul, ol {
+            padding-left: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        li::marker {
+            color: var(--accent-emerald);
+        }
+
+        /* --- QUICK FACTS TABLE --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background-color: var(--bg-accent);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        th, td {
+            padding: 1rem 1.25rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--accent-green);
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:not(:last-child) td {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-style: italic;
+        }
+
+        /* --- RESPONSIVE DESIGN --- */
+        @media (max-width: 600px) {
+            article {
+                padding: 1.5rem;
+            }
+
+            header h1 {
+                font-size: 1.85rem;
+            }
+
+            header p {
+                font-size: 1rem;
+            }
+
+            h2 {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <article>
+        <!-- Header Section -->
+        <header>
+            <h1>Discover Forks, Washington</h1>
+            <p>The Timber Town, Rain Capital, and Gateway to the Olympic Peninsula.</p>
+        </header>
+
+        <main>
+            <!-- Where is Forks? -->
+            <section>
+                <h2>Where is Forks, WA?</h2>
+                <p>
+                    <strong>Forks</strong> is a small city located in <strong>Clallam County, Washington</strong>, on the far northwestern side of the <strong>Olympic Peninsula</strong>. 
+                </p>
+                <ul>
+                    <li><strong>Coordinates:</strong> ~47.95° N, 124.38° W</li>
+                    <li><strong>Distance from Seattle:</strong> Roughly 140 miles west (a 3.5 to 4-hour drive including a ferry ride or highway travel around Puget Sound).</li>
+                    <li><strong>Surroundings:</strong> Nestled between the lush Pacific temperate rainforests and the rugged wild beaches of the Pacific Ocean.</li>
+                </ul>
+            </section>
+
+            <!-- What is Forks? -->
+            <section>
+                <h2>What is Forks Famous For?</h2>
+                <p>
+                    For decades, Forks was known primarily as a hard-working logging community—earning it the nickname <em>"Timber Town."</em> Today, it attracts visitors from all over the world for three main reasons:
+                </p>
+                
+                <ol>
+                    <li>
+                        <strong>The Twilight Saga:</strong> 
+                        Forks became globally famous as the setting for Stephenie Meyer’s bestselling <em>Twilight</em> books and movies. The town embraces this legacy with annual festivals, local movie props, and self-guided tour maps.
+                    </li>
+                    <li>
+                        <strong>Extreme Rainfall & Temperate Rainforests:</strong> 
+                        Receiving around 120 inches of rain every year, Forks is one of the wettest inhabited places in the continental United States. This constant moisture feeds nearby temperate rainforests like the Hoh Rainforest.
+                    </li>
+                    <li>
+                        <strong>Outdoor Recreation:</strong> 
+                        Forks gets its name from the nearby convergence (forks) of several major rivers—the Quillayute, Bogachiel, Calawah, and Sol Duc—making it a world-class spot for salmon and steelhead fishing, hiking, and kayaking.
+                    </li>
+                </ol>
+            </section>
+
+            <!-- Top Attractions -->
+            <section>
+                <h2>Key Attractions Nearby</h2>
+                <ul>
+                    <li><strong>Hoh Rain Forest:</strong> Home to giant moss-draped trees and Olympic Elk.</li>
+                    <li><strong>Rialto Beach & La Push:</strong> Dramatic sea stacks, driftwood, and coastal wilderness hikes just 20 minutes away.</li>
+                    <li><strong>Forks Timber Museum:</strong> Explores the rich pioneer and logging heritage of the Pacific Northwest.</li>
+                    <li><strong>Forever Twilight in Forks Collection:</strong> A permanent gallery featuring screen-used costumes and props from the films.</li>
+                </ul>
+            </section>
+
+            <!-- Quick Facts Table -->
+            <section>
+                <h2>Quick Facts</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fact</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Population</strong></td>
+                            <td>~3,300 residents</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Incorporated</strong></td>
+                            <td>1945</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Average Rainfall</strong></td>
+                            <td>~119.7 inches per year</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+
+        <!-- Footer Section -->
+        <footer>
+            <p>Planning a trip to the Olympic Peninsula? Bring a raincoat!</p>
+        </footer>
+    </article>
+
+</body>
+</html>
