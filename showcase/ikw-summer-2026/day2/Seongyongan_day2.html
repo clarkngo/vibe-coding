@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>AI Truth Detection Game</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --green: #00ff88;
+      --green-light: #39ffa3;
+      --red: #ff6b6b;
+      --yellow: #ffd166;
+      --background: #050807;
+      --panel: #101a16;
+      --panel-light: #17251f;
+      --border: #315144;
+      --text: #ffffff;
+      --muted: #aebdb6;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(
+          circle at top,
+          #12372c 0%,
+          #0b1512 35%,
+          var(--background) 100%
+        );
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 920px;
+      padding: 36px;
+      border: 1px solid rgba(0, 255, 136, 0.35);
+      border-radius: 20px;
+      background-color: rgba(10, 18, 15, 0.96);
+      box-shadow: 0 0 35px rgba(0, 255, 136, 0.12);
+    }
+
+    .header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin-bottom: 10px;
+      color: var(--green);
+      font-size: 40px;
+      letter-spacing: 1px;
+    }
+
+    .header p {
+      color: #b7c8c0;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .status-badge {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 7px 14px;
+      border: 1px solid var(--green);
+      border-radius: 999px;
+      color: var(--green);
+      font-size: 13px;
+    }
+
+    .panel {
+      padding: 24px;
+      border: 1px solid #263d34;
+      border-radius: 16px;
+      background-color: var(--panel);
+    }
+
+    .section-label {
+      margin-bottom: 12px;
+      color: var(--green);
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .question-box {
+      min-height: 100px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 22px;
+      border-left: 5px solid var(--green);
+      border-radius: 12px;
+      background-color: var(--panel-light);
+      text-align: center;
+    }
+
+    #questionText {
+      font-size: 24px;
+      line-height: 1.5;
+    }
+
+    .answer-area {
+      margin-top: 24px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      padding: 16px;
+      border: 1px solid #3d5c4f;
+      border-radius: 12px;
+      outline: none;
+      background-color: #0b120f;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 17px;
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.12);
+    }
+
+    textarea::placeholder {
+      color: #6f8179;
+    }
+
+    .answer-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 8px;
+      color: #75877f;
+      font-size: 13px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    button {
+      flex: 1;
+      min-height: 52px;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+      transform: none;
+    }
+
+    .primary-button {
+      background-color: var(--green);
+      color: #07100c;
+    }
+
+    .primary-button:hover {
+      background-color: var(--green-light);
+    }
+
+    .secondary-button {
+      border: 1px solid #426152;
+      background-color: #1a2922;
+      color: var(--text);
+    }
+
+    .secondary-button:hover {
+      background-color: #263b31;
+    }
+
+    #loadingSection,
+    #resultSection {
+      display: none;
+      margin-top: 24px;
+    }
+
+    .loading-title,
+    .result-title {
+      margin-bottom: 14px;
+      color: var(--green);
+      text-align: center;
+    }
+
+    .progress-track {
+      height: 18px;
+      overflow: hidden;
+      border-radius: 999px;
+      background-color: #26342e;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #00c96b, var(--green));
+      transition: width 0.2s ease;
+    }
+
+    #statusText {
+      margin-top: 12px;
+      color: #c7d6cf;
+      text-align: center;
+    }
+
+    .scan-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .scan-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background-color: #16231d;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .scan-item span:last-child {
+      color: var(--green);
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .score-card {
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background-color: #14211b;
+      text-align: center;
+    }
+
+    .score-card p {
+      margin-bottom: 8px;
+      color: #9db0a7;
+    }
+
+    .score-card strong {
+      font-size: 40px;
+    }
+
+    .truth-score {
+      color: var(--green);
+    }
+
+    .lie-score {
+      color: var(--red);
+    }
+
+    .opinion-box {
+      margin-top: 18px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background-color: #192820;
+      text-align: center;
+    }
+
+    #opinionText {
+      margin-bottom: 8px;
+      font-size: 26px;
+    }
+
+    #confidenceText {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    #summaryText {
+      max-width: 720px;
+      margin: 12px auto 0;
+      color: #d3dfd9;
+      line-height: 1.6;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .analysis-card {
+      padding: 18px;
+      border: 1px solid #2f483e;
+      border-radius: 12px;
+      background-color: #0d1612;
+    }
+
+    .analysis-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .analysis-card h3 {
+      color: var(--green);
+      font-size: 17px;
+    }
+
+    .analysis-card p {
+      color: #c8d5cf;
+      line-height: 1.6;
+    }
+
+    .signal-badge {
+      flex-shrink: 0;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .signal-positive {
+      background-color: rgba(0, 255, 136, 0.12);
+      color: var(--green);
+    }
+
+    .signal-neutral {
+      background-color: rgba(255, 209, 102, 0.12);
+      color: var(--yellow);
+    }
+
+    .signal-negative {
+      background-color: rgba(255, 107, 107, 0.12);
+      color: var(--red);
+    }
+
+    .meter {
+      height: 9px;
+      margin-top: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background-color: #26342e;
+    }
+
+    .meter-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #00c96b, var(--green));
+    }
+
+    .report-box {
+      margin-top: 18px;
+      padding: 18px;
+      border: 1px solid #2f483e;
+      border-radius: 12px;
+      background-color: #0d1612;
+    }
+
+    .report-box h3 {
+      margin-bottom: 12px;
+      color: var(--green);
+    }
+
+    #reportList {
+      padding-left: 22px;
+      color: #c8d5cf;
+      line-height: 1.8;
+    }
+
+    .result-note {
+      margin-top: 16px;
+      padding: 14px;
+      border-left: 4px solid var(--yellow);
+      border-radius: 8px;
+      background-color: rgba(255, 209, 102, 0.08);
+      color: #ddd4b1;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .disclaimer {
+      margin-top: 22px;
+      color: #75877f;
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    @media (max-width: 700px) {
+      .game-container {
+        padding: 22px;
+      }
+
+      .header h1 {
+        font-size: 30px;
+      }
+
+      #questionText {
+        font-size: 20px;
+      }
+
+      .button-row {
+        flex-direction: column;
+      }
+
+      .score-grid,
+      .analysis-grid,
+      .scan-list {
+        grid-template-columns: 1fr;
+      }
+
+      .answer-meta {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="game-container">
+    <header class="header">
+      <h1>AI Truth Detection Game</h1>
+
+      <p>
+        Answer a randomly selected question.<br />
+        The game will analyze your response and explain its simulated prediction.
+      </p>
+
+      <span class="status-badge">
+        EXPLAINABLE ANALYSIS READY
+      </span>
+    </header>
+
+    <section class="panel">
+      <p class="section-label">Random Question</p>
+
+      <div class="question-box">
+        <p id="questionText">
+          Press “New Question” to begin.
+        </p>
+      </div>
+
+      <div class="answer-area">
+        <p class="section-label">Your Answer</p>
+
+        <textarea
+          id="answerInput"
+          placeholder="Type your answer here..."
+          disabled
+        ></textarea>
+
+        <div class="answer-meta">
+          <span id="wordCountText">0 words</span>
+
+          <span>
+            Give a natural answer for a more detailed report.
+          </span>
+        </div>
+
+        <div class="button-row">
+          <button
+            type="button"
+            id="newQuestionButton"
+            class="secondary-button"
+          >
+            New Question
+          </button>
+
+          <button
+            type="button"
+            id="analyzeButton"
+            class="primary-button"
+            disabled
+          >
+            Analyze Answer
+          </button>
+        </div>
+      </div>
+
+      <section id="loadingSection">
+        <h2 class="loading-title">
+          Analyzing Response...
+        </h2>
+
+        <div class="progress-track">
+          <div
+            id="progressBar"
+            class="progress-bar"
+          ></div>
+        </div>
+
+        <p id="statusText">
+          Initializing analysis system...
+        </p>
+
+        <div class="scan-list">
+          <div class="scan-item">
+            <span>Response Detail</span>
+            <span id="lengthStatus">Waiting</span>
+          </div>
+
+          <div class="scan-item">
+            <span>Language Certainty</span>
+            <span id="languageStatus">Waiting</span>
+          </div>
+
+          <div class="scan-item">
+            <span>Pattern Consistency</span>
+            <span id="consistencyStatus">Waiting</span>
+          </div>
+
+          <div class="scan-item">
+            <span>Response Timing</span>
+            <span id="timingStatus">Waiting</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="resultSection">
+        <h2 class="result-title">
+          AI Analysis Complete
+        </h2>
+
+        <div class="score-grid">
+          <div class="score-card">
+            <p>Truth Probability</p>
+
+            <strong
+              id="truthScore"
+              class="truth-score"
+            >
+              0%
+            </strong>
+          </div>
+
+          <div class="score-card">
+            <p>Lie Probability</p>
+
+            <strong
+              id="lieScore"
+              class="lie-score"
+            >
+              0%
+            </strong>
+          </div>
+        </div>
+
+        <div class="opinion-box">
+          <h3 id="opinionText"></h3>
+
+          <p id="confidenceText"></p>
+
+          <p id="summaryText"></p>
+        </div>
+
+        <div
+          id="analysisGrid"
+          class="analysis-grid"
+        ></div>
+
+        <div class="report-box">
+          <h3>Detailed AI Feedback</h3>
+
+          <ul id="reportList"></ul>
+        </div>
+
+        <div class="result-note">
+          This result is generated from simple language patterns,
+          answer length, repetition and response time. It does not
+          scientifically prove whether the user is telling the truth.
+        </div>
+
+        <div class="button-row">
+          <button
+            type="button"
+            id="nextQuestionButton"
+            class="primary-button"
+          >
+            Next Random Question
+          </button>
+        </div>
+      </section>
+    </section>
+
+    <p class="disclaimer">
+      This game is for entertainment purposes only.
+      It cannot scientifically determine whether a person
+      is telling the truth.
+    </p>
+  </main>
+
+  <script>
+    const questions = [
+      "What is your name?",
+      "Did you eat breakfast this morning?",
+      "Are you a man?",
+      "Are you a woman?",
+      "Did you sleep well last night?",
+      "Did you brush your teeth today?",
+      "Do you enjoy programming?",
+      "Do you use AI every day?",
+      "Have you ever skipped a class?",
+      "Have you ever been late for class?",
+      "Have you ever told a lie to your friend?",
+      "Have you ever cheated on an exam?",
+      "Did you finish all of your homework?",
+      "Do you always tell the truth?",
+      "Have you ever blamed someone else for your mistake?",
+      "Have you ever broken a promise?",
+      "Have you ever pretended to be sick?",
+      "Have you ever forgotten a friend's birthday?",
+      "Do you like coffee?",
+      "Do you like pizza?",
+      "Do you like studying?",
+      "Do you exercise regularly?",
+      "Are you a morning person?",
+      "Did you sleep more than seven hours last night?",
+      "Are you over twenty years old?",
+      "Do you enjoy traveling?",
+      "Have you ever lost your wallet?",
+      "Have you ever cried while watching a movie?",
+      "Would you tell a small lie to protect a friend?",
+      "Do you think AI will replace humans?",
+      "Would you survive a zombie apocalypse?",
+      "Do you think you are a lucky person?",
+      "Have you ever laughed at the wrong moment?",
+      "Are you answering this question honestly?",
+      "Do you think this AI system is accurate?"
+    ];
+
+    const questionText =
+      document.getElementById("questionText");
+
+    const answerInput =
+      document.getElementById("answerInput");
+
+    const wordCountText =
+      document.getElementById("wordCountText");
+
+    const newQuestionButton =
+      document.getElementById("newQuestionButton");
+
+    const analyzeButton =
+      document.getElementById("analyzeButton");
+
+    const nextQuestionButton =
+      document.getElementById("nextQuestionButton");
+
+    const loadingSection =
+      document.getElementById("loadingSection");
+
+    const resultSection =
+      document.getElementById("resultSection");
+
+    const progressBar =
+      document.getElementById("progressBar");
+
+    const statusText =
+      document.getElementById("statusText");
+
+    const lengthStatus =
+      document.getElementById("lengthStatus");
+
+    const languageStatus =
+      document.getElementById("languageStatus");
+
+    const consistencyStatus =
+      document.getElementById("consistencyStatus");
+
+    const timingStatus =
+      document.getElementById("timingStatus");
+
+    const truthScore =
+      document.getElementById("truthScore");
+
+    const lieScore =
+      document.getElementById("lieScore");
+
+    const opinionText =
+      document.getElementById("opinionText");
+
+    const confidenceText =
+      document.getElementById("confidenceText");
+
+    const summaryText =
+      document.getElementById("summaryText");
+
+    const analysisGrid =
+      document.getElementById("analysisGrid");
+
+    const reportList =
+      document.getElementById("reportList");
+
+    let currentQuestionIndex = -1;
+    let answerStartTime = null;
+    let isAnalyzing = false;
+
+    function clamp(number, minimum, maximum) {
+      return Math.min(
+        Math.max(number, minimum),
+        maximum
+      );
+    }
+
+    function createRandomQuestion() {
+      if (isAnalyzing) {
+        return;
+      }
+
+      let newIndex;
+
+      do {
+        newIndex = Math.floor(
+          Math.random() * questions.length
+        );
+      } while (
+        questions.length > 1 &&
+        newIndex === currentQuestionIndex
+      );
+
+      currentQuestionIndex = newIndex;
+
+      questionText.textContent =
+        questions[currentQuestionIndex];
+
+      answerInput.value = "";
+      answerInput.disabled = false;
+
+      analyzeButton.disabled = true;
+
+      wordCountText.textContent = "0 words";
+
+      loadingSection.style.display = "none";
+      resultSection.style.display = "none";
+
+      resetAnalysisDisplay();
+
+      answerStartTime = Date.now();
+
+      answerInput.focus();
+    }
+
+    function resetAnalysisDisplay() {
+      progressBar.style.width = "0%";
+
+      statusText.textContent =
+        "Initializing analysis system...";
+
+      lengthStatus.textContent = "Waiting";
+      languageStatus.textContent = "Waiting";
+      consistencyStatus.textContent = "Waiting";
+      timingStatus.textContent = "Waiting";
+    }
+
+    function countMatchedExpressions(
+      text,
+      expressions
+    ) {
+      let count = 0;
+
+      expressions.forEach((expression) => {
+        if (text.includes(expression)) {
+          count += 1;
+        }
+      });
+
+      return count;
+    }
+
+    function getSignalLabel(score) {
+      if (score >= 68) {
+        return "SUPPORTS TRUTH";
+      }
+
+      if (score >= 45) {
+        return "MIXED SIGNAL";
+      }
+
+      return "SUPPORTS LIE";
+    }
+
+    function getSignalClass(score) {
+      if (score >= 68) {
+        return "signal-positive";
+      }
+
+      if (score >= 45) {
+        return "signal-neutral";
+      }
+
+      return "signal-negative";
+    }
+
+    function calculateResult(
+      answer,
+      responseTime
+    ) {
+      const normalizedAnswer =
+        answer.toLowerCase().trim();
+
+      const words =
+        normalizedAnswer
+          .split(/\s+/)
+          .filter(Boolean);
+
+      const wordCount = words.length;
+
+      const sentences =
+        answer
+          .split(/[.!?]+/)
+          .map((sentence) => sentence.trim())
+          .filter(Boolean);
+
+      const sentenceCount =
+        Math.max(sentences.length, 1);
+
+      const uncertainWords = [
+        "maybe",
+        "probably",
+        "perhaps",
+        "i think",
+        "not sure",
+        "i guess",
+        "possibly",
+        "i don't know",
+        "i am not sure",
+        "i'm not sure"
+      ];
+
+      const defensiveWords = [
+        "honestly",
+        "believe me",
+        "trust me",
+        "i swear",
+        "to be honest",
+        "seriously",
+        "i promise"
+      ];
+
+      const uncertainCount =
+        countMatchedExpressions(
+          normalizedAnswer,
+          uncertainWords
+        );
+
+      const defensiveCount =
+        countMatchedExpressions(
+          normalizedAnswer,
+          defensiveWords
+        );
+
+      const exclamationCount =
+        (answer.match(/!/g) || []).length;
+
+      const repeatedWordPattern =
+        /\b([a-z]+)\s+\1\b/i;
+
+      const repeatedWordDetected =
+        repeatedWordPattern.test(
+          normalizedAnswer
+        );
+
+      const repeatedPunctuation =
+        /([!?.,])\1{2,}/.test(answer);
+
+      const uniqueWords =
+        new Set(words);
+
+      const uniqueWordRatio =
+        wordCount > 0
+          ? uniqueWords.size / wordCount
+          : 0;
+
+      let detailScore;
+      let detailExplanation;
+
+      if (wordCount <= 2) {
+        detailScore = 28;
+
+        detailExplanation =
+          "The answer is extremely short, so there is not enough language information for a detailed judgment.";
+      } else if (wordCount <= 5) {
+        detailScore = 50;
+
+        detailExplanation =
+          "The answer provides a small amount of detail, but the available evidence is still limited.";
+      } else if (wordCount <= 15) {
+        detailScore = 76;
+
+        detailExplanation =
+          "The answer contains a useful amount of detail and gives the system enough text to examine.";
+      } else {
+        detailScore = 84;
+
+        detailExplanation =
+          "The answer is detailed and provides several language patterns for the simulated analysis.";
+      }
+
+      let certaintyScore =
+        78 -
+        uncertainCount * 18 -
+        defensiveCount * 8;
+
+      certaintyScore =
+        clamp(
+          certaintyScore,
+          15,
+          92
+        );
+
+      let certaintyExplanation;
+
+      if (uncertainCount > 0) {
+        certaintyExplanation =
+          `The response contains ${uncertainCount} uncertainty expression${
+            uncertainCount > 1 ? "s" : ""
+          }, which creates a hesitation signal.`;
+      } else if (defensiveCount > 0) {
+        certaintyExplanation =
+          "The answer sounds confident, but defensive expressions slightly reduce the certainty score.";
+      } else {
+        certaintyExplanation =
+          "The response uses direct wording with few obvious uncertainty or hesitation expressions.";
+      }
+
+      let consistencyScore = 74;
+
+      if (repeatedWordDetected) {
+        consistencyScore -= 18;
+      }
+
+      if (repeatedPunctuation) {
+        consistencyScore -= 12;
+      }
+
+      if (exclamationCount >= 3) {
+        consistencyScore -= 12;
+      }
+
+      if (
+        uniqueWordRatio < 0.55 &&
+        wordCount >= 8
+      ) {
+        consistencyScore -= 10;
+      }
+
+      if (
+        sentenceCount >= 2 &&
+        wordCount >= 10
+      ) {
+        consistencyScore += 6;
+      }
+
+      consistencyScore =
+        clamp(
+          consistencyScore,
+          18,
+          92
+        );
+
+      let consistencyExplanation =
+        "The response structure appears reasonably consistent without strong repetition patterns.";
+
+      if (
+        repeatedWordDetected ||
+        repeatedPunctuation ||
+        exclamationCount >= 3
+      ) {
+        consistencyExplanation =
+          "Repetition or unusually strong punctuation creates a less consistent language pattern.";
+      }
+
+      let timingScore;
+      let timingExplanation;
+
+      if (responseTime < 3) {
+        timingScore = 62;
+
+        timingExplanation =
+          "The answer was entered very quickly. This may suggest spontaneity, but the response may also have been very simple.";
+      } else if (responseTime <= 20) {
+        timingScore = 76;
+
+        timingExplanation =
+          "The response time falls within the normal range and does not show a strong hesitation signal.";
+      } else if (responseTime <= 45) {
+        timingScore = 50;
+
+        timingExplanation =
+          "The response took longer than average, creating a mild hesitation signal.";
+      } else {
+        timingScore = 32;
+
+        timingExplanation =
+          "The response took a long time, which the game interprets as a stronger hesitation signal.";
+      }
+
+      const baseScore =
+        detailScore * 0.24 +
+        certaintyScore * 0.34 +
+        consistencyScore * 0.27 +
+        timingScore * 0.15;
+
+      const entertainmentAdjustment =
+        Math.floor(
+          Math.random() * 7
+        ) - 3;
+
+      const truth =
+        clamp(
+          Math.round(
+            baseScore +
+            entertainmentAdjustment
+          ),
+          8,
+          92
+        );
+
+      const lie = 100 - truth;
+
+      const distanceFromMiddle =
+        Math.abs(truth - 50);
+
+      let confidenceLabel;
+      let confidenceReason;
+
+      if (
+        distanceFromMiddle >= 25 &&
+        wordCount >= 5
+      ) {
+        confidenceLabel = "HIGH";
+
+        confidenceReason =
+          "Several text-pattern indicators point in the same direction.";
+      } else if (
+        distanceFromMiddle >= 12
+      ) {
+        confidenceLabel = "MEDIUM";
+
+        confidenceReason =
+          "The prediction has a noticeable direction, but some indicators remain mixed.";
+      } else {
+        confidenceLabel = "LOW";
+
+        confidenceReason =
+          "The indicators are balanced, so the game cannot form a strong prediction.";
+      }
+
+      const analyses = [
+        {
+          title: "Response Detail",
+          score: detailScore,
+          explanation: detailExplanation
+        },
+        {
+          title: "Language Certainty",
+          score: certaintyScore,
+          explanation: certaintyExplanation
+        },
+        {
+          title: "Pattern Consistency",
+          score: consistencyScore,
+          explanation: consistencyExplanation
+        },
+        {
+          title: "Response Timing",
+          score: timingScore,
+          explanation: timingExplanation
+        }
+      ];
+
+      const reasons = [
+        `${wordCount} words and ${sentenceCount} sentence${
+          sentenceCount > 1 ? "s" : ""
+        } were analyzed.`,
+
+        uncertainCount > 0
+          ? `${uncertainCount} uncertainty expression${
+              uncertainCount > 1
+                ? "s were"
+                : " was"
+            } detected.`
+          : "No obvious uncertainty expressions were detected.",
+
+        defensiveCount > 0
+          ? `${defensiveCount} defensive expression${
+              defensiveCount > 1
+                ? "s were"
+                : " was"
+            } detected.`
+          : "No strong defensive expressions were detected.",
+
+        repeatedWordDetected ||
+        repeatedPunctuation
+          ? "A repetition pattern was found, which reduced the consistency score."
+          : "No major repetition pattern was found.",
+
+        `The answer was submitted after approximately ${responseTime} second${
+          responseTime === 1 ? "" : "s"
+        }.`,
+
+        confidenceReason
+      ];
+
+      let summary;
+
+      if (truth >= 70) {
+        summary =
+          "The response appears relatively direct, detailed and consistent, so the game leans toward truth. This is only a simulated interpretation of text patterns.";
+      } else if (truth >= 45) {
+        summary =
+          "The response contains a mixture of supportive and uncertain signals, so the game cannot make a strong judgment.";
+      } else {
+        summary =
+          "The response shows more hesitation or inconsistency signals in this round, so the game leans toward a lie. This result does not prove dishonesty.";
+      }
+
+      return {
+        truth,
+        lie,
+        confidenceLabel,
+        confidenceReason,
+        analyses,
+        reasons,
+        summary
+      };
+    }
+
+    function displayAnalysisCards(
+      analyses
+    ) {
+      analysisGrid.innerHTML = "";
+
+      analyses.forEach((analysis) => {
+        const card =
+          document.createElement("article");
+
+        card.className =
+          "analysis-card";
+
+        const header =
+          document.createElement("div");
+
+        header.className =
+          "analysis-card-header";
+
+        const title =
+          document.createElement("h3");
+
+        title.textContent =
+          analysis.title;
+
+        const badge =
+          document.createElement("span");
+
+        badge.className =
+          `signal-badge ${getSignalClass(
+            analysis.score
+          )}`;
+
+        badge.textContent =
+          getSignalLabel(
+            analysis.score
+          );
+
+        const explanation =
+          document.createElement("p");
+
+        explanation.textContent =
+          analysis.explanation;
+
+        const meter =
+          document.createElement("div");
+
+        meter.className = "meter";
+
+        const meterFill =
+          document.createElement("div");
+
+        meterFill.className =
+          "meter-fill";
+
+        meterFill.style.width =
+          `${analysis.score}%`;
+
+        meter.appendChild(
+          meterFill
+        );
+
+        header.appendChild(
+          title
+        );
+
+        header.appendChild(
+          badge
+        );
+
+        card.appendChild(
+          header
+        );
+
+        card.appendChild(
+          explanation
+        );
+
+        card.appendChild(
+          meter
+        );
+
+        analysisGrid.appendChild(
+          card
+        );
+      });
+    }
+
+    function displayFinalResult(
+      result
+    ) {
+      truthScore.textContent =
+        `${result.truth}%`;
+
+      lieScore.textContent =
+        `${result.lie}%`;
+
+      if (result.truth >= 70) {
+        opinionText.textContent =
+          "Likely Telling the Truth";
+      } else if (
+        result.truth >= 45
+      ) {
+        opinionText.textContent =
+          "Result Is Uncertain";
+      } else {
+        opinionText.textContent =
+          "Possibly Telling a Lie";
+      }
+
+      confidenceText.textContent =
+        `AI Confidence Level: ${result.confidenceLabel} — ${result.confidenceReason}`;
+
+      summaryText.textContent =
+        result.summary;
+
+      displayAnalysisCards(
+        result.analyses
+      );
+
+      reportList.innerHTML = "";
+
+      result.reasons.forEach(
+        (reason) => {
+          const item =
+            document.createElement("li");
+
+          item.textContent =
+            reason;
+
+          reportList.appendChild(
+            item
+          );
+        }
+      );
+
+      loadingSection.style.display =
+        "none";
+
+      resultSection.style.display =
+        "block";
+
+      answerInput.disabled = false;
+      newQuestionButton.disabled = false;
+      analyzeButton.disabled = false;
+
+      isAnalyzing = false;
+
+      resultSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+
+    function startAnalysis() {
+      const answer =
+        answerInput.value.trim();
+
+      if (!answer) {
+        alert(
+          "Please enter your answer."
+        );
+
+        answerInput.focus();
+
+        return;
+      }
+
+      if (isAnalyzing) {
+        return;
+      }
+
+      isAnalyzing = true;
+
+      answerInput.disabled = true;
+      analyzeButton.disabled = true;
+      newQuestionButton.disabled = true;
+
+      resultSection.style.display =
+        "none";
+
+      loadingSection.style.display =
+        "block";
+
+      resetAnalysisDisplay();
+
+      const responseTime =
+        Math.max(
+          1,
+          Math.round(
+            (
+              Date.now() -
+              answerStartTime
+            ) / 1000
+          )
+        );
+
+      const result =
+        calculateResult(
+          answer,
+          responseTime
+        );
+
+      let progress = 0;
+
+      const analysisTimer =
+        setInterval(() => {
+          progress += 4;
+
+          progressBar.style.width =
+            `${progress}%`;
+
+          if (progress >= 12) {
+            statusText.textContent =
+              "Evaluating response detail...";
+
+            lengthStatus.textContent =
+              "Scanning";
+          }
+
+          if (progress >= 30) {
+            lengthStatus.textContent =
+              "Complete";
+
+            statusText.textContent =
+              "Checking certainty and hesitation language...";
+
+            languageStatus.textContent =
+              "Scanning";
+          }
+
+          if (progress >= 52) {
+            languageStatus.textContent =
+              "Complete";
+
+            statusText.textContent =
+              "Comparing consistency signals...";
+
+            consistencyStatus.textContent =
+              "Scanning";
+          }
+
+          if (progress >= 72) {
+            consistencyStatus.textContent =
+              "Complete";
+
+            statusText.textContent =
+              "Reviewing response timing...";
+
+            timingStatus.textContent =
+              "Scanning";
+          }
+
+          if (progress >= 90) {
+            timingStatus.textContent =
+              "Complete";
+
+            statusText.textContent =
+              "Generating explainable feedback...";
+          }
+
+          if (progress >= 100) {
+            clearInterval(
+              analysisTimer
+            );
+
+            setTimeout(() => {
+              displayFinalResult(
+                result
+              );
+            }, 450);
+          }
+        }, 95);
+    }
+
+    answerInput.addEventListener(
+      "input",
+      () => {
+        const words =
+          answerInput.value
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean);
+
+        wordCountText.textContent =
+          `${words.length} word${
+            words.length === 1
+              ? ""
+              : "s"
+          }`;
+
+        analyzeButton.disabled =
+          answerInput.value
+            .trim()
+            .length === 0;
+      }
+    );
+
+    newQuestionButton.addEventListener(
+      "click",
+      createRandomQuestion
+    );
+
+    nextQuestionButton.addEventListener(
+      "click",
+      createRandomQuestion
+    );
+
+    analyzeButton.addEventListener(
+      "click",
+      startAnalysis
+    );
+
+    answerInput.addEventListener(
+      "keydown",
+      (event) => {
+        if (
+          event.ctrlKey &&
+          event.key === "Enter" &&
+          !analyzeButton.disabled
+        ) {
+          startAnalysis();
+        }
+      }
+    );
+
+    createRandomQuestion();
+  </script>
+</body>
+</html>

@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>What to Wear Today? 🐣 AI OOTD Stylist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --baby-blue: #8FCBEF;
+    --baby-blue-deep: #5FAEDD;
+    --baby-blue-light: #E4F4FC;
+    --cream: #FFFBF5;
+    --pink: #FFD9E6;
+    --yellow: #FFF0B8;
+    --navy: #33374C;
+    --gray: #8A8FA3;
+    --white: #FFFFFF;
+    --shadow: 0 10px 28px rgba(95, 174, 221, 0.16);
+    --shadow-sm: 0 4px 12px rgba(51,55,76,0.06);
+    --radius-lg: 28px;
+    --radius-md: 20px;
+    --radius-sm: 14px;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  body{
+    font-family:'Gowun Dodum', sans-serif;
+    background:
+      radial-gradient(circle at 15% 0%, var(--baby-blue-light) 0%, transparent 45%),
+      radial-gradient(circle at 90% 15%, var(--pink) 0%, transparent 35%),
+      var(--cream);
+    min-height:100vh;
+    color:var(--navy);
+    display:flex;
+    justify-content:center;
+    padding:24px 12px 60px;
+  }
+
+  .app{
+    width:100%;
+    max-width:460px;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{ text-align:center; padding:18px 10px 6px; }
+  .hero .badge{
+    display:inline-block;
+    background:var(--white);
+    border:2px dashed var(--baby-blue-deep);
+    color:var(--baby-blue-deep);
+    font-family:'Jua', sans-serif;
+    font-size:13px;
+    padding:5px 14px;
+    border-radius:999px;
+    margin-bottom:10px;
+    letter-spacing:0.5px;
+  }
+  .hero h1{ font-family:'Jua', sans-serif; font-size:28px; line-height:1.35; color:var(--navy); }
+  .hero h1 span{ color:var(--baby-blue-deep); }
+  .hero p{ margin-top:8px; font-size:14px; color:var(--gray); }
+
+  /* ---------- Section shared ---------- */
+  .section-title{
+    font-family:'Jua', sans-serif;
+    font-size:16.5px;
+    margin-bottom:12px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .section-title .num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:24px; height:24px;
+    background:var(--baby-blue);
+    color:var(--white);
+    border-radius:50%;
+    font-size:13px;
+    font-family:'Jua', sans-serif;
+    flex-shrink:0;
+  }
+  .section-title .sub{ font-size:11.5px; color:var(--gray); font-weight:normal; margin-left:4px; }
+
+  /* ---------- AI Closet Chat ---------- */
+  .closet-panel{
+    background:var(--white);
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow-sm);
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .chat-log{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    max-height:220px;
+    overflow-y:auto;
+    padding-right:2px;
+  }
+  .chat-log:empty{ display:none; }
+  .msg{
+    max-width:85%;
+    padding:9px 13px;
+    border-radius:16px;
+    font-size:13px;
+    line-height:1.45;
+  }
+  .msg.user{
+    align-self:flex-end;
+    background:var(--baby-blue);
+    color:var(--white);
+    border-bottom-right-radius:4px;
+  }
+  .msg.ai{
+    align-self:flex-start;
+    background:var(--baby-blue-light);
+    color:var(--navy);
+    border-bottom-left-radius:4px;
+  }
+  .msg.ai.error{ background:#FFE3E3; color:#B23A3A; }
+
+  .chat-input-row{
+    display:flex;
+    gap:8px;
+  }
+  .chat-input-row input{
+    flex:1;
+    border:2px solid var(--baby-blue-light);
+    border-radius:999px;
+    padding:11px 16px;
+    font-family:'Gowun Dodum', sans-serif;
+    font-size:13.5px;
+    outline:none;
+    color:var(--navy);
+    background:var(--cream);
+  }
+  .chat-input-row input:focus{ border-color:var(--baby-blue-deep); }
+  .chat-input-row button{
+    background:var(--baby-blue-deep);
+    color:var(--white);
+    border:none;
+    border-radius:999px;
+    width:44px; height:44px;
+    flex-shrink:0;
+    font-size:17px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition: background .15s ease, transform .15s ease;
+  }
+  .chat-input-row button:hover{ background:#4C9DD0; }
+  .chat-input-row button:disabled{ background:var(--gray); cursor:default; }
+  .chat-input-row button.loading .send-icon{ animation: spin .6s linear infinite; }
+  @keyframes spin{ 100%{ transform:rotate(360deg); } }
+
+  .chat-hint{ font-size:11.5px; color:var(--gray); }
+
+  /* ---------- Closet chips ---------- */
+  .closet-box{
+    border-top:1px dashed var(--baby-blue-light);
+    padding-top:12px;
+    display:none;
+    flex-direction:column;
+    gap:8px;
+  }
+  .closet-box.show{ display:flex; }
+  .closet-cat{ display:flex; flex-direction:column; gap:6px; }
+  .closet-cat-label{ font-size:11px; color:var(--baby-blue-deep); font-family:'Jua', sans-serif; }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .chip{
+    background:var(--baby-blue-light);
+    color:var(--navy);
+    font-size:12px;
+    padding:6px 10px;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .chip button{
+    background:none; border:none; color:var(--gray);
+    font-size:12px; cursor:pointer; line-height:1;
+    padding:0;
+  }
+  .chip button:hover{ color:#B23A3A; }
+  .closet-empty-note{ font-size:11.5px; color:var(--gray); }
+
+  /* ---------- Weather cards ---------- */
+  .weather-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; }
+  .weather-card{
+    background:var(--white);
+    border:2px solid transparent;
+    border-radius:var(--radius-sm);
+    box-shadow:var(--shadow-sm);
+    padding:14px 4px 10px;
+    text-align:center;
+    cursor:pointer;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .weather-card:hover{ transform:translateY(-3px); }
+  .weather-card .emoji{ font-size:26px; display:block; margin-bottom:6px; }
+  .weather-card .label{ font-size:12.5px; color:var(--navy); }
+  .weather-card.selected{
+    border-color:var(--baby-blue-deep);
+    background:var(--baby-blue-light);
+    box-shadow:var(--shadow);
+    transform:translateY(-3px) scale(1.03);
+  }
+
+  /* ---------- Style cards ---------- */
+  .style-list{ display:flex; flex-direction:column; gap:10px; }
+  .style-card{
+    background:var(--white);
+    border:2px solid transparent;
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow-sm);
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .style-card:hover{ transform:translateY(-2px); }
+  .style-card .icon{
+    font-size:26px;
+    width:44px; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--baby-blue-light);
+    border-radius:14px;
+    flex-shrink:0;
+  }
+  .style-card .txt strong{ font-size:14.5px; display:block; }
+  .style-card .txt span{ font-size:12px; color:var(--gray); }
+  .style-card.selected{
+    border-color:var(--baby-blue-deep);
+    background:linear-gradient(90deg, var(--baby-blue-light), var(--white));
+    box-shadow:var(--shadow);
+  }
+  .style-card.gwajam .icon{ background:var(--baby-blue); color:var(--white); }
+
+  .gwajam-banner{
+    display:none;
+    align-items:center;
+    gap:10px;
+    background:var(--baby-blue);
+    color:var(--white);
+    border-radius:var(--radius-sm);
+    padding:12px 14px;
+    font-size:13px;
+    font-family:'Jua', sans-serif;
+    box-shadow:var(--shadow);
+    animation: pop-in .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .gwajam-banner.show{ display:flex; }
+  .gwajam-banner .b-emoji{ font-size:24px; animation: wiggle 1.1s ease-in-out infinite; }
+  @keyframes pop-in{ 0%{ transform:scale(.7); opacity:0; } 100%{ transform:scale(1); opacity:1; } }
+  @keyframes wiggle{ 0%,100%{ transform:rotate(-6deg); } 50%{ transform:rotate(6deg); } }
+
+  /* ---------- Result ---------- */
+  .result-section{ display:flex; flex-direction:column; gap:14px; }
+  .result-card{
+    background:var(--white);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow);
+    padding:20px;
+    position:relative;
+    overflow:hidden;
+  }
+  .result-card::before{
+    content:"";
+    position:absolute;
+    top:-40px; right:-40px;
+    width:120px; height:120px;
+    background:var(--baby-blue-light);
+    border-radius:50%;
+    z-index:0;
+  }
+  .result-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:relative;
+    z-index:1;
+    margin-bottom:14px;
+  }
+  .result-header h2{ font-family:'Jua', sans-serif; font-size:17px; }
+  .result-header .tag{
+    font-size:11.5px;
+    background:var(--baby-blue-light);
+    color:var(--baby-blue-deep);
+    padding:4px 10px;
+    border-radius:999px;
+  }
+  .source-note{
+    font-size:11px;
+    color:var(--baby-blue-deep);
+    background:var(--baby-blue-light);
+    padding:6px 10px;
+    border-radius:10px;
+    margin-bottom:10px;
+    position:relative; z-index:1;
+  }
+
+  .item-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; position:relative; z-index:1; }
+  .item-grid .item-card.wide{ grid-column:1 / -1; }
+  .item-card{
+    background:var(--cream);
+    border-radius:var(--radius-sm);
+    padding:12px 10px;
+    text-align:center;
+    transition: transform .15s ease;
+  }
+  .item-card .item-label{ font-size:10.5px; color:var(--gray); margin-bottom:2px; }
+  .item-card .item-value{ font-size:12.5px; font-weight:600; }
+  .item-card.settle{ animation: settle-pop .3s ease; }
+  @keyframes settle-pop{ 0%{ transform:scale(1.12); } 100%{ transform:scale(1); } }
+  .item-card.forced{ background:var(--baby-blue); color:var(--white); }
+  .item-card.forced .item-label{ color:rgba(255,255,255,.85); }
+  .item-card.owned{ border:2px solid var(--baby-blue-deep); }
+
+  .comment-box{
+    margin-top:14px;
+    background:var(--yellow);
+    border-radius:var(--radius-sm);
+    padding:12px 14px;
+    font-size:13px;
+    display:flex;
+    gap:8px;
+    align-items:flex-start;
+    position:relative;
+    z-index:1;
+  }
+
+  .shuffle-btn{
+    width:100%;
+    background:var(--baby-blue-deep);
+    color:var(--white);
+    border:none;
+    border-radius:999px;
+    padding:15px;
+    font-family:'Jua', sans-serif;
+    font-size:15px;
+    cursor:pointer;
+    box-shadow:var(--shadow);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition: transform .15s ease, background .15s ease;
+  }
+  .shuffle-btn:hover{ background:#4C9DD0; transform:translateY(-2px); }
+  .shuffle-btn:active{ transform:translateY(0); }
+  .shuffle-btn.spinning .dice{ animation: spin .5s linear infinite; }
+
+  .empty-hint{
+    text-align:center;
+    color:var(--gray);
+    font-size:13px;
+    padding:26px 10px;
+    background:var(--white);
+    border-radius:var(--radius-md);
+    border:2px dashed var(--baby-blue);
+  }
+
+  footer{ text-align:center; font-size:11.5px; color:var(--gray); padding-top:6px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="hero">
+    <span class="badge">Kyungwoon Univ. Go-To Outfit Helper · v2.0</span>
+    <h1>What to Wear Today? <span>AI OOTD</span> 🐣</h1>
+    <p>Tell the AI what's in your closet — it'll only recommend clothes you actually own!</p>
+  </div>
+
+  <div>
+    <div class="section-title"><span class="num">1</span> Tell the AI your closet <span class="sub">(optional, chat style)</span></div>
+    <div class="closet-panel">
+      <div class="chat-log" id="chatLog"></div>
+      <div class="chat-input-row">
+        <input id="chatInput" type="text" placeholder="e.g. I have a black hoodie, light-wash jeans, and our department jacket" />
+        <button id="chatSend"><span class="send-icon">➤</span></button>
+      </div>
+      <div class="chat-hint">Just describe your clothes casually, like texting a friend — the AI will sort them into your digital closet.</div>
+
+      <div class="closet-box" id="closetBox">
+        <!-- category chip groups injected here -->
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-title"><span class="num">2</span> How's the weather today?</div>
+    <div class="weather-grid" id="weatherGrid"></div>
+  </div>
+
+  <div>
+    <div class="section-title"><span class="num">3</span> Pick today's vibe</div>
+    <div class="style-list" id="styleList"></div>
+  </div>
+
+  <div id="gwajamBanner" class="gwajam-banner">
+    <span class="b-emoji">🧥</span>
+    <span>🚨 Unstoppable Varsity Jacket Mode activated! You've been summoned into the baby-blue varsity jacket (no refusals accepted)</span>
+  </div>
+
+  <div class="result-section">
+    <div id="emptyHint" class="empty-hint">
+      Pick a weather and a vibe<br>and your custom outfit will pop up ✨
+    </div>
+
+    <div id="resultCard" class="result-card" style="display:none;">
+      <div class="result-header">
+        <h2 id="resultTitle">Today's Recommended Outfit</h2>
+        <span class="tag" id="resultTag">-</span>
+      </div>
+      <div class="source-note" id="sourceNote"></div>
+      <div class="item-grid" id="itemGrid"></div>
+      <div class="comment-box">
+        <span>💬</span>
+        <span id="commentText">Pick an outfit!</span>
+      </div>
+    </div>
+
+    <button class="shuffle-btn" id="shuffleBtn" style="display:none;">
+      <span class="dice">🎲</span> Random Shuffle
+    </button>
+  </div>
+
+  <footer>3 seconds every morning, no more outfit stress 💙</footer>
+</div>
+
+<script>
+/* ==================================================================
+   DATA
+   ================================================================== */
+const weathers = [
+  { key:'hot',   label:'Hot',   emoji:'☀️' },
+  { key:'mild',  label:'Mild',  emoji:'🌤️' },
+  { key:'cool',  label:'Cool',  emoji:'🍂' },
+  { key:'cold',  label:'Cold',  emoji:'❄️' },
+];
+
+const styles = [
+  { key:'comfy',    icon:'🛋️', title:'Super Comfy', desc:'Effortless sweats mode' },
+  { key:'polished', icon:'💼', title:'A Bit Dressed Up', desc:'Clean presentation-ready look' },
+  { key:'gwajam',   icon:'🧥', title:'Unstoppable Varsity Jacket', desc:'Kyungwoon Univ. varsity jacket cheat code', special:true },
+];
+
+const itemMeta = [
+  { key:'outer',     label:'Outerwear' },
+  { key:'top',       label:'Top' },
+  { key:'bottom',    label:'Bottom' },
+  { key:'shoes',     label:'Shoes' },
+  { key:'accessory', label:'Extras' },
+];
+
+// Fallback pools used whenever the user's own closet has nothing in that
+// category yet (or hasn't chatted with the AI at all).
+const fallbackData = {
+  hot: {
+    outer:['🚫 No outerwear, stay cool'],
+    top:['🎽 Loose-fit tank top','👕 Oversized short-sleeve tee','👚 Cool linen shirt'],
+    bottom:['🩳 Cotton shorts','👖 Wide-leg shorts'],
+    shoes:['🩴 Slides','👟 Canvas slip-ons'],
+    accessory:['🧢 Ball cap','🕶️ Sunglasses'],
+  },
+  mild: {
+    outer:['🧥 Light cardigan','👚 Shirt jacket'],
+    top:['👕 Short-sleeve tee','🎽 Crop tank (layer underneath)'],
+    bottom:['👖 Wide-leg denim','🩳 Cargo shorts'],
+    shoes:['👟 Sneakers','🥿 Loafers'],
+    accessory:['🎧 AirPods','📓 Notebook'],
+  },
+  cool: {
+    outer:['🧥 Hooded zip-up','🧶 Knit cardigan'],
+    top:['👕 Sweatshirt','👚 Fleece-lined hoodie'],
+    bottom:['👖 Jogger pants','👖 Straight-leg denim'],
+    shoes:['👟 Sneakers','🥾 Chelsea boots'],
+    accessory:['🧣 Scarf','☕ Tumbler'],
+  },
+  cold: {
+    outer:['🧥 Padded puffer','🧥 Long puffer coat'],
+    top:['👕 Fleece-lined sweatshirt','🧶 Knit sweater'],
+    bottom:['👖 Fleece-lined jogger pants','👖 Thick sweatpants'],
+    shoes:['👢 Ugg boots','👟 Winter sneakers'],
+    accessory:['🧤 Gloves','🥶 Hand warmers'],
+  },
+};
+
+const gwajamFallback = { outer:['🧥 Baby-blue varsity jacket'] };
+
+const commentsGeneral = [
+  "This outfit could make you look like the star of the lecture hall, even if you're late to first period!",
+  'A polished combo that gives off class-president energy!',
+  "Sharp enough to own both the meeting room and the campus today!",
+  "Today's you: the ultimate go-to college look!",
+  'A style score of 100 — even the professor will notice!',
+  '+10 campus charisma with this outfit!',
+];
+const commentsGwajam = [
+  "🚨 Unstoppable varsity-jacket power activated! Everyone on campus will spot you today!",
+  "Wearing the varsity jacket is the golden rule — you're basically the school's ambassador wherever you go!",
+  "The moment you put on that jacket, you've been appointed department image rep 🧥",
+];
+const commentsOwned = [
+  "Great news — this whole look is already sitting in your closet, ready to go!",
+  "100% stuff you actually own — zero shopping required for this one!",
+  "Straight from your own closet to campus-ready in seconds!",
+];
+
+/* ==================================================================
+   STATE
+   ================================================================== */
+const state = { weather:null, style:null };
+
+// personalCloset[category] = [{ item: "black hoodie", emoji: "👕" }, ...]
+const personalCloset = { outer:[], top:[], bottom:[], shoes:[], accessory:[] };
+
+/* ==================================================================
+   DOM REFS
+   ================================================================== */
+const weatherGrid = document.getElementById('weatherGrid');
+const styleList = document.getElementById('styleList');
+const gwajamBanner = document.getElementById('gwajamBanner');
+const emptyHint = document.getElementById('emptyHint');
+const resultCard = document.getElementById('resultCard');
+const resultTag = document.getElementById('resultTag');
+const sourceNote = document.getElementById('sourceNote');
+const itemGrid = document.getElementById('itemGrid');
+const commentText = document.getElementById('commentText');
+const shuffleBtn = document.getElementById('shuffleBtn');
+const chatLog = document.getElementById('chatLog');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+const closetBox = document.getElementById('closetBox');
+
+function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+/* ==================================================================
+   AI CLOSET CHAT
+   ================================================================== */
+function addChatMsg(text, who, isError){
+  const div = document.createElement('div');
+  div.className = 'msg ' + who + (isError ? ' error' : '');
+  div.textContent = text;
+  chatLog.appendChild(div);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+async function extractClothesFromText(text){
+  const systemPrompt = `You extract clothing items from a casual message written by a Korean college student.
+Return ONLY a valid JSON array, nothing else (no markdown fences, no explanation).
+Each element: {"category":"outer|top|bottom|shoes|accessory","item":"short English name of the item","emoji":"one matching emoji"}.
+Categories: outer (jackets/coats/cardigans, e.g. a university/department varsity jacket), top (shirts/tees/sweaters), bottom (pants/skirts/shorts), shoes, accessory (bags, caps, glasses, etc).
+If the message contains no clothing items, return [].`;
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [ { role: "user", content: text } ]
+    })
+  });
+
+  const data = await response.json();
+  const raw = (data.content || [])
+    .map(block => block.type === 'text' ? block.text : '')
+    .join('')
+    .trim();
+
+  const cleaned = raw.replace(/```json|```/g, '').trim();
+  return JSON.parse(cleaned);
+}
+
+async function handleChatSend(){
+  const text = chatInput.value.trim();
+  if(!text) return;
+
+  addChatMsg(text, 'user');
+  chatInput.value = '';
+  chatInput.disabled = true;
+  chatSend.disabled = true;
+  chatSend.classList.add('loading');
+
+  try{
+    const items = await extractClothesFromText(text);
+
+    if(!Array.isArray(items) || items.length === 0){
+      addChatMsg("Hmm, I couldn't spot a specific clothing item in that — try naming a piece directly, like \"gray hoodie\" or \"white sneakers.\"", 'ai');
+    } else {
+      items.forEach(it=>{
+        if(!personalCloset[it.category]) return;
+        personalCloset[it.category].push({ item: it.item, emoji: it.emoji || '👕' });
+      });
+      const names = items.map(it => `${it.emoji || ''} ${it.item}`).join(', ');
+      addChatMsg(`Got it — added to your digital closet: ${names}. I'll only recommend outfits from what you actually own!`, 'ai');
+      renderCloset();
+      if(state.weather && state.style) tryRender(true);
+    }
+  } catch(err){
+    addChatMsg("Sorry, something went wrong reading that — mind trying again?", 'ai', true);
+  } finally {
+    chatInput.disabled = false;
+    chatSend.disabled = false;
+    chatSend.classList.remove('loading');
+    chatInput.focus();
+  }
+}
+
+chatSend.addEventListener('click', handleChatSend);
+chatInput.addEventListener('keydown', e=>{ if(e.key === 'Enter') handleChatSend(); });
+
+function renderCloset(){
+  const hasAny = itemMeta.some(m => personalCloset[m.key].length > 0);
+  closetBox.classList.toggle('show', hasAny);
+  closetBox.innerHTML = '';
+  if(!hasAny) return;
+
+  itemMeta.forEach(meta=>{
+    const list = personalCloset[meta.key];
+    if(list.length === 0) return;
+    const catDiv = document.createElement('div');
+    catDiv.className = 'closet-cat';
+    catDiv.innerHTML = `<div class="closet-cat-label">${meta.label}</div>`;
+    const row = document.createElement('div');
+    row.className = 'chip-row';
+    list.forEach((it, idx)=>{
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.innerHTML = `${it.emoji} ${it.item} <button data-cat="${meta.key}" data-idx="${idx}">✕</button>`;
+      row.appendChild(chip);
+    });
+    catDiv.appendChild(row);
+    closetBox.appendChild(catDiv);
+  });
+
+  closetBox.querySelectorAll('button[data-cat]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const cat = btn.dataset.cat;
+      const idx = Number(btn.dataset.idx);
+      personalCloset[cat].splice(idx, 1);
+      renderCloset();
+      if(state.weather && state.style) tryRender(true);
+    });
+  });
+}
+
+/* ==================================================================
+   WEATHER / STYLE PICKERS
+   ================================================================== */
+weathers.forEach(w=>{
+  const card = document.createElement('div');
+  card.className = 'weather-card';
+  card.dataset.key = w.key;
+  card.innerHTML = `<span class="emoji">${w.emoji}</span><span class="label">${w.label}</span>`;
+  card.addEventListener('click', ()=>{
+    state.weather = w.key;
+    document.querySelectorAll('.weather-card').forEach(c=>c.classList.remove('selected'));
+    card.classList.add('selected');
+    tryRender(true);
+  });
+  weatherGrid.appendChild(card);
+});
+
+styles.forEach(s=>{
+  const card = document.createElement('div');
+  card.className = 'style-card' + (s.special ? ' gwajam' : '');
+  card.dataset.key = s.key;
+  card.innerHTML = `
+    <div class="icon">${s.icon}</div>
+    <div class="txt"><strong>${s.title}</strong><span>${s.desc}</span></div>
+  `;
+  card.addEventListener('click', ()=>{
+    state.style = s.key;
+    document.querySelectorAll('.style-card').forEach(c=>c.classList.remove('selected'));
+    card.classList.add('selected');
+    gwajamBanner.classList.toggle('show', s.key === 'gwajam');
+    tryRender(true);
+  });
+  styleList.appendChild(card);
+});
+
+/* ==================================================================
+   POOL RESOLUTION — prefer the user's real closet, fall back otherwise
+   ================================================================== */
+function resolvePool(category){
+  const owned = personalCloset[category];
+  if(owned && owned.length > 0){
+    return { list: owned.map(it => `${it.emoji} ${it.item}`), owned:true };
+  }
+  const fb = state.style === 'gwajam' && category === 'outer'
+    ? gwajamFallback.outer
+    : fallbackData[state.weather][category];
+  return { list: fb, owned:false };
+}
+
+function usingAnyOwnedItems(){
+  return itemMeta.some(m => personalCloset[m.key].length > 0);
+}
+
+/* ==================================================================
+   RENDER RESULT
+   ================================================================== */
+function tryRender(animate){
+  if(!state.weather || !state.style) return;
+  emptyHint.style.display = 'none';
+  resultCard.style.display = 'block';
+  shuffleBtn.style.display = 'flex';
+
+  const weatherInfo = weathers.find(w=>w.key===state.weather);
+  const styleInfo = styles.find(s=>s.key===state.style);
+  resultTag.textContent = `${weatherInfo.emoji} ${weatherInfo.label} · ${styleInfo.title}`;
+
+  sourceNote.textContent = usingAnyOwnedItems()
+    ? "🧠 Personalized from your digital closet — mixed with a few general picks where you haven't added anything yet."
+    : "💡 General recommendation — chat with the AI above and tell it your clothes for a fully personalized outfit.";
+
+  buildItemGrid(animate);
+  setComment();
+}
+
+function buildItemGrid(animate){
+  itemGrid.innerHTML = '';
+
+  itemMeta.forEach(meta=>{
+    const isForcedOuter = (state.style === 'gwajam' && meta.key === 'outer');
+    const { list, owned } = resolvePool(meta.key);
+    const finalValue = pickRandom(list);
+
+    const el = document.createElement('div');
+    el.className = 'item-card'
+      + (isForcedOuter ? ' forced' : '')
+      + (owned && !isForcedOuter ? ' owned' : '');
+    el.dataset.key = meta.key;
+    el.innerHTML = `
+      <span class="item-label">${meta.label}${isForcedOuter ? ' · Forced Summon 🚨' : (owned ? ' · Yours 👍' : '')}</span>
+      <span class="item-value">${finalValue}</span>
+    `;
+    itemGrid.appendChild(el);
+  });
+
+  const accEl = itemGrid.querySelector('[data-key="accessory"]');
+  if(accEl) accEl.classList.add('wide');
+
+  if(animate){
+    itemGrid.querySelectorAll('.item-card').forEach(el=>{
+      el.classList.add('settle');
+      setTimeout(()=>el.classList.remove('settle'), 300);
+    });
+  }
+}
+
+function setComment(){
+  let pool = commentsGeneral;
+  if(state.style === 'gwajam') pool = commentsGeneral.concat(commentsGwajam);
+  if(usingAnyOwnedItems()) pool = pool.concat(commentsOwned);
+  commentText.textContent = pickRandom(pool);
+}
+
+/* ==================================================================
+   SHUFFLE
+   ================================================================== */
+shuffleBtn.addEventListener('click', ()=>{
+  if(!state.weather || !state.style) return;
+  shuffleBtn.classList.add('spinning');
+  shuffleBtn.disabled = true;
+
+  const cards = itemGrid.querySelectorAll('.item-card');
+  const duration = 1000;
+  const interval = 70;
+
+  const resolved = {};
+  itemMeta.forEach(meta=>{ resolved[meta.key] = resolvePool(meta.key); });
+
+  cards.forEach(card=>{
+    const key = card.dataset.key;
+    const valueEl = card.querySelector('.item-value');
+    const isForcedOuter = (state.style === 'gwajam' && key === 'outer');
+    const { list } = resolved[key];
+
+    if(isForcedOuter){
+      card.style.transform = 'scale(1.05) rotate(-2deg)';
+      setTimeout(()=>{ card.style.transform=''; }, duration);
+      return;
+    }
+
+    const finalValue = pickRandom(list);
+    const t = setInterval(()=>{ valueEl.textContent = pickRandom(list); }, interval);
+
+    setTimeout(()=>{
+      clearInterval(t);
+      valueEl.textContent = finalValue;
+      card.classList.add('settle');
+      setTimeout(()=>card.classList.remove('settle'), 300);
+    }, duration);
+  });
+
+  setTimeout(()=>{
+    shuffleBtn.classList.remove('spinning');
+    shuffleBtn.disabled = false;
+    setComment();
+  }, duration + 60);
+});
+</script>
+</body>
+</html>
