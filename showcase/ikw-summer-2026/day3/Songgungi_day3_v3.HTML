@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Emoji Catch!</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #6c5ce7, #00cec9);
+      display: grid;
+      place-items: center;
+      color: white;
+    }
+
+    .game {
+      width: min(850px, 92vw);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 52px;
+    }
+
+    .description {
+      margin-bottom: 18px;
+      font-size: 18px;
+    }
+
+    .info {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      min-width: 120px;
+      padding: 10px 18px;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 14px;
+      font-weight: bold;
+    }
+
+    #field {
+      position: relative;
+      height: 480px;
+      background: rgba(17, 24, 39, 0.9);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    #emoji {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 64px;
+      cursor: pointer;
+      user-select: none;
+      transition: left 0.12s, top 0.12s;
+    }
+
+    #emoji:active {
+      transform: translate(-50%, -50%) scale(0.8);
+    }
+
+    button {
+      margin-top: 16px;
+      padding: 13px 24px;
+      border: none;
+      border-radius: 999px;
+      font-size: 17px;
+      font-weight: bold;
+      background: #ffeaa7;
+      color: #2d3436;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #fdcb6e;
+    }
+
+    #message {
+      margin-top: 12px;
+      min-height: 26px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .pop {
+      position: absolute;
+      font-size: 26px;
+      pointer-events: none;
+      animation: pop 0.6s forwards;
+    }
+
+    @keyframes pop {
+      from {
+        opacity: 1;
+        transform: scale(0.5);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateY(-100px) scale(1.7);
+      }
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 38px;
+      }
+
+      #field {
+        height: 420px;
+      }
+
+      #emoji {
+        font-size: 56px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="game">
+
+    <h1>🎯 Emoji Catch!</h1>
+
+    <p class="description">
+      Catch as many moving emojis as you can in 30 seconds!
+    </p>
+
+    <div class="info">
+
+      <div class="card">
+        Score
+        <br>
+        <span id="score">0</span>
+      </div>
+
+      <div class="card">
+        Time
+        <br>
+        <span id="time">30</span> seconds
+      </div>
+
+      <div class="card">
+        Best Score
+        <br>
+        <span id="best">0</span>
+      </div>
+
+    </div>
+
+    <div id="field">
+      <div id="emoji">😎</div>
+    </div>
+
+    <button id="startButton">
+      Start Game
+    </button>
+
+    <div id="message">
+      Press the button to start!
+    </div>
+
+  </main>
+
+  <script>
+    const emoji = document.getElementById("emoji");
+    const field = document.getElementById("field");
+
+    const scoreText = document.getElementById("score");
+    const timeText = document.getElementById("time");
+    const bestText = document.getElementById("best");
+
+    const startButton = document.getElementById("startButton");
+    const message = document.getElementById("message");
+
+    const emojiList = [
+      "😎",
+      "😂",
+      "🤖",
+      "👻",
+      "🐸",
+      "🦄",
+      "🍕",
+      "🚀",
+      "🔥",
+      "🐱"
+    ];
+
+    let score = 0;
+    let time = 30;
+    let gameRunning = false;
+    let timer;
+
+    const savedBestScore =
+      localStorage.getItem("bestScore") || 0;
+
+    bestText.textContent = savedBestScore;
+
+    function moveEmoji() {
+      const padding = 60;
+
+      const maxX =
+        field.clientWidth - padding;
+
+      const maxY =
+        field.clientHeight - padding;
+
+      const randomX =
+        Math.max(
+          padding,
+          Math.random() * maxX
+        );
+
+      const randomY =
+        Math.max(
+          padding,
+          Math.random() * maxY
+        );
+
+      emoji.style.left = randomX + "px";
+      emoji.style.top = randomY + "px";
+
+      const randomEmoji =
+        emojiList[
+          Math.floor(
+            Math.random() * emojiList.length
+          )
+        ];
+
+      emoji.textContent = randomEmoji;
+    }
+
+    function makeEffect(x, y) {
+      const effect =
+        document.createElement("div");
+
+      effect.className = "pop";
+      effect.textContent = "✨";
+
+      effect.style.left = x + "px";
+      effect.style.top = y + "px";
+
+      field.appendChild(effect);
+
+      setTimeout(function () {
+        effect.remove();
+      }, 600);
+    }
+
+    emoji.addEventListener("click", function (event) {
+
+      if (gameRunning === false) {
+        return;
+      }
+
+      score++;
+
+      scoreText.textContent = score;
+
+      const effectX =
+        emoji.offsetLeft + event.offsetX;
+
+      const effectY =
+        emoji.offsetTop + event.offsetY;
+
+      makeEffect(effectX, effectY);
+
+      if (score % 10 === 0) {
+        message.textContent =
+          "🔥 Amazing speed!";
+      } else {
+        message.textContent =
+          "Nice catch!";
+      }
+
+      moveEmoji();
+    });
+
+    startButton.addEventListener("click", function () {
+
+      clearInterval(timer);
+
+      score = 0;
+      time = 30;
+      gameRunning = true;
+
+      scoreText.textContent = score;
+      timeText.textContent = time;
+
+      message.textContent =
+        "Start! Catch the emojis!";
+
+      startButton.textContent =
+        "Restart Game";
+
+      moveEmoji();
+
+      timer = setInterval(function () {
+
+        time--;
+
+        timeText.textContent = time;
+
+        if (time <= 0) {
+
+          clearInterval(timer);
+
+          gameRunning = false;
+
+          const bestScore =
+            Number(
+              localStorage.getItem("bestScore") || 0
+            );
+
+          if (score > bestScore) {
+
+            localStorage.setItem(
+              "bestScore",
+              score
+            );
+
+            bestText.textContent = score;
+
+            message.textContent =
+              "🏆 New High Score! " +
+              score +
+              " points!";
+
+          } else {
+
+            message.textContent =
+              "Game Over! Your score is " +
+              score +
+              " points.";
+          }
+        }
+      }, 1000);
+    });
+  </script>
+
+</body>
+</html>
